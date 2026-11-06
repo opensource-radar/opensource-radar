@@ -153,7 +153,7 @@ function Footer({
       </div>
 
       <div className="footer-bottom">
-        <p>© 2026 OpenSource Radar · Free and open source</p>
+        <p>© {new Date().getFullYear()} OpenSource Radar · Free and open source</p>
         <div className="footer-bottom-right">
           <p>Issue data from GitHub · Not affiliated with GitHub</p>
           <a
