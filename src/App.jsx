@@ -517,10 +517,14 @@ function App() {
   }, [path, search, account.checked, signedIn, view, route, account.signInAvailable, retryTick]);
 
   const scrollToResults = () =>
-    document
-      .querySelector(".issues-section")
-      ?.scrollIntoView({ behavior: "smooth", block: "start" });
-
+  document
+    .querySelector(".issues-section")
+    ?.scrollIntoView({
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "auto"
+        : "smooth",
+      block: "start",
+    });
   const showAbout = () => {
     if (route === "about") return;
     window.history.pushState(null, "", ABOUT_PATH);
@@ -584,8 +588,12 @@ function App() {
     setFiltersOpen(false);
     setView("search");
     setSearch({ filters: DEFAULT_FILTERS, text: "", page: 1 });
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+    window.scrollTo({
+    top: 0,
+    behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ? "auto"
+    : "smooth",
+});  };
 
   const goToPage = (page) => {
     setSearch((current) => ({ ...current, page }));
