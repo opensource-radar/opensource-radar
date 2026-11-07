@@ -1,4 +1,6 @@
 import { useEffect } from "react";
+import { callDevAgents } from "../client";
+import Helpful from "../Helpful";
 import { fileUrl } from "../links";
 import { useAction } from "../useAction";
 import IssueCheck from "./IssueCheck";
@@ -24,7 +26,10 @@ function Understand({ issue, onShare }) {
       <IssueCheck issue={issue} />
 
       {!data && (
-        <button type="button" onClick={() => run()} disabled={loading}>
+        <button type="button" onClick={() => {
+            callDevAgents("event", { name: "explain" });
+            run();
+          }} disabled={loading}>
           {loading ? "Reading the project…" : "Explain this issue"}
         </button>
       )}
@@ -86,6 +91,8 @@ function Understand({ issue, onShare }) {
               </ul>
             </>
           )}
+
+          <Helpful action="explain" />
         </>
       )}
 

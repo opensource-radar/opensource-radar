@@ -1,6 +1,8 @@
+import { explainChecks, explainReview } from "./afterPr.js";
 import { checkChange } from "./checkChange.js";
 import { explain } from "./explain.js";
 import { explainError } from "./explainError.js";
+import { event, feedback } from "./feedback.js";
 import { hint } from "./hint.js";
 import { issueCheck } from "./issueCheck.js";
 import { prText } from "./prText.js";
@@ -16,4 +18,8 @@ export const actions = {
   "validate-key": { llm: false, handler: validateKey },
   "check-change": { llm: true, handler: checkChange },
   "pr-text": { llm: true, handler: prText },
+  "explain-checks": { llm: true, handler: explainChecks },
+  "explain-review": { llm: true, handler: explainReview },
+  feedback: { llm: false, handler: feedback },
+  event: { llm: false, handler: event },
 };

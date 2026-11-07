@@ -1,4 +1,5 @@
 import { useId, useState } from "react";
+import Helpful from "../Helpful";
 import { useAction } from "../useAction";
 
 function Check({ issue, shared, onShare }) {
@@ -71,6 +72,7 @@ function Check({ issue, shared, onShare }) {
           <p className="devagents-muted">
             This check can miss things. Run the project's tests if you can.
           </p>
+          <Helpful action="check-change" />
         </>
       )}
       {failure}

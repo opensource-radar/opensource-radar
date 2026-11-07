@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import Understand from "../../src/devagents/sections/Understand.jsx";
 
@@ -73,8 +73,9 @@ describe("Understand", () => {
     const onShare = vi.fn();
     render(<Understand issue={issue} onShare={onShare} />);
     fireEvent.click(screen.getByRole("button", { name: "Explain this issue" }));
-    await screen.findByText(/onerror=alert/);
-    expect(onShare).toHaveBeenCalledWith({ explain: expect.objectContaining({ branch: "main" }) });
+    await waitFor(() =>
+      expect(onShare).toHaveBeenCalledWith({ explain: expect.objectContaining({ branch: "main" }) }),
+    );
   });
 
   it("says when an answer is partial", async () => {

@@ -1,3 +1,4 @@
+import { callDevAgents } from "../client";
 import { codespacesUrl, editorUrl } from "../links";
 import ErrorHelp from "./ErrorHelp";
 
@@ -18,6 +19,7 @@ function Change({ issue, shared }) {
                 href={editorUrl(repo, explain.branch, file.path)}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => callDevAgents("event", { name: "editor_opened" })}
               >
                 Edit {file.path} in the browser ↗
               </a>

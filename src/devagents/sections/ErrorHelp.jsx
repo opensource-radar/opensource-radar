@@ -1,4 +1,5 @@
 import { useId, useState } from "react";
+import Helpful from "../Helpful";
 import { useAction } from "../useAction";
 
 function ErrorHelp({ issue }) {
@@ -34,6 +35,7 @@ function ErrorHelp({ issue }) {
               <li key={step}>{step}</li>
             ))}
           </ol>
+          <Helpful action="explain-error" />
         </>
       )}
       {failure}

@@ -1,3 +1,4 @@
+import AfterPr from "./AfterPr";
 import Change from "./Change";
 import Check from "./Check";
 import Plan from "./Plan";
@@ -11,5 +12,5 @@ export const SECTIONS = [
   { id: "change", title: "Change", Component: Change },
   { id: "check", title: "Check", Component: Check },
   { id: "submit", title: "Submit", Component: Submit },
-  { id: "after", title: "After", Component: null },
+  { id: "after", title: "After", Component: AfterPr },
 ];

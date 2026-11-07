@@ -18,6 +18,13 @@ export function parseIssueUrl(url) {
   }
 }
 
+// Takes a pull request number or link. Returns a number, or null.
+export function parsePrNumber(text) {
+  const match = /^\s*#?(\d+)\s*$/.exec(text) ?? /\/pull\/(\d+)/.exec(text);
+  const number = match ? Number(match[1]) : 0;
+  return number > 0 ? number : null;
+}
+
 export const repoUrl = (repo) => `${GITHUB}/${repo}`;
 export const issueUrl = (repo, issue) => `${GITHUB}/${repo}/issues/${issue}`;
 export const codespacesUrl = (repo) => `https://codespaces.new/${repo}`;

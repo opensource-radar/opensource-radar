@@ -1,4 +1,5 @@
 import CopyButton from "../CopyButton";
+import Helpful from "../Helpful";
 import { useAction } from "../useAction";
 
 const BUTTONS = { 1: "Give me a hint", 2: "Show the next hint", 3: "Show the last hint" };
@@ -31,6 +32,7 @@ function HintLevel({ issue, level, children }) {
         </div>
       )}
       {failure}
+      {data && level === 1 && <Helpful action="hint" />}
       {data && children}
     </>
   );

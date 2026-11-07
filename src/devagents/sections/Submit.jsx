@@ -1,5 +1,7 @@
 import { useId, useState } from "react";
+import { callDevAgents } from "../client";
 import CopyButton from "../CopyButton";
+import Helpful from "../Helpful";
 import { prUrl } from "../links";
 import { useAction } from "../useAction";
 
@@ -59,13 +61,19 @@ function Submit({ issue, shared }) {
             </p>
           )}
           <p>
-            <a href={link.url} target="_blank" rel="noopener noreferrer">
+            <a
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => callDevAgents("event", { name: "pr_page_opened" })}
+            >
               Open the pull request page ↗
             </a>
           </p>
           <p className="devagents-muted">
             Nothing is sent until you click "Create pull request" on GitHub.
           </p>
+          <Helpful action="pr-text" />
         </>
       )}
       {failure}
