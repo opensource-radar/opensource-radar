@@ -58,19 +58,19 @@ function Panel({ issue, language, signedIn, onClose, sections = SECTIONS }) {
       {signedIn ? (
         <>
           {sections.map(({ id, title, Component }) => (
-          <section key={id} className="devagents-section">
-            <h3>{title}</h3>
-            <ErrorBoundary fallback={sectionFallback}>
-              {Component && (
-                <Component
-                  issue={issue}
-                  language={language}
-                  shared={shared}
-                  onShare={onShare}
-                />
-              )}
-            </ErrorBoundary>
-          </section>
+            <section key={id} className="devagents-section">
+              <h3>{title}</h3>
+              <ErrorBoundary fallback={sectionFallback}>
+                {Component && (
+                  <Component
+                    issue={issue}
+                    language={language}
+                    shared={shared}
+                    onShare={onShare}
+                  />
+                )}
+              </ErrorBoundary>
+            </section>
           ))}
           <div className="devagents-section">
             <ErrorBoundary fallback={null}>

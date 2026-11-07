@@ -5,7 +5,7 @@ import { readPanelState, writePanelState } from "./storage";
 
 // Runs one DevAgents action for a section of the panel. A failed call keeps
 // whatever is already on screen. `stateKey` restores the answer after a refresh.
-export function useAction(action, payload, stateKey) {
+export function useAction(action, payload, stateKey, { notFoundMessage } = {}) {
   const [state, setState] = useState(() => ({
     status: "idle",
     data: stateKey ? readPanelState(stateKey) : null,
@@ -61,6 +61,7 @@ export function useAction(action, payload, stateKey) {
           onRetry: () => run(state.extra),
           repo: payload.repo,
           issue: payload.issue,
+          notFoundMessage,
         })
       : state.ownKeyFailed
         ? createElement(

@@ -1,7 +1,9 @@
+import { checkChange } from "./checkChange.js";
 import { explain } from "./explain.js";
 import { explainError } from "./explainError.js";
 import { hint } from "./hint.js";
 import { issueCheck } from "./issueCheck.js";
+import { prText } from "./prText.js";
 import { validateKey } from "./validateKey.js";
 
 // Every DevAgents action. `llm: true` means it can call an LLM, so it needs
@@ -12,4 +14,6 @@ export const actions = {
   hint: { llm: true, handler: hint },
   "explain-error": { llm: true, handler: explainError },
   "validate-key": { llm: false, handler: validateKey },
+  "check-change": { llm: true, handler: checkChange },
+  "pr-text": { llm: true, handler: prText },
 };

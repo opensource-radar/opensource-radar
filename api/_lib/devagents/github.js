@@ -104,6 +104,17 @@ export const gh = {
     return data.check_runs ?? [];
   },
 
+  async readCheckAnnotations(token, repo, id) {
+    const notes = await orNull(
+      get(token, `/repos/${repo}/check-runs/${id}/annotations?per_page=10`),
+    );
+    return notes ?? [];
+  },
+
+  readRecentCommits(token, repo) {
+    return get(token, `/repos/${repo}/commits?per_page=10`);
+  },
+
   readPull(token, repo, n) {
     return get(token, `/repos/${repo}/pulls/${n}`);
   },

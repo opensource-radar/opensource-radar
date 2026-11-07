@@ -1,6 +1,6 @@
 import ManualSteps from "./ManualSteps";
 
-function Failure({ reason, onRetry, repo, issue }) {
+function Failure({ reason, onRetry, repo, issue, notFoundMessage }) {
   if (reason === "sign_in") {
     return (
       <p className="devagents-note" role="alert">
@@ -18,7 +18,8 @@ function Failure({ reason, onRetry, repo, issue }) {
   if (reason === "not_found") {
     return (
       <p className="devagents-note" role="alert">
-        We couldn't find this on GitHub. It may have been deleted, moved or made private.
+        {notFoundMessage ??
+          "We couldn't find this on GitHub. It may have been deleted, moved or made private."}
       </p>
     );
   }
