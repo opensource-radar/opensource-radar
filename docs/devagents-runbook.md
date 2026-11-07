@@ -49,3 +49,4 @@ Turn it off if:
 
 The helper never stores GitHub tokens or a user's own Groq key. Its database holds only cached answers, daily limits and plain counts.
 For preview deployments, add the same settings to Vercel's Preview environment.
+
