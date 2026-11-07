@@ -1,5 +1,6 @@
 import { vi } from "vitest";
 import { POST } from "../../api/devagents.js";
+import { resetRouterMemory } from "../../api/_lib/devagents/router.js";
 import { seal } from "../../api/_lib/session.js";
 
 const SESSION_SECRET = "test-session-secret-0123456789abcdef0123456789abcdef";
@@ -10,11 +11,18 @@ function fakeRedis(db, command) {
   switch (name) {
     case "GET":
       return db.get(key) ?? null;
+    case "MGET":
+      return [key, ...args].map((name) => db.get(name) ?? null);
     case "SET":
       db.set(key, args[0]);
       return "OK";
     case "INCR": {
       const next = (Number(db.get(key)) || 0) + 1;
+      db.set(key, String(next));
+      return next;
+    }
+    case "DECR": {
+      const next = (Number(db.get(key)) || 0) - 1;
       db.set(key, String(next));
       return next;
     }
@@ -40,6 +48,7 @@ function fakeRedis(db, command) {
 // A fake outside world. `github` maps "/repos/a/b/…" (without the query) to a
 // JSON value, or a Response/function. `llm` is a queue of model answers.
 export function fakeWorld({ github = {}, llm = [], redisDown = false, badKeys = [] } = {}) {
+  resetRouterMemory();
   const world = { db: new Map(), github, llm: [...llm], redisDown, calls: [] };
 
   const handler = async (rawUrl, init = {}) => {

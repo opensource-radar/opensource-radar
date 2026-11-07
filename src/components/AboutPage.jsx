@@ -51,7 +51,11 @@ const PRIVACY = [
   },
   {
     name: "We store very little.",
-    detail: "Just the issues you save, public project details, and short-lived counters that stop abuse. Problem reports become public issues on our GitHub repository.",
+    detail: "Just the issues you save, public project details, saved AI answers, and short-lived counters that stop abuse. Problem reports become public issues on our GitHub repository.",
+  },
+  {
+    name: "The help panel uses AI.",
+    detail: "If you use it, the issue, public project files and anything you paste are sent to third-party AI providers to get an answer. Their own terms apply, and some free plans may use this data, so please don't paste private details.",
   },
 ];
 

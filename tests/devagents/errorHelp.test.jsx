@@ -23,3 +23,13 @@ describe("ErrorHelp", () => {
     await screen.findByText("m");
   });
 });
+
+describe("ErrorHelp's next steps", () => {
+  it("warns to check AI-written commands before running them", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => Response.json({ data: { meaning: "m", nextSteps: ["run x"] } })));
+    render(<ErrorHelp issue={{ repo: "a/b", issue: 1 }} />);
+    fireEvent.change(screen.getByLabelText(/your error message/i), { target: { value: "boom" } });
+    fireEvent.click(screen.getByRole("button", { name: "Explain this error" }));
+    await screen.findByText(/check every command against the project's own docs/i);
+  });
+});

@@ -107,6 +107,13 @@ describe("Understand", () => {
     await waitFor(() => expect(eventSent()).toBe(true));
   });
 
+  it("warns to check AI-written commands before running them", async () => {
+    stubBackend(explainData);
+    render(<Understand issue={issue} onShare={() => {}} />);
+    fireEvent.click(screen.getByRole("button", { name: "Explain this issue" }));
+    await screen.findByText(/check every command against the project's own docs/i);
+  });
+
   it("says when an answer is partial", async () => {
     stubBackend({ ...explainData, partial: true, filesToRead: [] });
     render(<Understand issue={issue} onShare={() => {}} />);

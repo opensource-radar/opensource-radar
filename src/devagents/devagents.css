@@ -9,6 +9,11 @@
   color: var(--text);
 }
 
+.devagents-notice {
+  margin: 0;
+  padding: 12px 20px;
+}
+
 .devagents-section h3 {
   margin: 0 0 8px;
   font-size: 16px;

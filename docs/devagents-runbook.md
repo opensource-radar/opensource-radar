@@ -9,11 +9,20 @@ DevAgents is the optional "Get help with this issue" helper. It only reads publi
 3. Set `DEVAGENTS_ALLOWED_LOGINS` to your own GitHub login.
 4. Set `DEVAGENTS_ENABLED` to `true`, and redeploy.
 
-## Capacity
+## Capacity and routing
 
-Free LLM plans limit tokens per minute, and every user shares the same keys. On Groq's free plan (8,000 tokens a minute when this was tested), one new Explain uses about 7,000 tokens, so it handles roughly one new explanation a minute. Answers are cached, so repeat requests cost nothing.
+Free LLM plans limit tokens per minute and per day, and every user shares the same keys. On Groq's free plan, one new Explain uses about 7,000 tokens, so its limits allow only a few dozen new explanations a day. Answers are cached, so repeat requests cost nothing.
 
-When a provider is busy, DevAgents tries the next one, then waits once if asked to retry within 13 seconds. After that, the panel asks the user to wait a minute. Add more providers before opening it to a group.
+DevAgents chooses a provider for each request:
+
+- **Before a limit is hit:** when a provider reports how much it has left, DevAgents skips it if the request wouldn't fit. Providers that don't report this are only skipped after they refuse a request.
+- **Choosing:** it prefers providers with more room that are fast and reliable, with some randomness to spread the load.
+- **After a problem:** a rate limit rests a provider for as long as it asks, a rejected key for 10 minutes, and repeated errors for up to 2 minutes.
+- **When everything is busy:** it waits once if a provider will be ready within 13 seconds. Otherwise it tells the user straight away.
+
+People aren't charged towards their daily limit when no answer comes back. What it learns is shared between servers through the database. Each AI call adds about two database commands, which count towards Upstash's monthly limit.
+
+To add capacity, add providers (see `.env.example`). A mistake in `DEVAGENTS_EXTRA_PROVIDERS` skips that entry, and names must be unique and can't be `own`. Use one account per provider: extra keys on the same account share its limits, and using several accounts to get more free quota can break a provider's terms.
 
 ## Rolling it out
 
@@ -24,6 +33,11 @@ Change `DEVAGENTS_ALLOWED_LOGINS` one stage at a time, and redeploy after each c
 3. Empty, which means everyone.
 
 Between stages, look at the `da:count:*` counters in the DevAgents database, and at Vercel's usage page.
+
+## Watching it
+
+- **Uptime:** the "Uptime check" workflow tests the live site every 30 minutes or so, and GitHub emails whoever last changed its schedule if it fails. Run it by hand from the Actions tab to try it. GitHub pauses scheduled workflows after 60 days with no repository activity.
+- **Usage:** check Vercel, Upstash and each AI provider's usage page every few days at first. Vercel's Hobby logs last only 1 hour.
 
 ## Turning it off
 
