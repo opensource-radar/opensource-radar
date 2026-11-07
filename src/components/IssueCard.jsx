@@ -20,6 +20,7 @@ function IssueCard({
   saved,
   onToggleSave,
   project,
+  actions,
 }) {
   const preview = previewText(description);
   const details = [
@@ -81,6 +82,7 @@ function IssueCard({
           {details && ` · ${details}`}
         </span>
         <span className="issue-card-links">
+          {actions}
           {project?.contributingUrl && (
             <a href={project.contributingUrl} target="_blank" rel="noopener noreferrer">
               Contributing guide ↗

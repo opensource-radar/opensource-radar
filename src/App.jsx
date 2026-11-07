@@ -4,6 +4,7 @@ import FiltersPanel from "./components/FiltersPanel";
 import Footer from "./components/Footer";
 import GuidePage from "./components/GuidePage";
 import Icon from "./components/Icon";
+import ErrorBoundary from "./components/ErrorBoundary";
 import IssueCard from "./components/IssueCard";
 import Logo from "./components/Logo";
 import NavMenu from "./components/NavMenu";
@@ -39,6 +40,8 @@ import {
   toIssue,
 } from "./search";
 import "./App.css";
+import DevAgentsEntry from "./devagents/DevAgentsEntry";
+import { parseIssueUrl } from "./devagents/links";
 
 const THEME_KEY = "opensource-radar-theme";
 // Issues used to be cached here before search covered all of GitHub.
@@ -168,6 +171,23 @@ function getInitialThemePreference() {
   }
 
   return "system";
+}
+
+// DevAgents is optional: when it's off, or anything about it fails, cards look
+// and work exactly as they do without it.
+function devAgentsActions(enabled, issue, signedIn) {
+  const target = enabled ? parseIssueUrl(issue.url) : null;
+  if (!target) return undefined;
+
+  return (
+    <ErrorBoundary fallback={null}>
+      <DevAgentsEntry
+        issue={{ ...target, title: issue.title }}
+        language={issue.language}
+        signedIn={signedIn}
+      />
+    </ErrorBoundary>
+  );
 }
 
 const searchLimitMessage = (signedIn, signInAvailable) =>
@@ -947,6 +967,7 @@ function App() {
                   saved={savedIds.has(issue.id)}
                   onToggleSave={signedIn ? () => toggleSaved(issue) : undefined}
                   project={projects[issue.repo.replace(" / ", "/")]}
+                  actions={devAgentsActions(account.devAgents, issue, signedIn)}
                 />
               ))
             )}
