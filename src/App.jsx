@@ -182,6 +182,10 @@ const routeFromPath = () => {
   return "search";
 };
 
+const prefersReducedMotion = () =>
+  typeof window !== "undefined" &&
+  window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+
 function App() {
   const [themePreference, setThemePreference] = useState(
     getInitialThemePreference,
@@ -516,15 +520,14 @@ function App() {
     };
   }, [path, search, account.checked, signedIn, view, route, account.signInAvailable, retryTick]);
 
-  const scrollToResults = () =>
-  document
-    .querySelector(".issues-section")
-    ?.scrollIntoView({
-      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
-        ? "auto"
-        : "smooth",
+  const scrollToResults = () => {
+    const behavior = prefersReducedMotion() ? "auto" : "smooth";
+    document.querySelector(".issues-section")?.scrollIntoView({
+      behavior,
       block: "start",
     });
+  };
+
   const showAbout = () => {
     if (route === "about") return;
     window.history.pushState(null, "", ABOUT_PATH);
@@ -577,11 +580,7 @@ function App() {
       sort: search.filters.sort,
     });
 
-  // The site title goes back to the starting search without reloading.
-  const goHome = (event) => {
-    if (!isPlainClick(event)) return;
-
-    event.preventDefault();
+  const goHome = () => {
     backToSearch();
     setInputText("");
     setRecommendation(null);
@@ -589,11 +588,10 @@ function App() {
     setView("search");
     setSearch({ filters: DEFAULT_FILTERS, text: "", page: 1 });
     window.scrollTo({
-    top: 0,
-    behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    ? "auto"
-    : "smooth",
-});  };
+      top: 0,
+      behavior: prefersReducedMotion() ? "auto" : "smooth",
+    });
+  };
 
   const goToPage = (page) => {
     setSearch((current) => ({ ...current, page }));
