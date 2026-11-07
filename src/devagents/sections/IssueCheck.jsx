@@ -37,6 +37,12 @@ function IssueCheck({ issue }) {
               ))}
             </ul>
           )}
+          {data.paymentClaim && (
+            <p role="alert">
+              This issue mentions payment. We can't verify payment promises, so check the project
+              carefully, and never pay or share wallet details to take part.
+            </p>
+          )}
           {data.archived && <p>This project is archived, so it won't accept changes.</p>}
           {data.aiPolicy === "banned" && (
             <p role="alert">

@@ -53,6 +53,23 @@ describe("feedback", () => {
   });
 });
 
+describe("feedback limit", () => {
+  it("stops counting after 100 a day, without an error", async () => {
+    const world = fakeWorld();
+    let last;
+    for (let i = 0; i < 101; i += 1) last = await callAction("event", { name: "explain" });
+    expect(last.status).toBe(200);
+    expect(last.body.data).toEqual({ saved: false });
+    expect(world.db.get(`da:count:explain:${date()}`)).toBe("100");
+  });
+
+  it("limits each person separately", async () => {
+    fakeWorld();
+    for (let i = 0; i < 101; i += 1) await callAction("event", { name: "explain" });
+    expect((await callAction("event", { name: "explain" }, { login: "other" })).body.data).toEqual({ saved: true });
+  });
+});
+
 describe("event", () => {
   it("counts known events", async () => {
     const world = fakeWorld();

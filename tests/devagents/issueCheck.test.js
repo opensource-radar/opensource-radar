@@ -38,6 +38,12 @@ describe("issue-check", () => {
     expect(body.data.rules.map((rule) => rule.id)).toContain("cla");
   });
 
+  it("flags issues that promise payment", async () => {
+    const github = { ...base, "/repos/a/b/issues/1": { ...base["/repos/a/b/issues/1"], title: "[Escrowed $450 USDC] Fix" } };
+    fakeWorld({ github });
+    expect((await callAction("issue-check", target)).body.data.paymentClaim).toBe(true);
+  });
+
   it("marks an archived repo", async () => {
     fakeWorld({ github: { ...base, "/repos/a/b": { default_branch: "main", archived: true } } });
     expect((await callAction("issue-check", target)).body.data.archived).toBe(true);

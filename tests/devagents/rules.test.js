@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { aiPolicy, claimStatus, repoRules } from "../../api/_lib/devagents/rules.js";
+import { aiPolicy, claimStatus, paymentClaim, repoRules } from "../../api/_lib/devagents/rules.js";
 
 const now = new Date("2026-11-07T00:00:00Z").getTime();
 const daysAgo = (days) => new Date(now - days * 86400000).toISOString();
@@ -44,6 +44,19 @@ describe("aiPolicy", () => {
   it("ignores missing files", () => {
     expect(aiPolicy([null, "We do not accept AI-generated contributions."])).toBe("banned");
     expect(aiPolicy([])).toBe("unknown");
+  });
+});
+
+describe("paymentClaim", () => {
+  it.each(["[Escrowed $450 USDC] Fix it", "Bounty: fix the bug", "Reward paid automatically on merge", "$50 for this", "Send to your crypto wallet"])(
+    "notices %j",
+    (text) => {
+      expect(paymentClaim(text)).toBe(true);
+    },
+  );
+
+  it.each(["Fix the payment form", "Reward the user with a badge", "", null])("ignores %j", (text) => {
+    expect(paymentClaim(text)).toBe(false);
   });
 });
 

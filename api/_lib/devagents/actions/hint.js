@@ -50,7 +50,7 @@ export async function hint(ctx, payload) {
   ]);
   const key = `da:v1:hint:${repo.toLowerCase()}:${number}:${level}:${issue.updated_at}:${repoInfo.sha}`;
 
-  return cached(key, WEEK_SECONDS, async () => {
+  const produce = async () => {
     const { value } = await ctx.askJson({
       system: SYSTEM(level),
       validate,
@@ -62,14 +62,21 @@ export async function hint(ctx, payload) {
     const result = { hint: value.hint };
     if (level !== 3 || !repoInfo.sha) return result;
 
-    const [policy, tree] = await Promise.all([
-      readRepoPolicy(ctx.token, repo, repoInfo.sha),
-      gh.readTree(ctx.token, repo, repoInfo.sha),
-    ]);
-    if (policy.aiPolicy !== "banned" && allowedDraft(value.draft, tree.paths)) {
-      const { path, kind, text } = value.draft;
-      result.draft = { path, kind, text };
+    // The hint has already been paid for, so a GitHub problem only loses the draft.
+    try {
+      const [policy, tree] = await Promise.all([
+        readRepoPolicy(ctx.token, repo, repoInfo.sha),
+        gh.readTree(ctx.token, repo, repoInfo.sha),
+      ]);
+      if (policy.aiPolicy !== "banned" && allowedDraft(value.draft, tree.paths)) {
+        const { path, kind, text } = value.draft;
+        result.draft = { path, kind, text };
+      }
+    } catch {
+      result.incomplete = true;
     }
     return result;
-  });
+  };
+
+  return cached(key, WEEK_SECONDS, produce, (result) => !result.incomplete);
 }
