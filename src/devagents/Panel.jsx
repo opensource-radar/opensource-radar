@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import ErrorBoundary from "../components/ErrorBoundary";
 import Icon from "../components/Icon";
 import ManualSteps from "./ManualSteps";
@@ -17,6 +17,11 @@ const sectionFallback = ({ retry }) => (
 function Panel({ issue, language, signedIn, onClose, sections = SECTIONS }) {
   const dialogRef = useRef(null);
   const titleId = useId();
+  // What one step has learned that a later step needs.
+  const [shared, setShared] = useState({});
+  const onShare = useCallback((update) => {
+    setShared((current) => ({ ...current, ...update }));
+  }, []);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -54,7 +59,14 @@ function Panel({ issue, language, signedIn, onClose, sections = SECTIONS }) {
           <section key={id} className="devagents-section">
             <h3>{title}</h3>
             <ErrorBoundary fallback={sectionFallback}>
-              {Component && <Component issue={issue} language={language} />}
+              {Component && (
+                <Component
+                  issue={issue}
+                  language={language}
+                  shared={shared}
+                  onShare={onShare}
+                />
+              )}
             </ErrorBoundary>
           </section>
         ))

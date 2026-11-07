@@ -44,8 +44,9 @@ export function chargeLlmCall(login) {
 }
 
 // Returns the cached value, or produces and stores it. A store failure only
-// means a cache miss. Failures from `produce` are never cached.
-export async function cached(key, ttlSeconds, produce) {
+// means a cache miss. Failures from `produce` are never cached, and neither is
+// a value that `shouldStore` turns down.
+export async function cached(key, ttlSeconds, produce, shouldStore = () => true) {
   try {
     const stored = await daRedis(["GET", key]);
     if (stored) return JSON.parse(stored);
@@ -54,6 +55,7 @@ export async function cached(key, ttlSeconds, produce) {
   }
 
   const value = await produce();
+  if (!shouldStore(value)) return value;
 
   try {
     await daRedis(["SET", key, JSON.stringify(value), "EX", ttlSeconds]);

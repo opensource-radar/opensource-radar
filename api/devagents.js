@@ -21,7 +21,7 @@ function buildContext(session, userKey) {
     ownKeyFailed: false,
     async askJson(options) {
       if (!userKey) await chargeLlmCall(login);
-      const result = await askJson({ ...options, userKey, deadline: ctx.deadline });
+      const result = await askJson({ deadline: ctx.deadline, ...options, userKey });
       if (result.ownKeyFailed) {
         // The answer came from shared capacity, so it counts like any other.
         ctx.ownKeyFailed = true;

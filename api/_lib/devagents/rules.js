@@ -1,6 +1,6 @@
 // Rules that need no LLM: quick to run, the same every time, and easy to test.
 
-const AI_WORDS = /\b(ai|a\.i\.|llms?|chatgpt|copilot|gpt|claude|gemini|generative)\b|machine[- ]generated/i;
+const AI_WORDS = /\b(ai|a\.i\.|llms?|chatgpt|copilot|gpt|gemini|generative)\b|machine[- ]generated/i;
 const AI_BANNED = /\b(do not|don'?t|does not|doesn'?t|will not|won'?t|not|never|no)\b[^.!?\n]*\b(accept|allow|allowed|permit|permitted|welcome|submit|use|using|ai|llms?|chatgpt|copilot|gpt|generated|written)\b|\b(ban|bans|banned|prohibit|prohibited|forbid|forbidden|reject|rejected|disallow|disallowed)\b/i;
 const AI_ALLOWED = /\b(welcome|allowed|permitted|accepted|accept|may use|can use|fine|ok|okay)\b/i;
 
