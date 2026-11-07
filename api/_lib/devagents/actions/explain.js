@@ -72,13 +72,13 @@ async function produceExplanation(ctx, { repo, issue, repoInfo }) {
     validate: validateExplanation,
     user: [
       asData("issue title", issue.title ?? ""),
-      asData("issue body", (issue.body ?? "").slice(0, 8000)),
-      asData("README", (readme ?? "").slice(0, 6000)),
-      asData("contributing guide", (contributing ?? "").slice(0, 6000)),
+      asData("issue body", (issue.body ?? "").slice(0, 2500)),
+      asData("README", (readme ?? "").slice(0, 2500)),
+      asData("contributing guide", (contributing ?? "").slice(0, 2000)),
       asData("files to read", filesToRead.map((f) => `${f.path}: ${f.why}`).join("\n")),
       ...filesToRead
-        .slice(0, 3)
-        .map((f) => asData(`file ${f.path}`, (contents.get(f.path) ?? "").slice(0, 3000))),
+        .slice(0, 2)
+        .map((f) => asData(`file ${f.path}`, (contents.get(f.path) ?? "").slice(0, 800))),
     ].join("\n"),
   });
 

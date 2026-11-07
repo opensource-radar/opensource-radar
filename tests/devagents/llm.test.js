@@ -161,6 +161,64 @@ describe("askJson", () => {
     expect(result.model).toBe("groq-model");
   });
 
+  it("waits when the only provider says to retry in a few seconds", async () => {
+    vi.useFakeTimers();
+    vi.stubEnv("DEVAGENTS_GEMINI_KEY", "");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn()
+        .mockResolvedValueOnce(new Response("{}", { status: 429, headers: { "retry-after": "5" } }))
+        .mockResolvedValueOnce(good()),
+    );
+    const pending = ask();
+    await vi.advanceTimersByTimeAsync(4999);
+    expect(fetch).toHaveBeenCalledTimes(1);
+    await vi.advanceTimersByTimeAsync(1);
+    expect((await pending).value.answer).toBe("hi");
+    expect(fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it("tries other providers before waiting", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn()
+        .mockResolvedValueOnce(new Response("{}", { status: 429, headers: { "retry-after": "5" } }))
+        .mockResolvedValueOnce(good()),
+    );
+    expect((await ask()).model).toBe("gemini-model");
+  });
+
+  it("doesn't wait when the wait is too long or past the deadline", async () => {
+    vi.stubEnv("DEVAGENTS_GEMINI_KEY", "");
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("{}", { status: 429, headers: { "retry-after": "60" } })));
+    expect((await ask().catch((e) => e)).code).toBe("unavailable");
+    expect(fetch).toHaveBeenCalledTimes(1);
+
+    fetch.mockClear();
+    fetch.mockImplementation(async () => new Response("{}", { status: 429, headers: { "retry-after": "5" } }));
+    expect((await ask({ deadline: Date.now() + 4000 }).catch((e) => e)).code).toBe("unavailable");
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("only waits once", async () => {
+    vi.useFakeTimers();
+    vi.stubEnv("DEVAGENTS_GEMINI_KEY", "");
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("{}", { status: 429, headers: { "retry-after": "1" } })));
+    const pending = ask().catch((e) => e);
+    await vi.advanceTimersByTimeAsync(5000);
+    expect((await pending).code).toBe("unavailable");
+    expect(fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it("keeps every request small enough for free plans", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(good()));
+    await ask({ user: "x".repeat(50000) });
+    const body = JSON.parse(fetch.mock.calls[0][1].body);
+    expect(body.messages[1].content.length).toBeLessThanOrEqual(16000);
+    expect(body.max_tokens).toBeGreaterThan(0);
+    expect(body.max_tokens).toBeLessThanOrEqual(1500);
+  });
+
   it("error messages never contain an API key", async () => {
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("bad key gsk_user")));
     const spy = vi.spyOn(console, "error").mockImplementation(() => {});

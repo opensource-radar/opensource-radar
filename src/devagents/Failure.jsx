@@ -40,10 +40,11 @@ function Failure({ reason, onRetry, repo, issue, notFoundMessage }) {
   return (
     <div className="devagents-note" role="alert">
       <p>
-        We couldn't get this right now.{" "}
+        We couldn't get this right now. The helper may be busy, so wait a minute and{" "}
         <button type="button" className="devagents-link-button" onClick={onRetry}>
           Try again
         </button>
+        .
       </p>
       <p>You can still start from these:</p>
       <ManualSteps repo={repo} issue={issue} />

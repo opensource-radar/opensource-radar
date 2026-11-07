@@ -158,6 +158,12 @@ describe("Failure", () => {
   };
   const reply2 = (body, status) => Response.json(body, { status });
 
+  it("unavailable suggests waiting a minute, and still offers a retry", async () => {
+    await failWith("unavailable", 503);
+    await screen.findByText(/wait a minute/i);
+    expect(screen.getByRole("button", { name: "Try again" })).toBeTruthy();
+  });
+
   it("too_large explains itself and doesn't offer a pointless retry", async () => {
     await failWith("too_large", 413);
     await screen.findByText(/too long/i);

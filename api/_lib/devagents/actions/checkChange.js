@@ -4,7 +4,8 @@ import { asData } from "../llm.js";
 import { parseTarget } from "../target.js";
 import { readRepoPolicy } from "./issueCheck.js";
 
-const MAX_DIFF_CHARS = 40000;
+// About 3,000 tokens, which fits within what free LLM plans allow in a minute.
+const MAX_DIFF_CHARS = 12000;
 const BRANCH = /^[\w./-]+$/;
 const OWNER = /^[\w-]+$/;
 // DevAgents points out problems. It never tells anyone a change is safe.

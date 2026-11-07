@@ -38,6 +38,13 @@ afterEach(() => {
 });
 
 describe("Understand", () => {
+  it("doesn't repeat itself when the issue is clear", async () => {
+    stubBackend(explainData);
+    render(<Understand issue={issue} onShare={() => {}} />);
+    await screen.findByText("Not taken yet");
+    expect(screen.queryByText("Not taken yet.")).toBeNull();
+  });
+
   it("doesn't call the LLM until asked", async () => {
     stubBackend(explainData);
     render(<Understand issue={issue} onShare={() => {}} />);

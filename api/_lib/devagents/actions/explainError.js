@@ -38,7 +38,7 @@ export async function explainError(ctx, payload) {
   const { value } = await ctx.askJson({
     system: SYSTEM,
     validate,
-    user: [asData("error", clean), asData("README", (readme ?? "").slice(0, 6000))].join("\n"),
+    user: [asData("error", clean), asData("README", (readme ?? "").slice(0, 2500))].join("\n"),
   });
   return value;
 }

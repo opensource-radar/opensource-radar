@@ -84,6 +84,12 @@ describe("check-change", () => {
     expect(messages[1].content).not.toContain("xxxxxxxx");
   });
 
+  it("a diff too big for free plans is also summarised", async () => {
+    const big = [{ filename: "big.py", additions: 1, deletions: 0, patch: "x".repeat(13000) }];
+    fakeWorld({ github: github({ [COMPARE]: { files: big } }), llm: [{ findings: [] }] });
+    expect((await check()).body.data.facts.summarised).toBe(true);
+  });
+
   it("notices files outside the ones to read", async () => {
     fakeWorld({ github: github(), llm: [{ findings: [] }] });
     const { body } = await check({ expectedFiles: ["other.py"] });

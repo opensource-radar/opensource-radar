@@ -65,13 +65,13 @@ export async function prText(ctx, payload) {
     validate,
     user: [
       asData("issue title", issue.title ?? ""),
-      asData("issue body", (issue.body ?? "").slice(0, 4000)),
-      asData("pull request template", template.slice(0, 4000)),
+      asData("issue body", (issue.body ?? "").slice(0, 2000)),
+      asData("pull request template", template.slice(0, 2000)),
       asData(
         "recent commit titles",
         commits.map((item) => item.commit?.message?.split("\n")[0] ?? "").join("\n"),
       ),
-      asData("change", diffText(compare.files ?? []).text.slice(0, 20000)),
+      asData("change", diffText(compare.files ?? []).text.slice(0, 8000)),
     ].join("\n"),
   });
 

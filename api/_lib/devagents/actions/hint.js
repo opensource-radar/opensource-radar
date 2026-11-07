@@ -56,7 +56,7 @@ export async function hint(ctx, payload) {
       validate,
       user: [
         asData("issue title", issue.title ?? ""),
-        asData("issue body", (issue.body ?? "").slice(0, 8000)),
+        asData("issue body", (issue.body ?? "").slice(0, 4000)),
       ].join("\n"),
     });
     const result = { hint: value.hint };

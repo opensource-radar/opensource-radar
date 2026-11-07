@@ -1,6 +1,11 @@
 import { DevAgentsError } from "./errors.js";
 
 const ATTEMPT_MS = 12000;
+// Free plans count tokens per minute (Groq allows 8,000), so requests stay small.
+const MAX_PROMPT_CHARS = 16000;
+const MAX_REPLY_TOKENS = 1200;
+const MAX_WAIT_MS = 13000;
+const MIN_TIME_AFTER_WAIT_MS = 3000;
 const GROQ_URL = "https://api.groq.com/openai/v1";
 
 const SHARED_PROVIDERS = [
@@ -72,14 +77,21 @@ async function attempt(provider, { system, user }, timeoutMs) {
       body: JSON.stringify({
         model: provider.model,
         temperature: 0.2,
+        max_tokens: MAX_REPLY_TOKENS,
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: system },
-          { role: "user", content: user },
+          { role: "user", content: String(user).slice(0, MAX_PROMPT_CHARS) },
         ],
       }),
     });
-    if (!response.ok) throw new Error(`status ${response.status}`);
+    if (!response.ok) {
+      const error = new Error(`status ${response.status}`);
+      if (response.status === 429) {
+        error.retryAfterMs = Number(response.headers.get("retry-after")) * 1000 || 0;
+      }
+      throw error;
+    }
     const data = await response.json();
     return parseJson(data.choices[0].message.content);
   } finally {
@@ -87,32 +99,50 @@ async function attempt(provider, { system, user }, timeoutMs) {
   }
 }
 
-// Tries each provider once, moving down the chain on any failure. Moving on is
-// the retry. Throws `unavailable` when none of them gives a valid answer.
-// `ownKeyOnly` tries just the user's key, so the caller can charge shared limits
-// before any shared provider is used.
-export async function askJson({ system, user, validate, userKey, deadline, ownKeyOnly = false }) {
-  let ownKeyFailed = false;
-  const chain = providerChain(userKey).filter(
-    (provider) => !ownKeyOnly || provider.name === "own",
-  );
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+// Goes down the chain once. Moving on is the retry. Details of a failure may
+// contain keys, so only the provider's name and any wait time are kept.
+async function tryChain(chain, { system, user, validate, deadline }, state) {
   for (const provider of chain) {
     const remaining = deadline - Date.now();
     if (remaining <= 0) break;
 
     try {
-      const raw = await attempt(
-        provider,
-        { system, user },
-        Math.min(ATTEMPT_MS, remaining),
-      );
-      return { value: validate(raw), model: provider.model, ownKeyFailed };
-    } catch {
-      // Details may contain keys, so only the provider's name is ever kept.
-      if (provider.name === "own") ownKeyFailed = true;
+      const raw = await attempt(provider, { system, user }, Math.min(ATTEMPT_MS, remaining));
+      return { value: validate(raw), model: provider.model };
+    } catch (error) {
+      if (provider.name === "own") state.ownKeyFailed = true;
+      if (error.retryAfterMs > 0) {
+        state.waitMs = Math.min(state.waitMs ?? Infinity, error.retryAfterMs);
+      }
     }
   }
+  return null;
+}
 
-  throw new DevAgentsError("unavailable", 503);
+// Tries each provider. If they all failed and one only asked for a short wait,
+// waits once and tries again. Throws `unavailable` when there's still no valid
+// answer. `ownKeyOnly` tries just the user's key, so the caller can charge
+// shared limits before any shared provider is used.
+export async function askJson({ system, user, validate, userKey, deadline, ownKeyOnly = false }) {
+  const chain = providerChain(userKey).filter(
+    (provider) => !ownKeyOnly || provider.name === "own",
+  );
+  const call = { system, user, validate, deadline };
+  const state = { ownKeyFailed: false, waitMs: null };
+
+  let answer = await tryChain(chain, call, state);
+  if (
+    !answer &&
+    state.waitMs !== null &&
+    state.waitMs <= MAX_WAIT_MS &&
+    Date.now() + state.waitMs + MIN_TIME_AFTER_WAIT_MS <= deadline
+  ) {
+    await sleep(state.waitMs);
+    answer = await tryChain(chain, call, state);
+  }
+
+  if (!answer) throw new DevAgentsError("unavailable", 503);
+  return { ...answer, ownKeyFailed: state.ownKeyFailed };
 }

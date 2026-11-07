@@ -9,6 +9,12 @@ DevAgents is the optional "Get help with this issue" helper. It only reads publi
 3. Set `DEVAGENTS_ALLOWED_LOGINS` to your own GitHub login.
 4. Set `DEVAGENTS_ENABLED` to `true`, and redeploy.
 
+## Capacity
+
+Free LLM plans limit tokens per minute, and every user shares the same keys. On Groq's free plan (8,000 tokens a minute when this was tested), one new Explain uses about 7,000 tokens, so it handles roughly one new explanation a minute. Answers are cached, so repeat requests cost nothing.
+
+When a provider is busy, DevAgents tries the next one, then waits once if asked to retry within 13 seconds. After that, the panel asks the user to wait a minute. Add more providers before opening it to a group.
+
 ## Rolling it out
 
 Change `DEVAGENTS_ALLOWED_LOGINS` one stage at a time, and redeploy after each change:

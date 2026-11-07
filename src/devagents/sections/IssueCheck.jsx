@@ -30,11 +30,13 @@ function IssueCheck({ issue }) {
           <p>
             <strong>{HEADLINES[data.verdict] ?? "Check this issue"}</strong>
           </p>
-          <ul>
-            {data.reasons?.map((reason) => (
-              <li key={reason}>{reason}</li>
-            ))}
-          </ul>
+          {data.verdict !== "clear" && (
+            <ul>
+              {data.reasons?.map((reason) => (
+                <li key={reason}>{reason}</li>
+              ))}
+            </ul>
+          )}
           {data.archived && <p>This project is archived, so it won't accept changes.</p>}
           {data.aiPolicy === "banned" && (
             <p role="alert">
