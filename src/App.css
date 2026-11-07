@@ -1368,6 +1368,19 @@ body {
   flex-wrap: wrap;
 }
 
+.devagents-entry {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--link);
+  font: inherit;
+  cursor: pointer;
+}
+
+.devagents-entry:hover {
+  text-decoration: underline;
+}
+
 .filter-popular:has(input:disabled) {
   color: var(--muted);
   cursor: not-allowed;

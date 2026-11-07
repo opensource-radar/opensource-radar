@@ -82,6 +82,10 @@ That's all you need for searching. Sign-in, saved-issue sync and the report form
 - **The report form** needs a fine-grained GitHub token limited to your repository, with only **Issues: Read and write**. Add it as `REPORT_GITHUB_TOKEN`.
 - **Project details on cards** (stars, activity, contributing guide) work for signed-in users automatically. To show them to visitors too, add a fine-grained token with **Public repositories (read-only)** access and no permissions as `GITHUB_READ_TOKEN`.
 
+### Optional: DevAgents
+
+DevAgents is the "Get help with this issue" helper. It reads public GitHub data, explains issues and gives hints, and never writes to GitHub. It stays hidden unless `DEVAGENTS_ENABLED` is `true`. See the [DevAgents runbook](docs/devagents-runbook.md) to set it up.
+
 ### Settings
 
 | Name | Needed for | Where it comes from |
@@ -93,6 +97,7 @@ That's all you need for searching. Sign-in, saved-issue sync and the report form
 | `REPORT_GITHUB_TOKEN` | Report form | Fine-grained GitHub token (Issues only) |
 | `REPORT_REPO` | Report form (optional) | Defaults to `opensource-radar/opensource-radar` |
 | `GITHUB_READ_TOKEN` | Project details for visitors (optional) | Fine-grained GitHub token with public read-only access, no permissions |
+| `DEVAGENTS_*` | DevAgents (optional) | See `.env.example` and the [DevAgents runbook](docs/devagents-runbook.md) |
 
 ### Scripts
 

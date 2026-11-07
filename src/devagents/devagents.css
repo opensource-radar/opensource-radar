@@ -1,0 +1,48 @@
+.devagents-panel {
+  width: min(720px, calc(100vw - 32px));
+  overflow-wrap: anywhere;
+}
+
+.devagents-section {
+  padding: 12px 20px;
+  border-top: 1px solid var(--border-card);
+  color: var(--text);
+}
+
+.devagents-section h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+}
+
+.devagents-section ul,
+.devagents-section ol {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.devagents-note,
+.devagents-muted {
+  color: var(--muted);
+}
+
+.devagents-link-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--link);
+  font: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.devagents-text {
+  white-space: pre-wrap;
+}
+
+.devagents-field {
+  display: block;
+  width: 100%;
+  margin: 8px 0;
+  box-sizing: border-box;
+  font: inherit;
+}
