@@ -1,0 +1,42 @@
+import { codespacesUrl, editorUrl } from "../links";
+
+// DevAgents never changes code. These links open GitHub's own tools, which
+// handle the fork and commit from the user's own account.
+function Change({ issue, shared }) {
+  const { repo } = issue;
+  const explain = shared?.explain;
+
+  return (
+    <div>
+      <p>Make the change yourself on GitHub. It will make a copy of the project for you if needed.</p>
+      {explain?.filesToRead?.length > 0 ? (
+        <ul>
+          {explain.filesToRead.map((file) => (
+            <li key={file.path}>
+              <a
+                href={editorUrl(repo, explain.branch, file.path)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Edit {file.path} in the browser ↗
+              </a>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="devagents-muted">Explain this issue first to get direct links to its files.</p>
+      )}
+      <p>
+        <a href={codespacesUrl(repo)} target="_blank" rel="noopener noreferrer">
+          Open in Codespaces ↗
+        </a>{" "}
+        <span className="devagents-muted">
+          A full setup in your browser, for running tests or editing several files. It uses your
+          own GitHub allowance.
+        </span>
+      </p>
+    </div>
+  );
+}
+
+export default Change;

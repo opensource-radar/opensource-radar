@@ -1,4 +1,5 @@
 import { explain } from "./explain.js";
+import { hint } from "./hint.js";
 import { issueCheck } from "./issueCheck.js";
 
 // Every DevAgents action. `llm: true` means it can call an LLM, so it needs
@@ -6,4 +7,5 @@ import { issueCheck } from "./issueCheck.js";
 export const actions = {
   "issue-check": { llm: false, handler: issueCheck },
   explain: { llm: true, handler: explain },
+  hint: { llm: true, handler: hint },
 };
