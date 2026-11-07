@@ -1,6 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { actions } from "../../api/_lib/devagents/actions/index.js";
 import { cached, chargeIssue } from "../../api/_lib/devagents/limits.js";
+import { DevAgentsError } from "../../api/_lib/devagents/errors.js";
+import { resetRouterMemory } from "../../api/_lib/devagents/router.js";
 import { callAction, enableDevAgents, fakeWorld } from "./helpers.js";
 
 const target = { repo: "a/b", issue: 1 };
@@ -159,6 +161,94 @@ describe("limits", () => {
     });
     expect(status).toBe(200);
     expect(body.ownKeyFailed).toBe(true);
+  });
+
+  describe("when no answer comes back", () => {
+    const date = () => new Date().toISOString().slice(0, 10);
+    const issuesKey = () => `da:issues:octocat:${date()}`;
+    const llmKey = () => `da:llm:octocat:${date()}`;
+    const rest = (world) =>
+      world.db.set("da:v1:provider:groq", JSON.stringify({ cooldownUntil: Date.now() + 600000 }));
+
+    it("busy answers don't use up the daily limit", async () => {
+      const world = fakeWorld();
+      rest(world);
+      for (let issue = 1; issue <= 8; issue += 1) {
+        expect((await callAction("think", { repo: "a/b", issue })).body).toEqual({ error: "unavailable" });
+      }
+      expect(world.db.get(issuesKey())?.size ?? 0).toBe(0);
+      expect(Number(world.db.get(llmKey()) ?? 0)).toBe(0);
+    });
+
+    it("people can still use their 5 issues after a busy spell", async () => {
+      const world = fakeWorld({ llm: Array(8).fill({ ok: true }) });
+      rest(world);
+      for (let issue = 1; issue <= 8; issue += 1) await callAction("think", { repo: "a/b", issue });
+      world.db.delete("da:v1:provider:groq");
+      resetRouterMemory();
+      for (let issue = 11; issue <= 15; issue += 1) {
+        expect((await callAction("think", { repo: "a/b", issue })).status).toBe(200);
+      }
+      expect((await callAction("think", { repo: "a/b", issue: 16 })).body).toEqual({ error: "limit" });
+    });
+
+    it("a repeat of an issue already paid for keeps its place", async () => {
+      const world = fakeWorld({ llm: [{ ok: true }] });
+      expect((await callAction("think", target)).status).toBe(200);
+      rest(world);
+      resetRouterMemory();
+      await callAction("think", target);
+      expect(world.db.get(issuesKey()).size).toBe(1);
+    });
+
+    it("a successful AI call stays charged when a later one fails", async () => {
+      actions.twice = {
+        llm: true,
+        handler: async (ctx) => {
+          const options = { system: "s", user: "u", validate: (v) => v };
+          await ctx.askJson(options);
+          return ctx.askJson(options);
+        },
+      };
+      const world = fakeWorld({ llm: [{ ok: true }, "not json"] });
+      expect((await callAction("twice", target)).body).toEqual({ error: "unavailable" });
+      delete actions.twice;
+      expect(Number(world.db.get(llmKey()))).toBe(1);
+      expect(world.db.get(issuesKey())?.size ?? 0).toBe(0);
+    });
+
+    it("a deleted issue doesn't use up a place either", async () => {
+      actions.gone = {
+        llm: true,
+        handler: async () => {
+          throw new DevAgentsError("not_found", 404);
+        },
+      };
+      const world = fakeWorld();
+      expect((await callAction("gone", target)).status).toBe(404);
+      delete actions.gone;
+      expect(world.db.get(issuesKey())?.size ?? 0).toBe(0);
+    });
+
+    it("a broken key that falls back gets its charges back too", async () => {
+      const world = fakeWorld({ badKeys: ["garbage"] });
+      rest(world);
+      await callAction("think", target, { headers: { "X-User-LLM-Key": "garbage" } });
+      expect(world.db.get(issuesKey())?.size ?? 0).toBe(0);
+      expect(Number(world.db.get(llmKey()) ?? 0)).toBe(0);
+    });
+
+    it("hitting the limit is never refunded", async () => {
+      const world = fakeWorld({ llm: Array(50).fill({ ok: true }) });
+      for (let i = 0; i < 42; i += 1) await callAction("think", target);
+      expect(Number(world.db.get(llmKey()))).toBeGreaterThanOrEqual(40);
+    });
+
+    it("still refuses when limits can't be checked", async () => {
+      const world = fakeWorld({ llm: [{ ok: true }], redisDown: true });
+      expect((await callAction("think", target)).body).toEqual({ error: "unavailable" });
+      expect(world.llmCalls()).toHaveLength(0);
+    });
   });
 
   describe("with a key that doesn't work", () => {

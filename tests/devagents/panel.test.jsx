@@ -78,6 +78,13 @@ describe("Panel", () => {
     expect(screen.getByText(/don't paste private details/i)).toBeTruthy();
   });
 
+  it("the notice isn't drawn as a section, so it adds no extra line", () => {
+    render(<Panel issue={issue} signedIn sections={[]} onClose={() => {}} />);
+    const notice = screen.getByText(/outside AI services/i);
+    expect(notice.className).toContain("devagents-notice");
+    expect(notice.className).not.toContain("devagents-section");
+  });
+
   it("tells signed-out visitors about outside AI services too", () => {
     render(<Panel issue={issue} signedIn={false} onClose={() => {}} />);
     expect(screen.getByText(/outside AI services/i)).toBeTruthy();

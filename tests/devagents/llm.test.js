@@ -79,6 +79,43 @@ describe("providerChain", () => {
     expect(providerChain().map((p) => p.name)).toEqual(["groq", "gemini"]);
   });
 
+  it.each([
+    ["a null entry", "[null]"],
+    ["a number", "[1]"],
+    ["a text entry", '["x"]'],
+    ["a list in a list", "[[]]"],
+    ["a non-text key", '[{"name":"x","baseUrl":"https://x.test","apiKey":5,"model":"m"}]'],
+    ["a non-text address", '[{"name":"x","baseUrl":5,"apiKey":"k","model":"m"}]'],
+    ["an odd name", '[{"name":"a b:c","baseUrl":"https://x.test","apiKey":"k","model":"m"}]'],
+    ["not a list", '{"name":"x"}'],
+  ])("ignores %s in the extra providers", (_label, value) => {
+    vi.stubEnv("DEVAGENTS_EXTRA_PROVIDERS", value);
+    expect(providerChain().map((p) => p.name)).toEqual(["groq", "gemini"]);
+  });
+
+  it("won't let an extra provider pose as a user's own key", () => {
+    vi.stubEnv(
+      "DEVAGENTS_EXTRA_PROVIDERS",
+      '[{"name":"own","baseUrl":"https://x.test","apiKey":"k","model":"m"}]',
+    );
+    expect(providerChain().map((p) => p.name)).toEqual(["groq", "gemini"]);
+  });
+
+  it("ignores repeated names, keeping the first", () => {
+    vi.stubEnv(
+      "DEVAGENTS_EXTRA_PROVIDERS",
+      JSON.stringify([
+        { name: "groq", baseUrl: "https://x.test", apiKey: "k", model: "m" },
+        { name: "more", baseUrl: "https://one.test", apiKey: "k", model: "m" },
+        { name: "more", baseUrl: "https://two.test", apiKey: "k", model: "m" },
+      ]),
+    );
+    const chain = providerChain();
+    expect(chain.map((p) => p.name)).toEqual(["groq", "gemini", "more"]);
+    expect(chain[0].baseUrl).toBe("https://api.groq.com/openai/v1");
+    expect(chain[2].baseUrl).toBe("https://one.test");
+  });
+
   it("puts the user's key first", () => {
     const chain = providerChain("gsk_user");
     expect(chain[0]).toMatchObject({ name: "own", apiKey: "gsk_user" });

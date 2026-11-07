@@ -7,7 +7,7 @@ import KeySettings from "./sections/KeySettings";
 import "./devagents.css";
 
 const aiNotice = (
-  <p className="devagents-section devagents-muted">
+  <p className="devagents-notice devagents-muted">
     This helper uses outside AI services. The issue, public project files and anything you paste are
     sent to them, so don't paste private details. AI can be wrong, so check its answers.
   </p>

@@ -20,9 +20,9 @@ DevAgents chooses a provider for each request:
 - **After a problem:** a rate limit rests a provider for as long as it asks, a rejected key for 10 minutes, and repeated errors for up to 2 minutes.
 - **When everything is busy:** it waits once if a provider will be ready within 13 seconds. Otherwise it tells the user straight away.
 
-What it learns is shared between servers through the database. Each AI call adds about two database commands, which count towards Upstash's monthly limit.
+People aren't charged towards their daily limit when no answer comes back. What it learns is shared between servers through the database. Each AI call adds about two database commands, which count towards Upstash's monthly limit.
 
-To add capacity, add providers (see `.env.example`). Use one account per provider: extra keys on the same account share its limits, and using several accounts to get more free quota can break a provider's terms.
+To add capacity, add providers (see `.env.example`). A mistake in `DEVAGENTS_EXTRA_PROVIDERS` skips that entry, and names must be unique and can't be `own`. Use one account per provider: extra keys on the same account share its limits, and using several accounts to get more free quota can break a provider's terms.
 
 ## Rolling it out
 

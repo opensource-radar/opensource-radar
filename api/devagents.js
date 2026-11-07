@@ -2,7 +2,12 @@ import { loadSession } from "./_lib/auth.js";
 import { actions } from "./_lib/devagents/actions/index.js";
 import { DevAgentsError } from "./_lib/devagents/errors.js";
 import { devAgentsEnabledFor } from "./_lib/devagents/flags.js";
-import { chargeIssue, chargeLlmCall } from "./_lib/devagents/limits.js";
+import {
+  chargeIssue,
+  chargeLlmCall,
+  refundIssue,
+  refundLlmCall,
+} from "./_lib/devagents/limits.js";
 import { askJson } from "./_lib/devagents/llm.js";
 import { scrubSecrets } from "./_lib/devagents/scrub.js";
 import { parseTarget } from "./_lib/devagents/target.js";
@@ -11,7 +16,7 @@ import { getConfig, json } from "./_lib/session.js";
 const DEADLINE_MS = 25000;
 const MAX_BODY_BYTES = 20 * 1024;
 
-function buildContext(session, userKey, target) {
+function buildContext(session, userKey, target, issueCharged) {
   const login = session.user.login;
   const ctx = {
     token: session.accessToken,
@@ -19,6 +24,7 @@ function buildContext(session, userKey, target) {
     userKey,
     deadline: Date.now() + DEADLINE_MS,
     ownKeyFailed: false,
+    issueCharged,
     async askJson(options) {
       const call = { deadline: ctx.deadline, ...options };
 
@@ -30,12 +36,19 @@ function buildContext(session, userKey, target) {
         } catch (error) {
           if (error.code !== "unavailable") throw error;
           ctx.ownKeyFailed = true;
-          if (target) await chargeIssue(login, target.repo, target.issue);
+          if (target) {
+            ctx.issueCharged = await chargeIssue(login, target.repo, target.issue);
+          }
         }
       }
 
       await chargeLlmCall(login);
-      return askJson(call);
+      try {
+        return await askJson(call);
+      } catch (error) {
+        if (error.code === "unavailable") await refundLlmCall(login);
+        throw error;
+      }
     },
   };
   return ctx;
@@ -68,12 +81,16 @@ export async function POST(request) {
   }
 
   let cookies = [];
+  let ctx = null;
+  let login = null;
+  let target = null;
   try {
     const loaded = await loadSession(request, config);
     cookies = loaded.cookies;
     const { session } = loaded;
     if (!session) throw new DevAgentsError("sign_in", 401);
-    if (!devAgentsEnabledFor(session.user.login)) {
+    login = session.user.login;
+    if (!devAgentsEnabledFor(login)) {
       throw new DevAgentsError("disabled", 503);
     }
 
@@ -83,18 +100,20 @@ export async function POST(request) {
     if (!action) throw new DevAgentsError("invalid_request", 400);
 
     const userKey = request.headers.get("x-user-llm-key") || null;
-    const target = action.llm ? parseTarget(payload) : null;
-    if (target && !userKey) {
-      await chargeIssue(session.user.login, target.repo, target.issue);
-    }
+    target = action.llm ? parseTarget(payload) : null;
+    const issueCharged =
+      target && !userKey ? await chargeIssue(login, target.repo, target.issue) : false;
 
-    const ctx = buildContext(session, userKey, target);
+    ctx = buildContext(session, userKey, target, issueCharged);
     const data = await action.handler(ctx, payload);
     return json(
       { data, ...(ctx.ownKeyFailed && { ownKeyFailed: true }) },
       cookies,
     );
   } catch (error) {
+    // No answer came back, so this issue doesn't count towards the daily limit.
+    if (ctx?.issueCharged) await refundIssue(login, target.repo, target.issue);
+
     if (error instanceof DevAgentsError) {
       return json({ error: error.code }, cookies, error.status);
     }

@@ -7,6 +7,7 @@ const MAX_PROMPT_CHARS = 16000;
 const MAX_REPLY_TOKENS = 1200;
 const MAX_WAIT_MS = 13000;
 const MIN_TIME_AFTER_WAIT_MS = 3000;
+const PROVIDER_NAME = /^[\w-]+$/;
 const GROQ_URL = "https://api.groq.com/openai/v1";
 
 const SHARED_PROVIDERS = [
@@ -40,8 +41,11 @@ function httpsUrl(value) {
 }
 
 // Any other OpenAI-compatible provider, from a JSON list in settings. Each entry
-// needs its own account: extra keys for the same account add no capacity.
-function extraProviders(env) {
+// needs its own account: extra keys for the same account add no capacity. A
+// mistake in one entry only skips that entry, so it can't stop the others. Names
+// must be unique, because the router remembers providers by name, and "own" is
+// reserved for a user's personal key.
+function extraProviders(env, taken) {
   let list;
   try {
     list = JSON.parse(env.DEVAGENTS_EXTRA_PROVIDERS || "[]");
@@ -50,9 +54,23 @@ function extraProviders(env) {
   }
   if (!Array.isArray(list)) return [];
 
-  return list.flatMap(({ name, baseUrl, apiKey, model } = {}) => {
-    const url = httpsUrl(baseUrl);
-    return name && url && apiKey && model ? [{ name, baseUrl: url, apiKey, model }] : [];
+  const names = new Set(taken);
+  return list.flatMap((entry) => {
+    if (!entry || typeof entry !== "object") return [];
+    const { name, baseUrl, apiKey, model } = entry;
+    const url = typeof baseUrl === "string" ? httpsUrl(baseUrl) : null;
+    const valid =
+      typeof name === "string" &&
+      PROVIDER_NAME.test(name) &&
+      !names.has(name) &&
+      url &&
+      typeof apiKey === "string" &&
+      apiKey &&
+      typeof model === "string" &&
+      model;
+    if (!valid) return [];
+    names.add(name);
+    return [{ name, baseUrl: url, apiKey, model }];
   });
 }
 
@@ -82,7 +100,8 @@ export function providerChain(userKey, env = process.env) {
     });
   }
 
-  return [...chain, ...extraProviders(env)];
+  const taken = ["own", ...chain.map((provider) => provider.name)];
+  return [...chain, ...extraProviders(env, taken)];
 }
 
 // Repo and issue text goes through this, so the model can treat it as content.

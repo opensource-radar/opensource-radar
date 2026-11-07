@@ -21,6 +21,11 @@ function fakeRedis(db, command) {
       db.set(key, String(next));
       return next;
     }
+    case "DECR": {
+      const next = (Number(db.get(key)) || 0) - 1;
+      db.set(key, String(next));
+      return next;
+    }
     case "EXPIRE":
       return 1;
     case "SADD": {
