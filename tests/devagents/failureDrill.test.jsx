@@ -75,7 +75,7 @@ describe("failure drill", () => {
     async (mode) => {
       stubSite(true, BACKEND[mode]);
       render(<App />);
-      fireEvent.click(await screen.findByRole("button", { name: /get help/i }, { timeout: 3000 }));
+      fireEvent.click(await screen.findByRole("link", { name: /get help/i }, { timeout: 3000 }));
       fireEvent.click(await screen.findByRole("button", { name: "Explain this issue" }, { timeout: 3000 }));
 
       await waitFor(
@@ -88,8 +88,9 @@ describe("failure drill", () => {
         },
         { timeout: 3000 },
       );
-      expect(screen.getAllByText("A real issue").length).toBeGreaterThan(0);
-      expect(screen.getByRole("heading", { name: "Understand" })).toBeTruthy();
+      expect(screen.getByRole("heading", { level: 1, name: "A real issue" })).toBeTruthy();
+      expect(screen.getByRole("heading", { level: 2, name: "Understand" })).toBeTruthy();
+      window.history.pushState(null, "", "/");
     },
   );
 
@@ -97,14 +98,14 @@ describe("failure drill", () => {
     stubSite(false);
     render(<App />);
     await screen.findByText("A real issue", {}, { timeout: 3000 });
-    expect(screen.queryByRole("button", { name: /get help/i })).toBeNull();
+    expect(screen.queryByRole("link", { name: /get help/i })).toBeNull();
     expect(devAgentsCalls()).toHaveLength(0);
   });
 
   it("opening the page sends no DevAgents request, even with the switch on", async () => {
     stubSite(true);
     render(<App />);
-    await screen.findByRole("button", { name: /get help/i }, { timeout: 3000 });
+    await screen.findByRole("link", { name: /get help/i }, { timeout: 3000 });
     expect(devAgentsCalls()).toHaveLength(0);
   });
 });

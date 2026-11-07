@@ -4,6 +4,8 @@ const GITHUB = "https://github.com";
 const MAX_PR_URL_LENGTH = 6000;
 const ISSUE_PATH = /^\/([\w.-]+)\/([\w.-]+)\/issues\/(\d+)\/?$/;
 
+const HELP_PATH = /^\/help\/([\w.-]+)\/([\w.-]+)\/([1-9]\d*)\/?$/;
+
 const encodePath = (path) => String(path).split("/").map(encodeURIComponent).join("/");
 
 export function parseIssueUrl(url) {
@@ -23,6 +25,15 @@ export function parsePrNumber(text) {
   const match = /^\s*#?(\d+)\s*$/.exec(text) ?? /\/pull\/(\d+)/.exec(text);
   const number = match ? Number(match[1]) : 0;
   return number > 0 ? number : null;
+}
+
+// The address of an issue's help page on this site.
+export const helpPath = (repo, issue) => `/help/${repo}/${issue}`;
+
+export function parseHelpPath(pathname) {
+  const match = HELP_PATH.exec(pathname);
+  if (!match || [match[1], match[2]].some((part) => /^\.+$/.test(part))) return null;
+  return { repo: `${match[1]}/${match[2]}`, issue: Number(match[3]) };
 }
 
 export const repoUrl = (repo) => `${GITHUB}/${repo}`;

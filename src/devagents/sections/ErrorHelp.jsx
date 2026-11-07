@@ -31,6 +31,7 @@ function ErrorHelp({ issue }) {
       <p className="devagents-muted">Remove passwords and private details before pasting.</p>
       <button
         type="button"
+        className="secondary-button"
         disabled={loading || !errorText.trim()}
         onClick={() => run({ errorText: endOfLog(errorText) })}
       >

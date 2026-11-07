@@ -35,6 +35,7 @@ function Submit({ issue, shared }) {
       />
       <button
         type="button"
+        className="primary-button"
         disabled={loading || !change.trim()}
         onClick={() => run({ change: change.trim() })}
       >

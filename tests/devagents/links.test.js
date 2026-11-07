@@ -1,9 +1,12 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
   codespacesUrl,
   editorUrl,
   fileUrl,
+  helpPath,
   issueUrl,
+  parseHelpPath,
   parseIssueUrl,
   prUrl,
 } from "../../src/devagents/links.js";
@@ -40,6 +43,15 @@ describe("links", () => {
     expect(parseIssueUrl(undefined)).toBeNull();
   });
 
+  it("builds and reads help page addresses", () => {
+    expect(helpPath("a/b.c", 12)).toBe("/help/a/b.c/12");
+    expect(parseHelpPath("/help/a/b.c/12")).toEqual({ repo: "a/b.c", issue: 12 });
+    expect(parseHelpPath("/help/a/b.c/12/")).toEqual({ repo: "a/b.c", issue: 12 });
+    for (const bad of ["/help/a/b", "/help/a/b/x", "/help/a/b/0", "/help/../b/1", "/about", "/help/a/b/1/2"]) {
+      expect(parseHelpPath(bad)).toBeNull();
+    }
+  });
+
   it("fills in the PR page when the link fits", () => {
     const { url, bodyIncluded } = prUrl("a/b", "main", "me", "fix/x", { title: "T 1", body: "B&2" });
     const parsed = new URL(url);
@@ -56,5 +68,12 @@ describe("links", () => {
     expect(url.length).toBeLessThan(6000);
     expect(new URL(url).searchParams.get("body")).toBeNull();
     expect(new URL(url).searchParams.get("title")).toBe("t");
+  });
+});
+
+describe("hosting", () => {
+  it("serves the app at help page addresses", () => {
+    const { rewrites } = JSON.parse(readFileSync(new URL("../../vercel.json", import.meta.url), "utf8"));
+    expect(rewrites).toContainEqual({ source: "/help/:owner/:repo/:issue", destination: "/index.html" });
   });
 });

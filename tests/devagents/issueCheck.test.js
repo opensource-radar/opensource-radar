@@ -44,6 +44,12 @@ describe("issue-check", () => {
     expect((await callAction("issue-check", target)).body.data.paymentClaim).toBe(true);
   });
 
+  it("returns the issue's title, for pages opened from a link", async () => {
+    const github = { ...base, "/repos/a/b/issues/1": { ...base["/repos/a/b/issues/1"], title: "Real title" } };
+    fakeWorld({ github });
+    expect((await callAction("issue-check", target)).body.data.title).toBe("Real title");
+  });
+
   it("marks an archived repo", async () => {
     fakeWorld({ github: { ...base, "/repos/a/b": { default_branch: "main", archived: true } } });
     expect((await callAction("issue-check", target)).body.data.archived).toBe(true);

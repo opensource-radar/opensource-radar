@@ -107,6 +107,15 @@ describe("claimStatus", () => {
     },
   );
 
+  it.each([
+    [0, /asked to work on this today/],
+    [1, /asked to work on this yesterday/],
+    [5, /asked to work on this 5 days ago/],
+  ])("says when a claim from %i days ago was made in plain words", (days, wording) => {
+    const { reasons } = status({ comments: [comment("I would like to work on this", days)] });
+    expect(reasons[0]).toMatch(wording);
+  });
+
   it("an old claim doesn't count", () => {
     expect(status({ comments: [comment("I would like to work on this", 31)] }).verdict).toBe("clear");
   });

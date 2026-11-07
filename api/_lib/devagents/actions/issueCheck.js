@@ -42,6 +42,7 @@ export async function issueCheck(ctx, payload) {
   return {
     ...claimStatus({ issue, comments, linkedPulls, now: Date.now() }),
     ...policy,
+    title: issue.title,
     archived: repoInfo.archived,
     paymentClaim: paymentClaim(`${issue.title ?? ""} ${issue.body ?? ""}`),
     claimComment: CLAIM_COMMENT,

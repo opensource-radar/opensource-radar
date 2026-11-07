@@ -1,6 +1,6 @@
 # DevAgents runbook
 
-DevAgents is the optional "Get help with this issue" helper. It only reads public GitHub data and never writes to GitHub. The rest of the site doesn't depend on it.
+DevAgents is the optional "Get help with this issue" helper, which opens its own page at `/help/<owner>/<repo>/<issue>`. It only reads public GitHub data and never writes to GitHub. The rest of the site doesn't depend on it.
 
 ## Setting it up
 

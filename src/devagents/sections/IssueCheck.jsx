@@ -10,7 +10,7 @@ const HEADLINES = {
   closed: "This issue is closed",
 };
 
-function IssueCheck({ issue }) {
+function IssueCheck({ issue, onShare }) {
   const { repo, issue: number } = issue;
   const { data, loading, run, status, failure } = useAction(
     "issue-check",
@@ -22,13 +22,17 @@ function IssueCheck({ issue }) {
     if (status === "idle" && !data) run();
   }, [status, data, run]);
 
+  useEffect(() => {
+    if (data?.title) onShare?.({ issueTitle: data.title });
+  }, [data, onShare]);
+
   return (
     <div>
       {loading && !data && <p className="devagents-muted">Checking this issue…</p>}
       {data && (
         <>
-          <p>
-            <strong>{HEADLINES[data.verdict] ?? "Check this issue"}</strong>
+          <p className={`devagents-status is-${data.verdict}`}>
+            {HEADLINES[data.verdict] ?? "Check this issue"}
           </p>
           {data.verdict !== "clear" && (
             <ul>
@@ -38,14 +42,14 @@ function IssueCheck({ issue }) {
             </ul>
           )}
           {data.paymentClaim && (
-            <p role="alert">
+            <p className="devagents-callout" role="alert">
               This issue mentions payment. We can't verify payment promises, so check the project
               carefully, and never pay or share wallet details to take part.
             </p>
           )}
-          {data.archived && <p>This project is archived, so it won't accept changes.</p>}
+          {data.archived && <p className="devagents-callout">This project is archived, so it won't accept changes.</p>}
           {data.aiPolicy === "banned" && (
-            <p role="alert">
+            <p className="devagents-callout" role="alert">
               This project doesn't accept AI-written contributions. We can explain things, but we
               won't draft any text. Write everything yourself.
             </p>

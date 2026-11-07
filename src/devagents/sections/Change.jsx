@@ -11,11 +11,11 @@ function Change({ issue, shared }) {
   return (
     <div>
       <p>
-        Make the change yourself on GitHub. If it asks, tap "Fork this repository" to make your own
+        If GitHub asks, tap "Fork this repository" to make your own
         copy, then edit the file and propose your change.
       </p>
       {explain?.filesToRead?.length > 0 ? (
-        <ul>
+        <ul className="devagents-files">
           {explain.filesToRead.map((file) => (
             <li key={file.path}>
               <a

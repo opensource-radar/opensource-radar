@@ -102,7 +102,7 @@ function KeySettings() {
       />
 
       {!checked && (
-        <button type="button" disabled={checking || !key.trim()} onClick={check}>
+        <button type="button" className="secondary-button" disabled={checking || !key.trim()} onClick={check}>
           {checking ? "Checking…" : "Check key"}
         </button>
       )}
@@ -131,7 +131,7 @@ function KeySettings() {
               onChange={(event) => setModel(event.target.value)}
             />
           )}
-          <p>
+          <p className="devagents-remember">
             <input
               id={rememberId}
               type="checkbox"
@@ -140,7 +140,7 @@ function KeySettings() {
             />{" "}
             <label htmlFor={rememberId}>Remember on this device</label>
           </p>
-          <button type="button" disabled={!model.trim()} onClick={save}>
+          <button type="button" className="primary-button" disabled={!model.trim()} onClick={save}>
             Save key
           </button>
         </>
@@ -151,6 +151,7 @@ function KeySettings() {
           Using your {nameOf(current.provider)} key.{" "}
           <button
             type="button"
+            className="secondary-button"
             onClick={() => {
               clearOwnKey();
               setCurrent(null);

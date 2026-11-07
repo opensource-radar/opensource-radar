@@ -41,7 +41,8 @@ import {
 } from "./search";
 import "./App.css";
 import DevAgentsEntry from "./devagents/DevAgentsEntry";
-import { parseIssueUrl } from "./devagents/links";
+import DevAgentsRoute from "./devagents/DevAgentsRoute";
+import { helpPath, parseHelpPath, parseIssueUrl } from "./devagents/links";
 import { clearOwnKey } from "./devagents/ownKey";
 
 const THEME_KEY = "opensource-radar-theme";
@@ -176,16 +177,15 @@ function getInitialThemePreference() {
 
 // DevAgents is optional: when it's off, or anything about it fails, cards look
 // and work exactly as they do without it.
-function devAgentsActions(enabled, issue, signedIn) {
+function devAgentsActions(enabled, issue, onOpen) {
   const target = enabled ? parseIssueUrl(issue.url) : null;
   if (!target) return undefined;
 
   return (
     <ErrorBoundary fallback={null}>
       <DevAgentsEntry
-        issue={{ ...target, title: issue.title }}
-        language={issue.language}
-        signedIn={signedIn}
+        issue={{ ...target, title: issue.title, language: issue.language }}
+        onOpen={onOpen}
       />
     </ErrorBoundary>
   );
@@ -200,6 +200,7 @@ const routeFromPath = () => {
   const pathname = withoutTrailingSlash(window.location.pathname);
   if (pathname === ABOUT_PATH) return "about";
   if (pathname === GUIDE_PATH) return "guide";
+  if (parseHelpPath(pathname)) return "help";
   return "search";
 };
 
@@ -355,6 +356,7 @@ function App() {
   }, []);
 
   useEffect(() => {
+    if (route === "help") return; // The help page sets its own details.
     if (route === "about") setPageMeta(ABOUT);
     else if (route === "guide") setPageMeta(GUIDE);
     else setPageMeta(languagePage ?? HOME);
@@ -557,6 +559,23 @@ function App() {
     window.history.pushState(null, "", "/");
     setRoute("search");
     window.scrollTo(0, 0);
+  };
+
+  const showHelp = ({ repo, issue, title, language }) => {
+    window.history.pushState(
+      { fromSearch: true, title, language },
+      "",
+      helpPath(repo, issue),
+    );
+    setRoute("help");
+    setFiltersOpen(false);
+    window.scrollTo(0, 0);
+  };
+
+  // Going back through history keeps the visitor's search and place in it.
+  const leaveHelp = () => {
+    if (window.history.state?.fromSearch) window.history.back();
+    else backToSearch();
   };
 
   const runNewSearch = (changes) => {
@@ -783,6 +802,24 @@ function App() {
 
         {route === "about" && <AboutPage onBack={backToSearch} />}
         {route === "guide" && <GuidePage onBack={backToSearch} />}
+        {route === "help" && (
+          <ErrorBoundary fallback={null}>
+            <DevAgentsRoute
+              key={window.location.pathname}
+              issue={{
+                ...parseHelpPath(withoutTrailingSlash(window.location.pathname)),
+                title: window.history.state?.title,
+              }}
+              language={window.history.state?.language}
+              account={{
+                checked: account.checked,
+                devAgents: account.devAgents,
+                signedIn,
+              }}
+              onBack={leaveHelp}
+            />
+          </ErrorBoundary>
+        )}
 
         <section className="hero" hidden={route !== "search"}>
           <p className="eyebrow">YOUR OPEN-SOURCE JOURNEY STARTS HERE</p>
@@ -969,7 +1006,7 @@ function App() {
                   saved={savedIds.has(issue.id)}
                   onToggleSave={signedIn ? () => toggleSaved(issue) : undefined}
                   project={projects[issue.repo.replace(" / ", "/")]}
-                  actions={devAgentsActions(account.devAgents, issue, signedIn)}
+                  actions={devAgentsActions(account.devAgents, issue, showHelp)}
                 />
               ))
             )}

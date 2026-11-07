@@ -32,7 +32,7 @@ function Check({ issue, shared, onShare }) {
         placeholder="patch-1"
         onChange={(event) => setChange(event.target.value)}
       />
-      <button type="button" disabled={loading || !change.trim()} onClick={submit}>
+      <button type="button" className="primary-button" disabled={loading || !change.trim()} onClick={submit}>
         {loading ? "Checking…" : "Check my change"}
       </button>
 
