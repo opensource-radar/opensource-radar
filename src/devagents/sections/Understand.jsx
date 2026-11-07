@@ -23,10 +23,10 @@ function Understand({ issue, onShare }) {
 
   return (
     <div>
-      <IssueCheck issue={issue} />
+      <IssueCheck issue={issue} onShare={onShare} />
 
       {!data && (
-        <button type="button" disabled={loading}
+        <button type="button" className="primary-button" disabled={loading}
           onClick={async () => {
             // One at a time: two requests at once could both try to renew an
             // expiring sign-in, and the loser would be signed out.
@@ -41,9 +41,7 @@ function Understand({ issue, onShare }) {
         <>
           <p className="devagents-text">{data.summary}</p>
           {DIFFICULTY[data.difficulty] && (
-            <p>
-              <strong>Difficulty:</strong> {DIFFICULTY[data.difficulty]}
-            </p>
+            <p className="devagents-difficulty">Difficulty: {DIFFICULTY[data.difficulty]}</p>
           )}
 
           {data.partial && (
@@ -61,8 +59,8 @@ function Understand({ issue, onShare }) {
 
           {data.filesToRead?.length > 0 && (
             <>
-              <h4>Files to read</h4>
-              <ul>
+              <h3>Files to read</h3>
+              <ul className="devagents-files">
                 {data.filesToRead.map((file) => (
                   <li key={file.path}>
                     <a
@@ -73,7 +71,7 @@ function Understand({ issue, onShare }) {
                       {file.path}
                       {file.line ? `, line ${file.line}` : ""} ↗
                     </a>
-                    {file.why && <> – {file.why}</>}
+                    {file.why && <span>{file.why}</span>}
                   </li>
                 ))}
               </ul>
@@ -82,7 +80,7 @@ function Understand({ issue, onShare }) {
 
           {data.setupSteps?.length > 0 && (
             <>
-              <h4>How to run the project</h4>
+              <h3>How to run the project</h3>
               <p className="devagents-note">
                 These steps are AI-written. Check every command against the project's own docs
                 before you run it.
@@ -97,7 +95,7 @@ function Understand({ issue, onShare }) {
 
           {data.rules?.length > 0 && (
             <>
-              <h4>Project rules</h4>
+              <h3>Project rules</h3>
               <ul>
                 {data.rules.map((rule) => (
                   <li key={rule}>{rule}</li>

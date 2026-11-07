@@ -26,10 +26,10 @@ function AfterPr({ issue, language, shared }) {
         value={text}
         onChange={(event) => setText(event.target.value)}
       />
-      <button type="button" disabled={!pr || checks.loading} onClick={() => checks.run({ pr })}>
+      <button type="button" className="secondary-button" disabled={!pr || checks.loading} onClick={() => checks.run({ pr })}>
         {checks.loading ? "Looking…" : "Explain my failed checks"}
       </button>{" "}
-      <button type="button" disabled={!pr || review.loading} onClick={() => review.run({ pr })}>
+      <button type="button" className="secondary-button" disabled={!pr || review.loading} onClick={() => review.run({ pr })}>
         {review.loading ? "Reading…" : "Explain the review comments"}
       </button>
 

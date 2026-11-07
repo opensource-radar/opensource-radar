@@ -10,6 +10,10 @@
       "destination": "/api/auth/:action"
     },
     {
+      "source": "/help/:owner/:repo/:issue",
+      "destination": "/index.html"
+    },
+    {
       "source": "/about",
       "destination": "/about/index.html"
     },

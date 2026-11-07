@@ -17,7 +17,7 @@ function HintLevel({ issue, level, children }) {
       {data ? (
         <p className="devagents-text">{data.hint}</p>
       ) : (
-        <button type="button" disabled={loading} onClick={() => run()}>
+        <button type="button" className="secondary-button" disabled={loading} onClick={() => run()}>
           {loading ? "Thinking…" : BUTTONS[level]}
         </button>
       )}
@@ -42,7 +42,6 @@ function HintLevel({ issue, level, children }) {
 function Plan({ issue }) {
   return (
     <div>
-      <p className="devagents-muted">Try it yourself first. Ask for a hint when you're stuck.</p>
       <HintLevel issue={issue} level={1}>
         <HintLevel issue={issue} level={2}>
           <HintLevel issue={issue} level={3} />

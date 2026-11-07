@@ -1,49 +1,21 @@
-import { lazy, Suspense, useState } from "react";
-import ErrorBoundary from "../components/ErrorBoundary";
+import { isPlainClick } from "../links";
+import { helpPath } from "./links";
 
-const importPanel = () => import("./Panel.jsx");
-
-// The button on each issue card. The panel's code downloads only when someone
-// opens it, so visitors who never use DevAgents don't pay for it.
-function DevAgentsEntry({ issue, language, signedIn, loadPanel = importPanel }) {
-  const [open, setOpen] = useState(false);
-  // React remembers a failed lazy() forever, so a retry needs a new one.
-  const [LazyPanel, setLazyPanel] = useState(() => lazy(loadPanel));
-
+// The link on each issue card. It's a real link, so it can open in a new tab. A
+// normal click moves to the help page without reloading, keeping the search.
+function DevAgentsEntry({ issue, onOpen }) {
   return (
-    <>
-      <button type="button" className="devagents-entry" onClick={() => setOpen(true)}>
-        Get help with this issue
-      </button>
-      {open && (
-        <ErrorBoundary
-          fallback={({ retry }) => (
-            <span role="alert">
-              Help couldn't load.{" "}
-              <button
-                type="button"
-                className="devagents-entry"
-                onClick={() => {
-                  setLazyPanel(() => lazy(loadPanel));
-                  retry();
-                }}
-              >
-                Try again
-              </button>
-            </span>
-          )}
-        >
-          <Suspense fallback={<span>Loading…</span>}>
-            <LazyPanel
-              issue={issue}
-              language={language}
-              signedIn={signedIn}
-              onClose={() => setOpen(false)}
-            />
-          </Suspense>
-        </ErrorBoundary>
-      )}
-    </>
+    <a
+      className="devagents-entry"
+      href={helpPath(issue.repo, issue.issue)}
+      onClick={(event) => {
+        if (!isPlainClick(event)) return;
+        event.preventDefault();
+        onOpen(issue);
+      }}
+    >
+      Get help with this issue
+    </a>
   );
 }
 

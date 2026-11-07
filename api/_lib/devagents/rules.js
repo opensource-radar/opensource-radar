@@ -51,6 +51,9 @@ const MENTION = /@([\w-]+)/g;
 const isMaintainer = (comment) => MAINTAINER_ROLES.has(comment.author_association);
 const ageDays = (date, now) => (now - new Date(date).getTime()) / DAY_MS;
 
+const whenAgo = (days) =>
+  days === 0 ? "today" : days === 1 ? "yesterday" : `${days} days ago`;
+
 // True if a maintainer's later comment makes an earlier claim no longer count.
 function claimReleased(claim, later) {
   const claimer = claim.user?.login?.toLowerCase();
@@ -79,7 +82,7 @@ export function claimStatus({ issue, comments, linkedPulls, now }) {
     if (ageDays(comment.created_at, now) > CLAIM_WITHIN_DAYS) return;
     if (!CLAIM.test(comment.body ?? "")) return;
     if (claimReleased(comment, comments.slice(index + 1))) return;
-    reasons.push(`Someone asked to work on this ${Math.floor(ageDays(comment.created_at, now))} days ago.`);
+    reasons.push(`Someone asked to work on this ${whenAgo(Math.floor(ageDays(comment.created_at, now)))}.`);
   });
 
   if (reasons.length > 0) return { verdict: "taken", reasons };
