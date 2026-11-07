@@ -1,3 +1,7 @@
+import { issueCheck } from "./issueCheck.js";
+
 // Every DevAgents action. `llm: true` means it can call an LLM, so it needs
 // { repo, issue } and counts towards the daily limits.
-export const actions = {};
+export const actions = {
+  "issue-check": { llm: false, handler: issueCheck },
+};
