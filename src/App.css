@@ -2023,3 +2023,14 @@ body {
 .search-help .search-help-grid {
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
 }
+
+/* Respect the user's reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+    scroll-behavior: auto !important;
+  }
+}
