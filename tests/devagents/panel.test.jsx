@@ -72,6 +72,17 @@ describe("Panel", () => {
     }
   });
 
+  it("says that text goes to outside AI services, before anything is sent", () => {
+    render(<Panel issue={issue} signedIn sections={[]} onClose={() => {}} />);
+    expect(screen.getByText(/outside AI services/i)).toBeTruthy();
+    expect(screen.getByText(/don't paste private details/i)).toBeTruthy();
+  });
+
+  it("tells signed-out visitors about outside AI services too", () => {
+    render(<Panel issue={issue} signedIn={false} onClose={() => {}} />);
+    expect(screen.getByText(/outside AI services/i)).toBeTruthy();
+  });
+
   it("a thrown section shows its fallback and keeps the rest", () => {
     const sections = [
       { id: "one", title: "One", Component: Boom },

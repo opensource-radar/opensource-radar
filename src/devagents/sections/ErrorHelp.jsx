@@ -39,6 +39,10 @@ function ErrorHelp({ issue }) {
       {data && (
         <>
           <p className="devagents-text">{data.meaning}</p>
+          <p className="devagents-note">
+            These steps are AI-written. Check every command against the project's own docs before
+            you run it.
+          </p>
           <ol>
             {data.nextSteps?.map((step) => (
               <li key={step}>{step}</li>

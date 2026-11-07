@@ -10,7 +10,10 @@ function Change({ issue, shared }) {
 
   return (
     <div>
-      <p>Make the change yourself on GitHub. It will make a copy of the project for you if needed.</p>
+      <p>
+        Make the change yourself on GitHub. If it asks, tap "Fork this repository" to make your own
+        copy, then edit the file and propose your change.
+      </p>
       {explain?.filesToRead?.length > 0 ? (
         <ul>
           {explain.filesToRead.map((file) => (

@@ -26,6 +26,11 @@ describe("Change", () => {
     expect(screen.getByText(/your own GitHub allowance/i)).toBeTruthy();
   });
 
+  it("tells people about GitHub's fork step", () => {
+    render(<Change issue={issue} shared={{ explain }} />);
+    expect(screen.getByText(/tap "Fork this repository"/i)).toBeTruthy();
+  });
+
   it("still offers Codespaces before the issue is explained", () => {
     render(<Change issue={issue} shared={{}} />);
     expect(screen.getByRole("link", { name: /open in codespaces/i })).toBeTruthy();

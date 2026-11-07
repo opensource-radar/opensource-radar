@@ -76,6 +76,10 @@ function Understand({ issue, onShare }) {
           {data.setupSteps?.length > 0 && (
             <>
               <h4>How to run the project</h4>
+              <p className="devagents-note">
+                These steps are AI-written. Check every command against the project's own docs
+                before you run it.
+              </p>
               <ol>
                 {data.setupSteps.map((step) => (
                   <li key={step}>{step}</li>

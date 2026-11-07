@@ -6,6 +6,13 @@ import { SECTIONS } from "./sections/index";
 import KeySettings from "./sections/KeySettings";
 import "./devagents.css";
 
+const aiNotice = (
+  <p className="devagents-section devagents-muted">
+    This helper uses outside AI services. The issue, public project files and anything you paste are
+    sent to them, so don't paste private details. AI can be wrong, so check its answers.
+  </p>
+);
+
 const sectionFallback = ({ retry }) => (
   <p className="devagents-note" role="alert">
     This part couldn't load.{" "}
@@ -54,6 +61,8 @@ function Panel({ issue, language, signedIn, onClose, sections = SECTIONS }) {
           <Icon name="x" />
         </button>
       </div>
+
+      {aiNotice}
 
       {signedIn ? (
         <>

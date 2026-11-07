@@ -1,0 +1,23 @@
+name: Uptime check
+
+# Checks that the live site is up. A failed run makes GitHub email whoever last
+# changed this schedule. GitHub can run these late, so it isn't instant.
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  check:
+    name: Check the live site
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Home page loads
+        run: curl --fail --silent --show-error --max-time 30 --retry 2 --output /dev/null https://opensource-radar.com/
+      - name: About page loads
+        run: curl --fail --silent --show-error --max-time 30 --retry 2 --output /dev/null https://opensource-radar.com/about
+      - name: Functions respond
+        run: curl --fail --silent --show-error --max-time 30 --retry 2 https://opensource-radar.com/api/me | grep -q signInAvailable
