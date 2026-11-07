@@ -8,13 +8,28 @@ import {
   refundIssue,
   refundLlmCall,
 } from "./_lib/devagents/limits.js";
-import { askJson } from "./_lib/devagents/llm.js";
+import { askJson, ownKeyAddress } from "./_lib/devagents/llm.js";
 import { scrubSecrets } from "./_lib/devagents/scrub.js";
 import { parseTarget } from "./_lib/devagents/target.js";
 import { getConfig, json } from "./_lib/session.js";
 
 const DEADLINE_MS = 25000;
 const MAX_BODY_BYTES = 20 * 1024;
+const MODEL_NAME = /^[\w.:/-]{1,200}$/;
+
+// A user's own key, and the provider and model they chose for it. It's only
+// used for this request, and is never stored or logged.
+function readOwnKey(request) {
+  const key = request.headers.get("x-user-llm-key");
+  if (!key) return null;
+
+  const provider = request.headers.get("x-user-llm-provider") || "groq";
+  const model = request.headers.get("x-user-llm-model") || null;
+  if (!ownKeyAddress(provider) || (model && !MODEL_NAME.test(model))) {
+    throw new DevAgentsError("invalid_request", 400);
+  }
+  return { key, provider, model };
+}
 
 function buildContext(session, userKey, target, issueCharged) {
   const login = session.user.login;
@@ -55,6 +70,9 @@ function buildContext(session, userKey, target, issueCharged) {
 }
 
 async function readPayload(request) {
+  if (!request.headers.get("content-type")?.includes("application/json")) {
+    throw new DevAgentsError("invalid_request", 400);
+  }
   const text = await request.text();
   if (new TextEncoder().encode(text).length > MAX_BODY_BYTES) {
     throw new DevAgentsError("too_large", 413);
@@ -99,7 +117,7 @@ export async function POST(request) {
     const action = Object.hasOwn(actions, name) ? actions[name] : null;
     if (!action) throw new DevAgentsError("invalid_request", 400);
 
-    const userKey = request.headers.get("x-user-llm-key") || null;
+    const userKey = readOwnKey(request);
     target = action.llm ? parseTarget(payload) : null;
     const issueCharged =
       target && !userKey ? await chargeIssue(login, target.repo, target.issue) : false;

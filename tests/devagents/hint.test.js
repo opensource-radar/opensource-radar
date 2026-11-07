@@ -57,6 +57,16 @@ describe("hint", () => {
     expect((await hintAt(level)).status).toBe(400);
   });
 
+  it("keeps the hint if GitHub fails after the AI has answered", async () => {
+    const repo = github();
+    repo["/repos/a/b/git/trees/abc"] = new Response("{}", { status: 500 });
+    fakeWorld({ github: repo, llm: [{ hint: "Keep me", draft }] });
+    const { status, body } = await hintAt(3);
+    expect(status).toBe(200);
+    expect(body.data.hint).toBe("Keep me");
+    expect(body.data.draft).toBeUndefined();
+  });
+
   it("tells the model not to write the fix", async () => {
     const world = fakeWorld({ github: github(), llm: [{ hint: "h" }] });
     await hintAt(1);

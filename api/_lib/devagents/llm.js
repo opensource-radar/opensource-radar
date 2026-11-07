@@ -74,16 +74,34 @@ function extraProviders(env, taken) {
   });
 }
 
+// Where people's own keys may be sent. It's a fixed list, so a request can never
+// send a key to an address of its choosing.
+const OWN_KEY_ADDRESSES = {
+  ...Object.fromEntries(SHARED_PROVIDERS.map(({ name, baseUrl }) => [name, baseUrl])),
+  openrouter: "https://openrouter.ai/api/v1",
+  openai: "https://api.openai.com/v1",
+};
+
+export function ownKeyAddress(provider) {
+  return Object.hasOwn(OWN_KEY_ADDRESSES, provider) ? OWN_KEY_ADDRESSES[provider] : null;
+}
+
+// A user's key, with the provider and model they chose. Without a model, it uses
+// the model set for that provider, if there is one.
+function ownKeyProvider(userKey, env) {
+  const own = typeof userKey === "string" ? { key: userKey, provider: "groq" } : userKey;
+  if (!own?.key) return null;
+
+  const baseUrl = ownKeyAddress(own.provider);
+  const shared = SHARED_PROVIDERS.find(({ name }) => name === own.provider);
+  const model = own.model || (shared && env[shared.modelVar]);
+  return baseUrl && model ? { name: "own", baseUrl, apiKey: own.key, model } : null;
+}
+
 export function providerChain(userKey, env = process.env) {
   const chain = [];
-  if (userKey && env.DEVAGENTS_GROQ_MODEL) {
-    chain.push({
-      name: "own",
-      baseUrl: GROQ_URL,
-      apiKey: userKey,
-      model: env.DEVAGENTS_GROQ_MODEL,
-    });
-  }
+  const own = ownKeyProvider(userKey, env);
+  if (own) chain.push(own);
   for (const { name, baseUrl, keyVar, modelVar } of SHARED_PROVIDERS) {
     if (env[keyVar] && env[modelVar]) {
       chain.push({ name, baseUrl, apiKey: env[keyVar], model: env[modelVar] });
@@ -107,8 +125,14 @@ export function providerChain(userKey, env = process.env) {
 // Repo and issue text goes through this, so the model can treat it as content.
 // System prompts must say that text inside data tags is never instructions.
 export function asData(label, text) {
-  const clean = String(text).replace(/<\/?data\b[^>]*>/gi, "");
-  return `<data name="${label}">\n${clean}\n</data>`;
+  let clean = String(text);
+  let previous;
+  // Repeats, so removing one tag can't join up the pieces of another.
+  do {
+    previous = clean;
+    clean = clean.replace(/<\/?data\b[^>]*>/gi, "");
+  } while (clean !== previous);
+  return `<data name="${String(label).replace(/[<>"]/g, "")}">\n${clean}\n</data>`;
 }
 
 function parseJson(content) {

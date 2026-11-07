@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { DevAgentsError } from "../errors.js";
 import { daRedis } from "../store.js";
 
@@ -13,12 +14,25 @@ const FEEDBACK_ACTIONS = new Set([
 const REASONS = new Set(["wrong_file", "confusing", "other"]);
 const EVENTS = new Set(["explain", "editor_opened", "pr_page_opened"]);
 const COUNTER_SECONDS = 90 * 24 * 60 * 60;
+const PER_PERSON_PER_DAY = 100;
+const PERSON_SECONDS = 2 * 24 * 60 * 60;
 
 const today = () => new Date().toISOString().slice(0, 10);
 
+// Keeps one person from using up the database. It's stored as a hash, so the
+// database doesn't hold usernames for this.
+async function withinPersonLimit(login) {
+  const person = createHash("sha256").update(login.toLowerCase()).digest("hex").slice(0, 16);
+  const key = `da:rate:${person}:${today()}`;
+  const used = await daRedis(["INCR", key]);
+  if (used === 1) await daRedis(["EXPIRE", key, PERSON_SECONDS]);
+  return used <= PER_PERSON_PER_DAY;
+}
+
 // Plain daily counts: no usernames, issue text or anything anyone typed.
-async function count(names) {
+async function count(login, names) {
   try {
+    if (!(await withinPersonLimit(login))) return { saved: false };
     for (const name of names) {
       const key = `da:count:${name}:${today()}`;
       await daRedis(["INCR", key]);
@@ -30,7 +44,7 @@ async function count(names) {
   }
 }
 
-export function feedback(_ctx, { action, helpful, reason }) {
+export function feedback(ctx, { action, helpful, reason }) {
   if (
     !FEEDBACK_ACTIONS.has(action) ||
     typeof helpful !== "boolean" ||
@@ -40,10 +54,10 @@ export function feedback(_ctx, { action, helpful, reason }) {
   }
   const names = [`feedback:${action}:${helpful ? "up" : "down"}`];
   if (reason) names.push(`feedback:${action}:${reason}`);
-  return count(names);
+  return count(ctx.login, names);
 }
 
-export function event(_ctx, { name }) {
+export function event(ctx, { name }) {
   if (!EVENTS.has(name)) throw new DevAgentsError("invalid_request", 400);
-  return count([name]);
+  return count(ctx.login, [name]);
 }

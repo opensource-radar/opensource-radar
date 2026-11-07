@@ -129,11 +129,20 @@ describe("explain", () => {
     expect(world.llmCalls()).toHaveLength(1);
   });
 
-  it("a truncated tree returns a normal answer", async () => {
+  it("a truncated tree returns a normal answer, and says only part was read", async () => {
     const repo = github();
     repo["/repos/a/b/git/trees/abc"].truncated = true;
     fakeWorld({ github: repo, llm: [done([appFile]), explained] });
-    expect((await callAction("explain", target)).status).toBe(200);
+    const { status, body } = await callAction("explain", target);
+    expect(status).toBe(200);
+    expect(body.data.largeRepo).toBe(true);
+  });
+
+  it("tells the model not to repeat payment promises as fact", async () => {
+    const world = fakeWorld({ github: github(), llm: [done([appFile]), explained] });
+    await callAction("explain", target);
+    const { messages } = JSON.parse(world.llmCalls().at(-1).init.body);
+    expect(messages[0].content).toMatch(/payment/i);
   });
 
   it("returns not_found for a deleted issue", async () => {

@@ -114,6 +114,22 @@ describe("Understand", () => {
     await screen.findByText(/check every command against the project's own docs/i);
   });
 
+  it("warns when an issue promises payment", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => Response.json({ data: { ...checkData, paymentClaim: true } })),
+    );
+    render(<Understand issue={issue} onShare={() => {}} />);
+    await screen.findByText(/can't verify payment/i);
+  });
+
+  it("says when only part of a big project was read", async () => {
+    stubBackend({ ...explainData, largeRepo: true });
+    render(<Understand issue={issue} onShare={() => {}} />);
+    fireEvent.click(screen.getByRole("button", { name: "Explain this issue" }));
+    await screen.findByText(/only looked at part of its file list/i);
+  });
+
   it("says when an answer is partial", async () => {
     stubBackend({ ...explainData, partial: true, filesToRead: [] });
     render(<Understand issue={issue} onShare={() => {}} />);

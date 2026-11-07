@@ -19,6 +19,13 @@ export function aiPolicy(texts) {
   return allowed ? "allowed" : "unknown";
 }
 
+const PAYMENT = /\b(bount(y|ies)|escrow\w*|usdc|usdt|crypto\w*|wallet|paid (automatically|on merge)|payout)\b|\$\s?\d/i;
+
+// Notices issues that promise money, which nothing here can verify.
+export function paymentClaim(text) {
+  return Boolean(text) && PAYMENT.test(text);
+}
+
 const RULES = [
   { id: "cla", pattern: /\bCLA\b|contributor license agreement/i, label: "Sign the contributor license agreement (CLA)" },
   { id: "dco", pattern: /\bDCO\b|signed-off-by|sign[- ]off/i, label: "Add a sign-off line to your commits" },

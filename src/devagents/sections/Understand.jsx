@@ -52,6 +52,13 @@ function Understand({ issue, onShare }) {
             </p>
           )}
 
+          {data.largeRepo && (
+            <p className="devagents-note">
+              This is a big project, so we only looked at part of its file list. There may be other
+              files that matter.
+            </p>
+          )}
+
           {data.filesToRead?.length > 0 && (
             <>
               <h4>Files to read</h4>

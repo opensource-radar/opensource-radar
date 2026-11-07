@@ -67,7 +67,7 @@ export function useAction(action, payload, stateKey, { notFoundMessage } = {}) {
         ? createElement(
             "p",
             { className: "devagents-note", role: "status" },
-            "Your Groq key didn't work, so this used the shared service instead.",
+            "Your key didn't work, so this used the shared service instead.",
           )
         : null;
   /* eslint-enable react-hooks/refs */

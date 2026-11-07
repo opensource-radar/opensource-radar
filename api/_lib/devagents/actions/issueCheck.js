@@ -1,6 +1,6 @@
 import { gh } from "../github.js";
 import { cached } from "../limits.js";
-import { aiPolicy, claimStatus, repoRules } from "../rules.js";
+import { aiPolicy, claimStatus, paymentClaim, repoRules } from "../rules.js";
 import { parseTarget } from "../target.js";
 
 const POLICY_FILES = [
@@ -43,6 +43,7 @@ export async function issueCheck(ctx, payload) {
     ...claimStatus({ issue, comments, linkedPulls, now: Date.now() }),
     ...policy,
     archived: repoInfo.archived,
+    paymentClaim: paymentClaim(`${issue.title ?? ""} ${issue.body ?? ""}`),
     claimComment: CLAIM_COMMENT,
   };
 }

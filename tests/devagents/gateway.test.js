@@ -90,6 +90,13 @@ describe("gateway", () => {
     },
   );
 
+  it("refuses requests that aren't JSON", async () => {
+    fakeWorld();
+    const { status, body } = await callAction("ping", {}, { headers: { "Content-Type": "text/plain" } });
+    expect(status).toBe(400);
+    expect(body).toEqual({ error: "invalid_request" });
+  });
+
   it("returns too_large over 20 KB", async () => {
     fakeWorld();
     const { status, body } = await callAction("ping", { text: "x".repeat(21000) });
@@ -152,6 +159,60 @@ describe("limits", () => {
       expect(status).toBe(200);
     }
     expect(world.llmCalls()[0].init.headers.Authorization).toBe("Bearer gsk_mine");
+  });
+
+  describe("choosing a provider for your own key", () => {
+    const headers = {
+      "X-User-LLM-Key": "my-key",
+      "X-User-LLM-Provider": "cerebras",
+      "X-User-LLM-Model": "my-model",
+    };
+
+    it("sends the request to that provider with that model", async () => {
+      const world = fakeWorld({ llm: [{ ok: true }] });
+      const { status } = await callAction("think", target, { headers });
+      expect(status).toBe(200);
+      const [call] = world.llmCalls();
+      expect(call.url).toBe("https://api.cerebras.ai/v1/chat/completions");
+      expect(call.init.headers.Authorization).toBe("Bearer my-key");
+      expect(JSON.parse(call.init.body).model).toBe("my-model");
+    });
+
+    it("skips the limits", async () => {
+      const world = fakeWorld({ llm: Array(10).fill({ ok: true }), redisDown: true });
+      for (const issue of [1, 2, 3, 4, 5, 6, 7]) {
+        expect((await callAction("think", { repo: "a/b", issue }, { headers })).status).toBe(200);
+      }
+      expect(world.sharedLlmCalls()).toHaveLength(0);
+    });
+
+    it.each([
+      ["an unknown provider", { "X-User-LLM-Provider": "https://evil.test" }],
+      ["a bad model name", { "X-User-LLM-Model": "bad model\"x" }],
+    ])("refuses %s", async (_label, extra) => {
+      const world = fakeWorld({ llm: [{ ok: true }] });
+      const { status } = await callAction("think", target, { headers: { ...headers, ...extra } });
+      expect(status).toBe(400);
+      expect(world.llmCalls()).toHaveLength(0);
+    });
+
+    it("falls back to shared capacity, with limits, when no model is known", async () => {
+      vi.stubEnv("DEVAGENTS_CEREBRAS_MODEL", "");
+      const world = fakeWorld({ llm: [{ ok: true }] });
+      const noModel = { ...headers };
+      delete noModel["X-User-LLM-Model"];
+      const { body } = await callAction("think", target, { headers: noModel });
+      expect(body.ownKeyFailed).toBe(true);
+      expect(world.sharedLlmCalls()).toHaveLength(1);
+    });
+
+    it("never stores a user's key or sends it to another provider", async () => {
+      const world = fakeWorld({ llm: [new Response("{}", { status: 401 }), { ok: true }] });
+      await callAction("think", target, { headers });
+      expect(JSON.stringify([...world.db])).not.toContain("my-key");
+      const leaked = world.llmCalls().slice(1).some((call) => call.init.headers.Authorization.includes("my-key"));
+      expect(leaked).toBe(false);
+    });
   });
 
   it("a failing own key falls back to shared capacity and says so", async () => {

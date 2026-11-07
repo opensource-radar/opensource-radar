@@ -48,41 +48,74 @@ describe("explain-error", () => {
 });
 
 describe("validate-key", () => {
-  const validate = (key) =>
-    callAction("validate-key", {}, { headers: key ? { "X-User-LLM-Key": key } : {} });
-  const groq = (status) =>
-    vi.stubGlobal("fetch", vi.fn(async () => new Response("{}", { status })));
+  const validate = (key, provider) =>
+    callAction("validate-key", {}, {
+      headers: {
+        ...(key && { "X-User-LLM-Key": key }),
+        ...(provider && { "X-User-LLM-Provider": provider }),
+      },
+    });
+  const models = (ids) => Response.json({ data: ids.map((id) => ({ id })) });
+  const replyWith = (make) => vi.stubGlobal("fetch", vi.fn(async () => make()));
 
-  it("says valid for a working key, and checks it with Groq", async () => {
-    groq(200);
-    expect((await validate("gsk_good")).body.data).toEqual({ valid: true });
+  it("checks a key with Groq by default, and lists its chat models", async () => {
+    replyWith(() => models(["b-model", "a-model", "whisper-large-v3", "meta-llama/llama-prompt-guard-2", "x/orpheus-v1"]));
+    const { body } = await validate("gsk_good");
+    expect(body.data).toEqual({ valid: true, models: ["a-model", "b-model"] });
     const [url, init] = fetch.mock.calls[0];
     expect(url).toBe("https://api.groq.com/openai/v1/models");
     expect(init.headers.Authorization).toBe("Bearer gsk_good");
   });
 
-  it("returns valid:false on 401, and doesn't store or log the key", async () => {
+  it.each([
+    ["groq", "https://api.groq.com/openai/v1/models"],
+    ["gemini", "https://generativelanguage.googleapis.com/v1beta/openai/models"],
+    ["cerebras", "https://api.cerebras.ai/v1/models"],
+    ["mistral", "https://api.mistral.ai/v1/models"],
+    ["openrouter", "https://openrouter.ai/api/v1/models"],
+    ["openai", "https://api.openai.com/v1/models"],
+  ])("checks %s keys at its own address", async (provider, url) => {
+    replyWith(() => models(["m"]));
+    await validate("k", provider);
+    expect(fetch.mock.calls[0][0]).toBe(url);
+  });
+
+  it("removes Gemini's models/ prefix", async () => {
+    replyWith(() => models(["models/gemini-x"]));
+    expect((await validate("k", "gemini")).body.data.models).toEqual(["gemini-x"]);
+  });
+
+  it.each([["https://evil.test/v1"], ["constructor"], ["own"], ["GROQ"]])(
+    "refuses the provider %s, so a key can't be sent anywhere else",
+    async (provider) => {
+      replyWith(() => models(["m"]));
+      const { status } = await validate("k", provider);
+      expect(status).toBe(400);
+      expect(fetch).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each([[401], [403], [400]])("returns valid:false on %i, without storing or logging the key", async (status) => {
     const world = fakeWorld();
     const spy = vi.spyOn(console, "error").mockImplementation(() => {});
-    fetch.mockImplementationOnce(async () => new Response("{}", { status: 401 }));
-    expect((await validate("gsk_bad")).body.data).toEqual({ valid: false });
+    fetch.mockImplementationOnce(async () => new Response("{}", { status }));
+    expect((await validate("gsk_bad")).body.data).toEqual({ valid: false, models: [] });
     expect(JSON.stringify([...world.db])).not.toContain("gsk_bad");
     expect(JSON.stringify(spy.mock.calls)).not.toContain("gsk_bad");
   });
 
-  it("returns unavailable when Groq can't be reached", async () => {
+  it("returns unavailable when the provider can't be reached", async () => {
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("down")));
     expect((await validate("gsk_x")).body).toEqual({ error: "unavailable" });
   });
 
-  it("doesn't call a key usable when own keys can't be used", async () => {
-    vi.stubEnv("DEVAGENTS_GROQ_MODEL", "");
-    groq(200);
-    expect((await validate("gsk_good")).body).toEqual({ error: "unavailable" });
+  it("still works when the model list has an odd shape", async () => {
+    replyWith(() => Response.json({ surprise: true }));
+    expect((await validate("k")).body.data).toEqual({ valid: true, models: [] });
   });
 
   it("rejects a request with no key", async () => {
-    groq(200);
+    replyWith(() => models([]));
     expect((await validate(null)).status).toBe(400);
   });
 });
