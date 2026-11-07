@@ -134,6 +134,32 @@ describe("sign-in", () => {
     expect(response.headers.get("location")).toBe("/?signin=failed");
   });
 
+  it("keeps DevAgents off by default", async () => {
+    const response = await me(
+      request("/api/me", { headers: { cookie: await sessionCookie() } }),
+    );
+    expect((await response.json()).devAgents).toBe(false);
+  });
+
+  it("turns DevAgents on only for allowed logins", async () => {
+    vi.stubEnv("DEVAGENTS_ENABLED", "true");
+    vi.stubEnv("DEVAGENTS_ALLOWED_LOGINS", "octocat");
+    const allowed = await me(
+      request("/api/me", { headers: { cookie: await sessionCookie() } }),
+    );
+    expect((await allowed.json()).devAgents).toBe(true);
+
+    const signedOut = await me(request("/api/me"));
+    expect((await signedOut.json()).devAgents).toBe(false);
+  });
+
+  it("keeps DevAgents off when sign-in isn't set up", async () => {
+    vi.stubEnv("DEVAGENTS_ENABLED", "true");
+    vi.stubEnv("GITHUB_CLIENT_SECRET", "");
+    const data = await (await me(request("/api/me"))).json();
+    expect(data.devAgents).toBe(false);
+  });
+
   it("is hidden when sign-in isn't set up", async () => {
     vi.stubEnv("GITHUB_CLIENT_SECRET", "");
     const data = await (await me(request("/api/me"))).json();

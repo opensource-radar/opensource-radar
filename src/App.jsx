@@ -227,6 +227,7 @@ function App() {
     savedSync: false,
     reportsAvailable: false,
     projectInfo: false,
+    devAgents: false,
     checked: false,
   });
   // Bookmark changes are sent to the server one after another, so a quick
@@ -260,6 +261,7 @@ function App() {
           savedSync,
           reportsAvailable: Boolean(data?.reportsAvailable),
           projectInfo: Boolean(data?.projectInfo),
+          devAgents: Boolean(data?.devAgents),
           checked: true,
         });
         if (!user) return;
