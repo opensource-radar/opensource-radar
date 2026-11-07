@@ -3,6 +3,7 @@ import ErrorBoundary from "../components/ErrorBoundary";
 import Icon from "../components/Icon";
 import ManualSteps from "./ManualSteps";
 import { SECTIONS } from "./sections/index";
+import KeySettings from "./sections/KeySettings";
 import "./devagents.css";
 
 const sectionFallback = ({ retry }) => (
@@ -55,7 +56,8 @@ function Panel({ issue, language, signedIn, onClose, sections = SECTIONS }) {
       </div>
 
       {signedIn ? (
-        sections.map(({ id, title, Component }) => (
+        <>
+          {sections.map(({ id, title, Component }) => (
           <section key={id} className="devagents-section">
             <h3>{title}</h3>
             <ErrorBoundary fallback={sectionFallback}>
@@ -69,7 +71,13 @@ function Panel({ issue, language, signedIn, onClose, sections = SECTIONS }) {
               )}
             </ErrorBoundary>
           </section>
-        ))
+          ))}
+          <div className="devagents-section">
+            <ErrorBoundary fallback={null}>
+              <KeySettings />
+            </ErrorBoundary>
+          </div>
+        </>
       ) : (
         <div className="devagents-section">
           <p>

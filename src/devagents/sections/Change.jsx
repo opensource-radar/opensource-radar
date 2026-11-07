@@ -1,4 +1,5 @@
 import { codespacesUrl, editorUrl } from "../links";
+import ErrorHelp from "./ErrorHelp";
 
 // DevAgents never changes code. These links open GitHub's own tools, which
 // handle the fork and commit from the user's own account.
@@ -35,6 +36,7 @@ function Change({ issue, shared }) {
           own GitHub allowance.
         </span>
       </p>
+      <ErrorHelp issue={issue} />
     </div>
   );
 }

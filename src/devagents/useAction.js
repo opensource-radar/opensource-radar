@@ -62,7 +62,13 @@ export function useAction(action, payload, stateKey) {
           repo: payload.repo,
           issue: payload.issue,
         })
-      : null;
+      : state.ownKeyFailed
+        ? createElement(
+            "p",
+            { className: "devagents-note", role: "status" },
+            "Your Groq key didn't work, so this used the shared service instead.",
+          )
+        : null;
   /* eslint-enable react-hooks/refs */
 
   return { ...state, run, failure, loading: state.status === "loading" };
