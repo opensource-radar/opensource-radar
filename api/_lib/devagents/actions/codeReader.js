@@ -1,7 +1,8 @@
 import { gh } from "../github.js";
 import { asData } from "../llm.js";
 
-const MAX_TURNS = 3;
+// Two turns leave enough of a free plan's minute allowance for the final answer.
+const MAX_TURNS = 2;
 const MAX_READS_PER_TURN = 3;
 const MAX_READS_TOTAL = 3;
 const MAX_FILES = 5;
@@ -82,7 +83,9 @@ export async function runCodeReader(ctx, { issue, paths, sha, repo, deadline }) 
       asData("issue body", (issue.body ?? "").slice(0, ISSUE_CHARS)),
       asData("file list", tree),
       excerpts,
-      `This is reply ${turn} of ${MAX_TURNS}.`,
+      turn === MAX_TURNS
+        ? `This is your last reply, so you must use the "done" form.`
+        : `This is reply ${turn} of ${MAX_TURNS}.`,
     ].join("\n");
 
     const { value } = await ctx.askJson({

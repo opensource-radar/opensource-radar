@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DevAgentsError } from "../../api/_lib/devagents/errors.js";
 import { asData, askJson, providerChain } from "../../api/_lib/devagents/llm.js";
+import { resetRouterMemory } from "../../api/_lib/devagents/router.js";
 import { scrubSecrets } from "../../api/_lib/devagents/scrub.js";
 
 const ok = (content) =>
@@ -22,6 +23,11 @@ const calledHosts = () =>
   fetch.mock.calls.map(([url]) => new URL(url).host);
 
 beforeEach(() => {
+  resetRouterMemory();
+  vi.spyOn(Math, "random").mockReturnValue(0.5);
+  vi.stubEnv("DEVAGENTS_REDIS_URL", "");
+  vi.stubEnv("DEVAGENTS_FREELLM_URL", "");
+  vi.stubEnv("DEVAGENTS_EXTRA_PROVIDERS", "");
   vi.stubEnv("DEVAGENTS_GROQ_KEY", "groq-key");
   vi.stubEnv("DEVAGENTS_GROQ_MODEL", "groq-model");
   vi.stubEnv("DEVAGENTS_GEMINI_KEY", "gemini-key");
@@ -33,6 +39,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  vi.restoreAllMocks();
   vi.useRealTimers();
   vi.unstubAllEnvs();
   vi.unstubAllGlobals();
@@ -43,6 +50,33 @@ describe("providerChain", () => {
     expect(providerChain().map((p) => p.name)).toEqual(["groq", "gemini"]);
     vi.stubEnv("DEVAGENTS_GEMINI_MODEL", "");
     expect(providerChain().map((p) => p.name)).toEqual(["groq"]);
+  });
+
+  it("includes FreeLLMAPI when it's set up, over HTTPS only", () => {
+    vi.stubEnv("DEVAGENTS_FREELLM_URL", "https://llm.example.com/v1/");
+    vi.stubEnv("DEVAGENTS_FREELLM_KEY", "free-key");
+    expect(providerChain().at(-1)).toEqual({
+      name: "freellm",
+      baseUrl: "https://llm.example.com/v1",
+      apiKey: "free-key",
+      model: "auto",
+    });
+    vi.stubEnv("DEVAGENTS_FREELLM_URL", "http://llm.example.com/v1");
+    expect(providerChain().map((p) => p.name)).not.toContain("freellm");
+  });
+
+  it("adds any other provider from settings, ignoring bad entries", () => {
+    vi.stubEnv(
+      "DEVAGENTS_EXTRA_PROVIDERS",
+      JSON.stringify([
+        { name: "openrouter", baseUrl: "https://openrouter.ai/api/v1", apiKey: "k", model: "m" },
+        { name: "plain", baseUrl: "http://bad.example.com", apiKey: "k", model: "m" },
+        { name: "incomplete", baseUrl: "https://x.example.com" },
+      ]),
+    );
+    expect(providerChain().map((p) => p.name)).toEqual(["groq", "gemini", "openrouter"]);
+    vi.stubEnv("DEVAGENTS_EXTRA_PROVIDERS", "{not json");
+    expect(providerChain().map((p) => p.name)).toEqual(["groq", "gemini"]);
   });
 
   it("puts the user's key first", () => {
@@ -194,9 +228,18 @@ describe("askJson", () => {
     expect((await ask().catch((e) => e)).code).toBe("unavailable");
     expect(fetch).toHaveBeenCalledTimes(1);
 
+    resetRouterMemory();
     fetch.mockClear();
     fetch.mockImplementation(async () => new Response("{}", { status: 429, headers: { "retry-after": "5" } }));
     expect((await ask({ deadline: Date.now() + 4000 }).catch((e) => e)).code).toBe("unavailable");
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("remembers a long rest, and doesn't call that provider again", async () => {
+    vi.stubEnv("DEVAGENTS_GEMINI_KEY", "");
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("{}", { status: 429, headers: { "retry-after": "60" } })));
+    await ask().catch(() => {});
+    await ask().catch(() => {});
     expect(fetch).toHaveBeenCalledTimes(1);
   });
 
@@ -226,7 +269,6 @@ describe("askJson", () => {
     const logged = JSON.stringify(spy.mock.calls);
     expect(`${error.message} ${logged}`).not.toContain("gsk_user");
     expect(`${error.message} ${logged}`).not.toContain("groq-key");
-    spy.mockRestore();
   });
 });
 

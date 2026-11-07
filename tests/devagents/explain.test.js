@@ -74,13 +74,13 @@ describe("explain", () => {
     },
   );
 
-  it("stops after 3 turns and uses what it read", async () => {
+  it("stops after 2 turns and uses what it read, leaving room for the answer", async () => {
     const world = fakeWorld({
       github: github(),
-      llm: [{ read: ["src/app.py"] }, { read: ["README.md"] }, { read: ["src/app.py"] }, explained],
+      llm: [{ read: ["src/app.py"] }, { read: ["README.md"] }, explained],
     });
     const { body } = await callAction("explain", target);
-    expect(world.llmCalls()).toHaveLength(4);
+    expect(world.llmCalls()).toHaveLength(3);
     expect(body.data.filesToRead.map((f) => f.path)).toEqual(["src/app.py", "README.md"]);
     expect(body.data.partial).toBe(false);
   });
