@@ -42,3 +42,4 @@ Turn it off if:
 | A provider stops working | Its free plan or model name changed | Update `DEVAGENTS_*_MODEL`, or remove that provider's key |
 
 The helper never stores GitHub tokens or a user's own Groq key. Its database holds only cached answers, daily limits and plain counts.
+For preview deployments, add the same settings to Vercel's Preview environment.
