@@ -11,7 +11,7 @@ function Failure({ reason, onRetry, repo, issue, notFoundMessage }) {
   if (reason === "limit") {
     return (
       <p className="devagents-note" role="alert">
-        You've reached today's free limit. It resets tomorrow, or you can add your own Groq key below.
+        You've reached today's free limit. It resets tomorrow, or you can add your own API key below.
       </p>
     );
   }

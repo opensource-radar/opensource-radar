@@ -318,6 +318,18 @@ describe("asData", () => {
   });
 });
 
+describe("asData safety", () => {
+  it("can't be broken out of with nested tags", () => {
+    const out = asData("issue", "a<</data>/data>b<<data>data name='x'>c");
+    expect(out.match(/<\/?data\b/g)).toHaveLength(2);
+  });
+
+  it("keeps a label from adding its own markup", () => {
+    const out = asData('file x"><data name="y', "t");
+    expect(out.split("\n")[0]).toBe('<data name="file xdata name=y">');
+  });
+});
+
 describe("scrubSecrets", () => {
   it.each([
     "gsk_abcDEF123456",

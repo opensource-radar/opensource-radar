@@ -22,7 +22,11 @@ export async function callDevAgents(
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
-        ...(ownKey && { "X-User-LLM-Key": ownKey }),
+        ...(ownKey && {
+          "X-User-LLM-Key": ownKey.key,
+          "X-User-LLM-Provider": ownKey.provider,
+          ...(ownKey.model && { "X-User-LLM-Model": ownKey.model }),
+        }),
       },
       body: JSON.stringify(payload),
       signal: controller.signal,

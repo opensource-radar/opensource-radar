@@ -42,6 +42,7 @@ import {
 import "./App.css";
 import DevAgentsEntry from "./devagents/DevAgentsEntry";
 import { parseIssueUrl } from "./devagents/links";
+import { clearOwnKey } from "./devagents/ownKey";
 
 const THEME_KEY = "opensource-radar-theme";
 // Issues used to be cached here before search covered all of GitHub.
@@ -678,6 +679,7 @@ function App() {
     } catch {
       // The local sign-out below still applies.
     }
+    clearOwnKey();
     setAccount((current) => ({ ...current, user: null }));
     setSavedIssues([]);
     setRecommendation(null);

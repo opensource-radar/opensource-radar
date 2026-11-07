@@ -1,23 +1,44 @@
-// A user's own Groq key lives only in this browser. It's kept in memory unless
-// they choose "Remember on this device". Storage can be blocked, so nothing
-// here ever throws.
-const STORAGE_KEY = "devagents:groq-key";
+// A user's own API key lives only in this browser, as { provider, model, key }.
+// It's kept in memory unless they choose "Remember on this device". Storage can
+// be blocked, so nothing here ever throws.
+const STORAGE_KEY = "devagents:own-key";
+// The first version only supported Groq, and saved just the key.
+const OLD_STORAGE_KEY = "devagents:groq-key";
 let inMemory = null;
 
-export function getOwnKey() {
-  if (inMemory) return inMemory;
+function readSaved() {
   try {
-    return localStorage.getItem(STORAGE_KEY);
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      return parsed?.key && parsed?.provider ? parsed : null;
+    }
+    const old = localStorage.getItem(OLD_STORAGE_KEY);
+    return old ? { provider: "groq", model: null, key: old } : null;
   } catch {
     return null;
   }
 }
 
-export function setOwnKey(key, remember) {
-  inMemory = key;
+function removeSaved() {
   try {
-    if (remember) localStorage.setItem(STORAGE_KEY, key);
-    else localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(OLD_STORAGE_KEY);
+  } catch {
+    // Nothing was saved.
+  }
+}
+
+export function getOwnKey() {
+  return inMemory ?? readSaved();
+}
+
+export function setOwnKey(ownKey, remember) {
+  inMemory = ownKey;
+  removeSaved();
+  if (!remember) return;
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(ownKey));
   } catch {
     // It still works for as long as this page stays open.
   }
@@ -25,9 +46,5 @@ export function setOwnKey(key, remember) {
 
 export function clearOwnKey() {
   inMemory = null;
-  try {
-    localStorage.removeItem(STORAGE_KEY);
-  } catch {
-    // Nothing was saved.
-  }
+  removeSaved();
 }

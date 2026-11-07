@@ -24,6 +24,10 @@ People aren't charged towards their daily limit when no answer comes back. What 
 
 To add capacity, add providers (see `.env.example`). A mistake in `DEVAGENTS_EXTRA_PROVIDERS` skips that entry, and names must be unique and can't be `own`. Use one account per provider: extra keys on the same account share its limits, and using several accounts to get more free quota can break a provider's terms.
 
+## People's own API keys
+
+The panel's "Use your own API key" option lets someone pick Groq, Google Gemini, Cerebras, Mistral, OpenRouter or OpenAI, check their key, and choose a model. Their requests then use their own account and skip the daily limits. The key stays in their browser, passes through the server for each request, and is never stored or logged. Keys can only go to the fixed provider addresses in `api/_lib/devagents/llm.js`. A key that fails falls back to shared capacity, which does count towards the limits. Signing out clears it.
+
 ## Rolling it out
 
 Change `DEVAGENTS_ALLOWED_LOGINS` one stage at a time, and redeploy after each change:
@@ -61,6 +65,6 @@ Turn it off if:
 | "Sign in again" keeps showing | Radar's sign-in or `SESSION_SECRET` has a problem | This is not specific to DevAgents; check sign-in first |
 | A provider stops working | Its free plan or model name changed | Update `DEVAGENTS_*_MODEL`, or remove that provider's key |
 
-The helper never stores GitHub tokens or a user's own Groq key. Its database holds only cached answers, daily limits and plain counts.
+The helper never stores GitHub tokens or a user's own API key on the server. Its database holds only cached answers, daily limits and plain counts.
 For preview deployments, add the same settings to Vercel's Preview environment.
 
