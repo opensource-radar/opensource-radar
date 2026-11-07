@@ -195,6 +195,34 @@ describe("scrubSecrets", () => {
     expect(scrubSecrets(`token=${secret} end`)).toBe("token=[removed] end");
   });
 
+  it.each([
+    "//registry.npmjs.org/:_authToken=npm_abcDEF123456",
+    "Authorization: token abcDEF123456",
+    "Authorization: Basic dXNlcjpwYXNz",
+    "AKIAIOSFODNN7EXAMPLE",
+    "AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMIK7MDENGbPxRfiCY",
+    "https://user:hunter2pass@example.com/repo.git",
+    "glpat-abcDEF123456",
+    "xoxb-1234-abcDEF",
+    "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIn0.abcDEF123456",
+    "password=hunter2pass",
+    "DB_PASSWORD: hunter2pass",
+    "api_key = abcDEF123456",
+  ])("removes the secret in %s", (text) => {
+    const clean = scrubSecrets(`before ${text} after`);
+    for (const secret of ["abcDEF123456", "dXNlcjpwYXNz", "AKIAIOSFODNN7EXAMPLE", "wJalrXUtnFEMIK7MDENGbPxRfiCY", "hunter2pass", "abcDEF"]) {
+      expect(clean).not.toContain(secret);
+    }
+    expect(clean).toContain("[removed]");
+    expect(clean.startsWith("before ")).toBe(true);
+    expect(clean.endsWith(" after")).toBe(true);
+  });
+
+  it("leaves ordinary error text about tokens alone", () => {
+    const text = "SyntaxError: unexpected token at line 3; password field missing";
+    expect(scrubSecrets(text)).toBe(text);
+  });
+
   it("removes Bearer values", () => {
     expect(scrubSecrets("Authorization: Bearer abc.def-123")).toBe(
       "Authorization: Bearer [removed]",

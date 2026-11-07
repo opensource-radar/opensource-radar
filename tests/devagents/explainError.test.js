@@ -75,6 +75,12 @@ describe("validate-key", () => {
     expect((await validate("gsk_x")).body).toEqual({ error: "unavailable" });
   });
 
+  it("doesn't call a key usable when own keys can't be used", async () => {
+    vi.stubEnv("DEVAGENTS_GROQ_MODEL", "");
+    groq(200);
+    expect((await validate("gsk_good")).body).toEqual({ error: "unavailable" });
+  });
+
   it("rejects a request with no key", async () => {
     groq(200);
     expect((await validate(null)).status).toBe(400);

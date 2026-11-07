@@ -161,16 +161,45 @@ describe("limits", () => {
     expect(body.ownKeyFailed).toBe(true);
   });
 
-  it("a failing own key is still limited to 40 shared calls", async () => {
-    const answers = [];
-    for (let i = 0; i < 45; i += 1) {
-      answers.push(new Response("no", { status: 401 }), { ok: true });
-    }
-    fakeWorld({ llm: answers });
-    const headers = { "X-User-LLM-Key": "gsk_bad" };
-    let last;
-    for (let i = 0; i < 41; i += 1) last = await callAction("think", target, { headers });
-    expect(last.body).toEqual({ error: "limit" });
+  describe("with a key that doesn't work", () => {
+    const headers = { "X-User-LLM-Key": "garbage" };
+    const many = () => Array(60).fill({ ok: true });
+    const tryIssues = async (count) => {
+      const results = [];
+      for (let issue = 1; issue <= count; issue += 1) {
+        results.push(await callAction("think", { repo: "a/b", issue }, { headers }));
+      }
+      return results;
+    };
+
+    it("still allows only 5 issues a day on shared capacity", async () => {
+      const world = fakeWorld({ llm: many(), badKeys: ["garbage"] });
+      const results = await tryIssues(8);
+      expect(world.sharedLlmCalls()).toHaveLength(5);
+      expect(results.at(-1).body).toEqual({ error: "limit" });
+    });
+
+    it("still allows only 40 shared calls a day", async () => {
+      const world = fakeWorld({ llm: many(), badKeys: ["garbage"] });
+      for (let i = 0; i < 45; i += 1) await callAction("think", target, { headers });
+      expect(world.sharedLlmCalls()).toHaveLength(40);
+    });
+
+    it("uses no shared capacity when limits can't be checked", async () => {
+      const world = fakeWorld({ llm: many(), badKeys: ["garbage"], redisDown: true });
+      const results = await tryIssues(3);
+      expect(world.sharedLlmCalls()).toHaveLength(0);
+      expect(results[0].body).toEqual({ error: "unavailable" });
+    });
+
+    it("is limited the same way when own keys can't be used at all", async () => {
+      vi.stubEnv("DEVAGENTS_GROQ_MODEL", "");
+      vi.stubEnv("DEVAGENTS_GEMINI_KEY", "gemini-key");
+      vi.stubEnv("DEVAGENTS_GEMINI_MODEL", "gemini-model");
+      const world = fakeWorld({ llm: many() });
+      await tryIssues(8);
+      expect(world.llmCalls()).toHaveLength(5);
+    });
   });
 
   it("LLM actions return unavailable when the store is down", async () => {

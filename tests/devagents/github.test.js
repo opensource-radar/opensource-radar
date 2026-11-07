@@ -73,6 +73,16 @@ describe("github reader", () => {
     await expect(gh.readIssue(TOKEN, "a/b", 1)).rejects.toMatchObject({ code: "not_found" });
   });
 
+  it("a deleted issue (410) throws not_found", async () => {
+    fakeWorld({ github: { "/repos/a/b/issues/1": new Response("{}", { status: 410 }) } });
+    await expect(gh.readIssue(TOKEN, "a/b", 1)).rejects.toMatchObject({ code: "not_found", status: 404 });
+  });
+
+  it("a rejected GitHub token (401) asks the user to sign in again", async () => {
+    fakeWorld({ github: { "/repos/a/b": new Response("{}", { status: 401 }) } });
+    await expect(gh.readRepo(TOKEN, "a/b")).rejects.toMatchObject({ code: "sign_in", status: 401 });
+  });
+
   it("other GitHub failures throw unavailable", async () => {
     fakeWorld({ github: { "/repos/a/b": new Response("{}", { status: 403 }) } });
     await expect(gh.readRepo(TOKEN, "a/b")).rejects.toMatchObject({ code: "unavailable" });

@@ -89,10 +89,15 @@ async function attempt(provider, { system, user }, timeoutMs) {
 
 // Tries each provider once, moving down the chain on any failure. Moving on is
 // the retry. Throws `unavailable` when none of them gives a valid answer.
-export async function askJson({ system, user, validate, userKey, deadline }) {
+// `ownKeyOnly` tries just the user's key, so the caller can charge shared limits
+// before any shared provider is used.
+export async function askJson({ system, user, validate, userKey, deadline, ownKeyOnly = false }) {
   let ownKeyFailed = false;
+  const chain = providerChain(userKey).filter(
+    (provider) => !ownKeyOnly || provider.name === "own",
+  );
 
-  for (const provider of providerChain(userKey)) {
+  for (const provider of chain) {
     const remaining = deadline - Date.now();
     if (remaining <= 0) break;
 

@@ -23,6 +23,20 @@ function Failure({ reason, onRetry, repo, issue, notFoundMessage }) {
       </p>
     );
   }
+  if (reason === "too_large") {
+    return (
+      <p className="devagents-note" role="alert">
+        That's too long for us to read. Try sending just the last part.
+      </p>
+    );
+  }
+  if (reason === "invalid_request") {
+    return (
+      <p className="devagents-note" role="alert">
+        We couldn't read that. Check what you typed and try again.
+      </p>
+    );
+  }
   return (
     <div className="devagents-note" role="alert">
       <p>

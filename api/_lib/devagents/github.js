@@ -23,7 +23,12 @@ async function get(token, path, { accept } = {}) {
       signal: controller.signal,
       headers,
     });
-    if (response.status === 404) throw new DevAgentsError("not_found", 404);
+    // GitHub answers 410 for an issue that has been deleted.
+    if (response.status === 404 || response.status === 410) {
+      throw new DevAgentsError("not_found", 404);
+    }
+    // The user's token was revoked or has expired, so only signing in can help.
+    if (response.status === 401) throw new DevAgentsError("sign_in", 401);
     if (!response.ok) throw new DevAgentsError("unavailable", 503);
     return accept ? await response.text() : await response.json();
   } catch (error) {

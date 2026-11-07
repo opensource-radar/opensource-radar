@@ -39,7 +39,7 @@ function fakeRedis(db, command) {
 
 // A fake outside world. `github` maps "/repos/a/b/…" (without the query) to a
 // JSON value, or a Response/function. `llm` is a queue of model answers.
-export function fakeWorld({ github = {}, llm = [], redisDown = false } = {}) {
+export function fakeWorld({ github = {}, llm = [], redisDown = false, badKeys = [] } = {}) {
   const world = { db: new Map(), github, llm: [...llm], redisDown, calls: [] };
 
   const handler = async (rawUrl, init = {}) => {
@@ -62,6 +62,10 @@ export function fakeWorld({ github = {}, llm = [], redisDown = false } = {}) {
     }
 
     if (url.pathname.endsWith("/chat/completions")) {
+      const auth = init.headers?.Authorization ?? "";
+      if (badKeys.some((key) => auth === `Bearer ${key}`)) {
+        return new Response("{}", { status: 401 });
+      }
       if (world.llm.length === 0) return new Response("{}", { status: 503 });
       const next = world.llm.shift();
       if (next instanceof Response) return next;
@@ -73,6 +77,8 @@ export function fakeWorld({ github = {}, llm = [], redisDown = false } = {}) {
   };
 
   vi.stubGlobal("fetch", vi.fn(handler));
+  world.sharedLlmCalls = () =>
+    world.llmCalls().filter((call) => call.init.headers.Authorization === "Bearer groq-key");
   world.llmCalls = () =>
     world.calls.filter((call) => call.url.endsWith("/chat/completions"));
   world.githubCalls = () =>

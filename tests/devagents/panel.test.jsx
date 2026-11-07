@@ -150,6 +150,27 @@ describe("useAction", () => {
   });
 });
 
+describe("Failure", () => {
+  const failWith = async (error, status) => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(reply2({ error }, status)));
+    render(<Fetcher />);
+    fireEvent.click(screen.getByRole("button", { name: "Load" }));
+  };
+  const reply2 = (body, status) => Response.json(body, { status });
+
+  it("too_large explains itself and doesn't offer a pointless retry", async () => {
+    await failWith("too_large", 413);
+    await screen.findByText(/too long/i);
+    expect(screen.queryByRole("button", { name: "Try again" })).toBeNull();
+  });
+
+  it("invalid_request explains itself and doesn't offer a pointless retry", async () => {
+    await failWith("invalid_request", 400);
+    await screen.findByText(/couldn't read that/i);
+    expect(screen.queryByRole("button", { name: "Try again" })).toBeNull();
+  });
+});
+
 describe("DevAgentsEntry", () => {
   it("doesn't load the panel until it's opened", async () => {
     const loadPanel = vi.fn(async () => ({ default: () => <p>panel loaded</p> }));

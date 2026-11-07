@@ -4,7 +4,7 @@
 }
 
 .devagents-section {
-  padding: 12px 0;
+  padding: 12px 20px;
   border-top: 1px solid var(--border-card);
   color: var(--text);
 }

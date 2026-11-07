@@ -26,10 +26,13 @@ function Understand({ issue, onShare }) {
       <IssueCheck issue={issue} />
 
       {!data && (
-        <button type="button" onClick={() => {
+        <button type="button" disabled={loading}
+          onClick={async () => {
+            // One at a time: two requests at once could both try to renew an
+            // expiring sign-in, and the loser would be signed out.
+            await run();
             callDevAgents("event", { name: "explain" });
-            run();
-          }} disabled={loading}>
+          }}>
           {loading ? "Reading the project…" : "Explain this issue"}
         </button>
       )}

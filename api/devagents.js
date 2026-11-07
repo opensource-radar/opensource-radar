@@ -11,7 +11,7 @@ import { getConfig, json } from "./_lib/session.js";
 const DEADLINE_MS = 25000;
 const MAX_BODY_BYTES = 20 * 1024;
 
-function buildContext(session, userKey) {
+function buildContext(session, userKey, target) {
   const login = session.user.login;
   const ctx = {
     token: session.accessToken,
@@ -20,14 +20,22 @@ function buildContext(session, userKey) {
     deadline: Date.now() + DEADLINE_MS,
     ownKeyFailed: false,
     async askJson(options) {
-      if (!userKey) await chargeLlmCall(login);
-      const result = await askJson({ deadline: ctx.deadline, ...options, userKey });
-      if (result.ownKeyFailed) {
-        // The answer came from shared capacity, so it counts like any other.
-        ctx.ownKeyFailed = true;
-        await chargeLlmCall(login);
+      const call = { deadline: ctx.deadline, ...options };
+
+      // Any text can be sent as a key, so shared capacity is only used after
+      // the shared limits have been charged, whatever the request claims.
+      if (userKey && !ctx.ownKeyFailed) {
+        try {
+          return await askJson({ ...call, userKey, ownKeyOnly: true });
+        } catch (error) {
+          if (error.code !== "unavailable") throw error;
+          ctx.ownKeyFailed = true;
+          if (target) await chargeIssue(login, target.repo, target.issue);
+        }
       }
-      return result;
+
+      await chargeLlmCall(login);
+      return askJson(call);
     },
   };
   return ctx;
@@ -75,12 +83,12 @@ export async function POST(request) {
     if (!action) throw new DevAgentsError("invalid_request", 400);
 
     const userKey = request.headers.get("x-user-llm-key") || null;
-    if (action.llm) {
-      const { repo, issue } = parseTarget(payload);
-      if (!userKey) await chargeIssue(session.user.login, repo, issue);
+    const target = action.llm ? parseTarget(payload) : null;
+    if (target && !userKey) {
+      await chargeIssue(session.user.login, target.repo, target.issue);
     }
 
-    const ctx = buildContext(session, userKey);
+    const ctx = buildContext(session, userKey, target);
     const data = await action.handler(ctx, payload);
     return json(
       { data, ...(ctx.ownKeyFailed && { ownKeyFailed: true }) },

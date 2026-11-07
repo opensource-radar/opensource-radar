@@ -78,6 +78,28 @@ describe("Understand", () => {
     );
   });
 
+  it("sends one request at a time, so token renewals can't collide", async () => {
+    let finish;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((url) =>
+        String(url).includes("action=explain")
+          ? new Promise((resolve) => { finish = resolve; })
+          : Promise.resolve(
+              Response.json({ data: String(url).includes("issue-check") ? checkData : { saved: true } }),
+            ),
+      ),
+    );
+    render(<Understand issue={issue} onShare={() => {}} />);
+    await screen.findByText("Not taken yet");
+    fireEvent.click(screen.getByRole("button", { name: "Explain this issue" }));
+    await waitFor(() => expect(finish).toBeTruthy());
+    const eventSent = () => fetch.mock.calls.some(([url]) => String(url).includes("action=event"));
+    expect(eventSent()).toBe(false);
+    finish(Response.json({ data: explainData }));
+    await waitFor(() => expect(eventSent()).toBe(true));
+  });
+
   it("says when an answer is partial", async () => {
     stubBackend({ ...explainData, partial: true, filesToRead: [] });
     render(<Understand issue={issue} onShare={() => {}} />);

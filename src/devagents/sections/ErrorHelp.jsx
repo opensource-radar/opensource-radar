@@ -2,6 +2,15 @@ import { useId, useState } from "react";
 import Helpful from "../Helpful";
 import { useAction } from "../useAction";
 
+const MAX_ERROR_CHARS = 8000;
+
+// Errors are usually at the end of a log. Starting on a whole word means a
+// secret cut in half can't slip past the check on the server.
+function endOfLog(text) {
+  if (text.length <= MAX_ERROR_CHARS) return text;
+  return text.slice(-MAX_ERROR_CHARS).replace(/^\S*\s*/, "");
+}
+
 function ErrorHelp({ issue }) {
   const { repo, issue: number } = issue;
   const fieldId = useId();
@@ -23,7 +32,7 @@ function ErrorHelp({ issue }) {
       <button
         type="button"
         disabled={loading || !errorText.trim()}
-        onClick={() => run({ errorText })}
+        onClick={() => run({ errorText: endOfLog(errorText) })}
       >
         {loading ? "Reading it…" : "Explain this error"}
       </button>
