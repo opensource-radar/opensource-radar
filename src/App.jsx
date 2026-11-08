@@ -51,6 +51,9 @@ const OLD_ISSUES_CACHE_KEY = "opensource-radar-issues-v11";
 const DARK_SCHEME_QUERY = "(prefers-color-scheme: dark)";
 const SAVED_KEY_PREFIX = "opensource-radar-saved-";
 const SYNCED_KEY_PREFIX = "opensource-radar-saved-synced-";
+// Saves made while signed out. GitHub logins can't contain "_", so this can't
+// clash with anyone's own list.
+const SIGNED_OUT = "_signed-out";
 const SAVED_DESCRIPTION_LENGTH = 1000;
 const RECOMMENDED_LANGUAGE_COUNT = 5;
 const SEARCH_CACHE_TIME = 5 * 60 * 1000;
@@ -79,12 +82,33 @@ function readSavedIssues(login) {
   }
 }
 
+// Returns false if the browser wouldn't store it.
 function writeSavedIssues(login, savedIssues) {
   try {
     localStorage.setItem(SAVED_KEY_PREFIX + login, JSON.stringify(savedIssues));
+    return true;
   } catch {
     // Storage full or blocked; the list still works until the page reloads.
+    return false;
   }
+}
+
+function clearSignedOutSaves() {
+  try {
+    localStorage.removeItem(SAVED_KEY_PREFIX + SIGNED_OUT);
+  } catch {
+    // Nothing to clear.
+  }
+}
+
+// One list with no repeats, newest saves first.
+function mergeSaved(...lists) {
+  const byId = new Map();
+  for (const issue of lists.flat()) {
+    const known = byId.get(issue.id);
+    if (!known || (issue.savedAt ?? 0) > (known.savedAt ?? 0)) byId.set(issue.id, issue);
+  }
+  return [...byId.values()].sort((a, b) => (b.savedAt ?? 0) - (a.savedAt ?? 0));
 }
 
 async function requestSaved(init) {
@@ -104,7 +128,8 @@ const putSavedIssues = (items) =>
 // database. The first time on each device, anything saved here before sync
 // existed is merged in; after that the account's list wins, so an issue
 // removed on one device doesn't come back from another device's copy.
-async function syncSavedIssues(login, localIssues) {
+// `signedOutIssues`, saved here while signed out, are always merged in.
+async function syncSavedIssues(login, localIssues, signedOutIssues = []) {
   const remote = await requestSaved();
   const syncedKey = SYNCED_KEY_PREFIX + login;
   let firstSync = true;
@@ -115,14 +140,14 @@ async function syncSavedIssues(login, localIssues) {
   }
 
   let merged = remote;
+  const remoteIds = new Set(remote.map((issue) => issue.id));
+  const toAdd = [...(firstSync ? localIssues : []), ...signedOutIssues].filter(
+    (issue) => !remoteIds.has(issue.id),
+  );
+  if (toAdd.length > 0) {
+    merged = await putSavedIssues(mergeSaved(remote, toAdd));
+  }
   if (firstSync) {
-    const remoteIds = new Set(remote.map((issue) => issue.id));
-    const localOnly = localIssues.filter((issue) => !remoteIds.has(issue.id));
-    if (localOnly.length > 0) {
-      merged = await putSavedIssues(
-        [...remote, ...localOnly].sort((a, b) => b.savedAt - a.savedAt),
-      );
-    }
     try {
       localStorage.setItem(syncedKey, "1");
     } catch {
@@ -262,7 +287,11 @@ function App() {
   const [signInFailed] = useState(
     () => new URLSearchParams(window.location.search).get("signin") === "failed",
   );
-  const [savedIssues, setSavedIssues] = useState([]);
+  const [savedIssues, setSavedIssues] = useState(() => readSavedIssues(SIGNED_OUT));
+  const latestSaved = useRef(savedIssues);
+  useEffect(() => {
+    latestSaved.current = savedIssues;
+  }, [savedIssues]);
   const signedIn = Boolean(account.user);
 
   useEffect(() => {
@@ -292,16 +321,22 @@ function App() {
         });
         if (!user) return;
 
-        const localIssues = readSavedIssues(user.login);
+        // Saves made while signed out join the account. They're only removed
+        // from this browser once they're safely stored for the account.
+        const signedOutIssues = readSavedIssues(SIGNED_OUT);
+        const localIssues = mergeSaved(readSavedIssues(user.login), signedOutIssues);
         setSavedIssues(localIssues);
         if (savedSync) {
-          syncSavedIssues(user.login, localIssues)
+          syncSavedIssues(user.login, localIssues, signedOutIssues)
             .then((synced) => {
+              if (signedOutIssues.length > 0) clearSignedOutSaves();
               if (!cancelled) setSavedIssues(synced);
             })
             .catch(() => {
               // Database unreachable: keep this browser's copy for now.
             });
+        } else if (signedOutIssues.length > 0 && writeSavedIssues(user.login, localIssues)) {
+          clearSignedOutSaves();
         }
       })
       .catch(() => {
@@ -641,12 +676,19 @@ function App() {
   };
 
   const toggleSaved = (issue) => {
-    if (!account.user) return;
-
-    const next = savedIssues.some((saved) => saved.id === issue.id)
-      ? savedIssues.filter((saved) => saved.id !== issue.id)
-      : [toSavedIssue(issue), ...savedIssues];
+    // The latest list, even if two clicks land before the page updates.
+    const current = latestSaved.current;
+    const next = current.some((saved) => saved.id === issue.id)
+      ? current.filter((saved) => saved.id !== issue.id)
+      : [toSavedIssue(issue), ...current];
+    latestSaved.current = next;
     setSavedIssues(next);
+
+    // Signed out, saves stay in this browser until the visitor signs in.
+    if (!account.user) {
+      writeSavedIssues(SIGNED_OUT, next);
+      return;
+    }
     writeSavedIssues(account.user.login, next);
 
     if (account.savedSync) {
@@ -706,7 +748,7 @@ function App() {
     }
     clearOwnKey();
     setAccount((current) => ({ ...current, user: null }));
-    setSavedIssues([]);
+    setSavedIssues(readSavedIssues(SIGNED_OUT));
     setRecommendation(null);
     setView("search");
   };
@@ -878,11 +920,19 @@ function App() {
                   Back to search
                 </button>
               </div>
-              {savedIssues.length > 0 && (
+              {signedIn && savedIssues.length > 0 && (
                 <p className="view-note">
                   {account.savedSync
                     ? `Synced to @${account.user?.login} on every device you sign in on.`
                     : `Saved in this browser for @${account.user?.login}.`}
+                </p>
+              )}
+              {!signedIn && (
+                <p className="view-note">
+                  Saved in this browser.{" "}
+                  {account.signInAvailable && (
+                    <a href="/auth/login">Sign in to sync across devices.</a>
+                  )}
                 </p>
               )}
             </>
@@ -1013,7 +1063,7 @@ function App() {
                   author={issue.author}
                   createdAt={issue.createdAt}
                   saved={savedIds.has(issue.id)}
-                  onToggleSave={signedIn ? () => toggleSaved(issue) : undefined}
+                  onToggleSave={() => toggleSaved(issue)}
                   project={projects[issue.repo.replace(" / ", "/")]}
                   actions={devAgentsActions(account.devAgents, issue, showHelp)}
                 />
@@ -1058,7 +1108,6 @@ function App() {
         )}
       </main>
       <Footer
-        signedIn={signedIn}
         reportsAvailable={account.reportsAvailable}
         onPreset={(preset) => {
           applyPreset(preset);

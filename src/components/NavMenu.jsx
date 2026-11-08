@@ -212,6 +212,27 @@ function NavMenu({
             </>
           )}
 
+          {!user && (
+            <button
+              type="button"
+              role="menuitem"
+              className="menu-item"
+              onClick={() => {
+                closeMenu();
+                onShowSaved();
+              }}
+            >
+              <Icon name="bookmark" />
+              Saved issues
+              <span
+                className="menu-item-trailing menu-counter"
+                aria-label={`${savedCount} saved`}
+              >
+                {savedCount}
+              </span>
+            </button>
+          )}
+
           {!user && signInAvailable && (
             <>
               <a role="menuitem" className="menu-signin" href="/auth/login">
