@@ -333,5 +333,8 @@ export function toIssue(item, language) {
     repo: repo.replace("/", " / "),
     url: item.html_url,
     comments: item.comments ?? 0,
+    number: Number.isSafeInteger(item.number) ? item.number : null,
+    author: typeof item.user?.login === "string" ? item.user.login : "",
+    createdAt: typeof item.created_at === "string" ? item.created_at : "",
   };
 }

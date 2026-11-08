@@ -131,6 +131,40 @@ describe("toIssue", () => {
   });
 });
 
+describe("toIssue card details", () => {
+  const item = {
+    id: 9,
+    number: 123,
+    title: "T",
+    body: "B",
+    labels: [],
+    user: { login: "octocat" },
+    created_at: "2026-11-02T10:00:00Z",
+    repository_url: "https://api.github.com/repos/a/b",
+    html_url: "https://github.com/a/b/issues/123",
+    updated_at: "2026-11-05T10:00:00Z",
+    comments: 0,
+  };
+
+  it("keeps the issue number, author and created date", () => {
+    expect(toIssue(item, "")).toMatchObject({
+      number: 123,
+      author: "octocat",
+      createdAt: "2026-11-02T10:00:00Z",
+      updatedAt: "2026-11-05T10:00:00Z",
+    });
+  });
+
+  it("copes when GitHub leaves them out", () => {
+    const { number, user, created_at, ...bare } = item;
+    expect([number, user, created_at].length).toBe(3);
+    const issue = toIssue(bare, "");
+    expect(issue.number).toBeNull();
+    expect(issue.author).toBe("");
+    expect(issue.createdAt).toBe("");
+  });
+});
+
 describe("popular, active projects", () => {
   const repos = Array.from({ length: 30 }, (_, i) => `some-organisation/project-number-${i}`);
 

@@ -225,6 +225,26 @@ describe("saved issues", () => {
     expect(db.has("saved:octocat")).toBe(true);
   });
 
+  it("keeps an issue's number, author and created date, and drops bad ones", async () => {
+    const cookie = await sessionCookie();
+    const url = "https://github.com/a/b/issues/";
+    const response = await put(
+      {
+        items: [
+          { id: 1, url: `${url}1`, number: 12, author: "octocat", createdAt: "2026-11-02T10:00:00Z" },
+          { id: 2, url: `${url}2`, number: "12", author: { evil: true }, createdAt: 5 },
+          { id: 3, url: `${url}3`, number: -4, author: "x".repeat(200) },
+        ],
+      },
+      { cookie },
+    );
+    const { items } = await response.json();
+    expect(items[0]).toMatchObject({ number: 12, author: "octocat", createdAt: "2026-11-02T10:00:00Z" });
+    expect(items[1]).toMatchObject({ number: null, author: "", createdAt: "" });
+    expect(items[2].number).toBeNull();
+    expect(items[2].author.length).toBeLessThanOrEqual(39);
+  });
+
   it("only accepts JSON writes", async () => {
     const cookie = await sessionCookie();
     const response = await putSaved(
