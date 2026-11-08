@@ -54,6 +54,10 @@ const PRIVACY = [
     detail: "Just the issues you save, public project details, saved AI answers, and short-lived counters that stop abuse. Problem reports become public issues on our GitHub repository.",
   },
   {
+    name: "We count visits.",
+    detail: "Vercel Web Analytics records which pages are visited, without cookies. It gets the page address but not what you search for.",
+  },
+  {
     name: "The help panel uses AI.",
     detail: "If you use it, the issue, public project files and anything you paste are sent to third-party AI providers to get an answer. Their own terms apply, and some free plans may use this data, so please don't paste private details.",
   },
