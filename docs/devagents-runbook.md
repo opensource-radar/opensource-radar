@@ -43,6 +43,15 @@ Between stages, look at the `da:count:*` counters in the DevAgents database, and
 - **Uptime:** the "Uptime check" workflow tests the live site every 30 minutes or so, and GitHub emails whoever last changed its schedule if it fails. Run it by hand from the Actions tab to try it. GitHub pauses scheduled workflows after 60 days with no repository activity.
 - **Usage:** check Vercel, Upstash and each AI provider's usage page every few days at first. Vercel's Hobby logs last only 1 hour.
 
+## Measuring results
+
+DevAgents adds a note saying the PR was prepared with AI assistance from DevAgents, so its PRs can be found with GitHub search. People can remove the note, and projects that ban AI get no note, so these counts are a minimum.
+
+- All PRs: [search](https://github.com/search?q=%22AI+assistance+from+DevAgents%22+is%3Apr&type=pullrequests)
+- Merged PRs: [search](https://github.com/search?q=%22AI+assistance+from+DevAgents%22+is%3Apr+is%3Amerged&type=pullrequests)
+
+The merge rate is merged divided by all. In the site, "My contributions" shows each person's own count and rate.
+
 ## Turning it off
 
 Do this first, and investigate afterwards.
