@@ -93,6 +93,7 @@ export async function fetchRepositories(accessToken, names) {
       stargazerCount
       pushedAt
       isArchived
+      primaryLanguage { name }
       contributingGuidelines { url }
     }`;
   });

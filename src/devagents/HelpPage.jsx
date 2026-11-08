@@ -4,6 +4,7 @@ import Icon from "../components/Icon";
 import { isPlainClick } from "../links";
 import { setPageMeta } from "../pageMeta";
 import { helpPath, issueUrl, repoUrl } from "./links";
+import IssueDetails from "./IssueDetails";
 import ManualSteps from "./ManualSteps";
 import KeySettings from "./sections/KeySettings";
 import { SECTIONS } from "./sections/index";
@@ -41,8 +42,9 @@ function HelpPage({ issue, language, signedIn, onBack, sections = SECTIONS }) {
   const onShare = useCallback((update) => {
     setShared((current) => ({ ...current, ...update }));
   }, []);
+  const [detailsTitle, setDetailsTitle] = useState(null);
 
-  const title = issue.title ?? shared.issueTitle ?? `${repo} #${number}`;
+  const title = issue.title ?? shared.issueTitle ?? detailsTitle ?? `${repo} #${number}`;
   useNoIndex();
 
   // Screen readers and keyboards start at the new page, not the old link.
@@ -102,6 +104,8 @@ function HelpPage({ issue, language, signedIn, onBack, sections = SECTIONS }) {
           </a>
         </p>
       </header>
+
+      <IssueDetails repo={repo} number={number} onLoaded={setDetailsTitle} />
 
       <p className="helppage-notice">
         <Icon name="info" />
@@ -195,8 +199,8 @@ function HelpPage({ issue, language, signedIn, onBack, sections = SECTIONS }) {
       ) : (
         <div className="helppage-panel">
           <p>
-            <a href="/auth/login">Sign in with GitHub</a> to get help with this issue. We only read
-            public information.
+            <a href="/auth/login">Sign in with GitHub</a> to get AI help with this issue. We only
+            read public information.
           </p>
           <ManualSteps repo={repo} issue={number} />
         </div>
