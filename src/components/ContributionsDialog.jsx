@@ -1,6 +1,8 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { githubUrl } from "../github";
+import { isRadarPullRequest } from "../shareCard";
 import Icon from "./Icon";
+import ShareCard from "./ShareCard";
 
 const PULL_REQUEST_LIMIT = 30;
 
@@ -23,10 +25,14 @@ function ContributionsDialog({ login, onClose }) {
   const dialogRef = useRef(null);
   const titleId = useId();
   const [result, setResult] = useState({ status: "loading", items: [], total: 0 });
+  const [radarOnly, setRadarOnly] = useState(false);
+  const [sharing, setSharing] = useState(null);
 
   useEffect(() => {
-    if (!dialogRef.current.open) {
-      dialogRef.current.showModal();
+    const dialog = dialogRef.current;
+    if (!dialog.open) {
+      if (dialog.showModal) dialog.showModal();
+      else dialog.setAttribute("open", "");
     }
 
     let cancelled = false;
@@ -63,6 +69,13 @@ function ContributionsDialog({ login, onClose }) {
     const status = statusOf(pullRequest);
     return { ...totals, [status]: (totals[status] || 0) + 1 };
   }, {});
+
+  // PRs written with DevAgents' help, and how many of them were merged.
+  const radarItems = result.items.filter(isRadarPullRequest);
+  const radarMerged = radarItems.filter((item) => statusOf(item) === "merged").length;
+  const shown = radarOnly ? radarItems : result.items;
+  // "First" is only certain when every PR is loaded and just one was merged.
+  const firstMerge = counts.merged === 1 && result.total <= result.items.length;
 
   return (
     <dialog
@@ -114,10 +127,28 @@ function ContributionsDialog({ login, onClose }) {
                 ))}
             </p>
 
+            {radarItems.length > 0 && (
+              <div className="contributions-radar">
+                <p>
+                  {radarItems.length} made with Radar, {radarMerged} merged (
+                  {Math.round((radarMerged / radarItems.length) * 100)}%)
+                </p>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={radarOnly}
+                    onChange={(event) => setRadarOnly(event.target.checked)}
+                  />{" "}
+                  Only show PRs made with Radar
+                </label>
+              </div>
+            )}
+
             <ul className="pr-list">
-              {result.items.map((pullRequest) => {
+              {shown.map((pullRequest) => {
                 const status = statusOf(pullRequest);
                 const repo = pullRequest.repository_url.split("/repos/")[1];
+                const isSharing = sharing === pullRequest.id;
 
                 return (
                   <li key={pullRequest.id} className="pr-item">
@@ -140,6 +171,36 @@ function ContributionsDialog({ login, onClose }) {
                         {repo} #{pullRequest.number} · updated{" "}
                         {new Date(pullRequest.updated_at).toLocaleDateString()}
                       </span>
+                      {(isRadarPullRequest(pullRequest) || status === "merged") && (
+                        <span className="pr-extras">
+                          {isRadarPullRequest(pullRequest) && (
+                            <span className="pr-radar">Made with Radar</span>
+                          )}
+                          {status === "merged" && (
+                            <button
+                              type="button"
+                              className="text-button"
+                              aria-label={`Share "${pullRequest.title}"`}
+                              aria-expanded={isSharing}
+                              onClick={() => setSharing(isSharing ? null : pullRequest.id)}
+                            >
+                              {isSharing ? "Hide share card" : "Share"}
+                            </button>
+                          )}
+                        </span>
+                      )}
+                      {isSharing && (
+                        <ShareCard
+                          pullRequest={{
+                            title: pullRequest.title,
+                            repo,
+                            number: pullRequest.number,
+                            mergedAt: pullRequest.pull_request?.merged_at,
+                          }}
+                          login={login}
+                          first={firstMerge}
+                        />
+                      )}
                     </div>
                   </li>
                 );

@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 // Clipboard access can be refused, so a failure just says so.
-function CopyButton({ text, label = "Copy" }) {
+function CopyButton({ text, label = "Copy", className = "devagents-link-button" }) {
   const [status, setStatus] = useState("idle");
 
   const copy = async () => {
@@ -14,7 +14,7 @@ function CopyButton({ text, label = "Copy" }) {
   };
 
   return (
-    <button type="button" className="devagents-link-button" onClick={copy}>
+    <button type="button" className={className} onClick={copy}>
       {status === "copied" ? "Copied" : status === "failed" ? "Couldn't copy" : label}
     </button>
   );
