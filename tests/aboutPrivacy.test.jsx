@@ -11,4 +11,10 @@ describe("About page privacy", () => {
     expect(screen.getByText(/third-party AI providers/i)).toBeTruthy();
     expect(screen.getByText(/saved AI answers/i)).toBeTruthy();
   });
+
+  it("says visits are counted, and that searches aren't sent", () => {
+    render(<AboutPage />);
+    expect(screen.getByText(/Vercel Web Analytics/i)).toBeTruthy();
+    expect(screen.getByText(/not what you search for/i)).toBeTruthy();
+  });
 });
