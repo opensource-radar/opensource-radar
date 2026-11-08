@@ -50,7 +50,6 @@ function RadarCorner() {
 }
 
 function Footer({
-  signedIn,
   reportsAvailable,
   onPreset,
   onShowPopular,
@@ -94,11 +93,9 @@ function Footer({
                 Docs and small fixes
               </FooterButton>
             </li>
-            {signedIn && (
-              <li>
-                <FooterButton onClick={onShowSaved}>Saved issues</FooterButton>
-              </li>
-            )}
+            <li>
+              <FooterButton onClick={onShowSaved}>Saved issues</FooterButton>
+            </li>
           </ul>
         </nav>
 
