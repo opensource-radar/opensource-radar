@@ -13,7 +13,7 @@ import SearchHelp from "./components/SearchHelp";
 import SearchLimitNotice from "./components/SearchLimitNotice";
 import SearchBar from "./components/SearchBar";
 import { githubUrl } from "./github";
-import { ABOUT_PATH, isPlainClick } from "./links";
+import { ABOUT_PATH } from "./links";
 import { setPageMeta } from "./pageMeta";
 import { ABOUT, GUIDE, GUIDE_PATH, HOME, withoutTrailingSlash } from "./seoPages";
 import {
