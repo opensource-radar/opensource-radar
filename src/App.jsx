@@ -1009,6 +1009,9 @@ function App() {
                   url={issue.url}
                   comments={issue.comments}
                   updatedAt={issue.updatedAt}
+                  number={issue.number}
+                  author={issue.author}
+                  createdAt={issue.createdAt}
                   saved={savedIds.has(issue.id)}
                   onToggleSave={signedIn ? () => toggleSaved(issue) : undefined}
                   project={projects[issue.repo.replace(" / ", "/")]}

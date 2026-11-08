@@ -6,6 +6,32 @@ const dateFormat = new Intl.DateTimeFormat(undefined, {
   month: "short",
   year: "numeric",
 });
+const GITHUB_LOGIN = /^[A-Za-z0-9-]{1,39}$/;
+
+// "#123 opened by octocat on 2 Nov 2026", or as much of it as is known.
+function OpenedLine({ number, author, createdAt }) {
+  const created = createdAt ? new Date(createdAt) : null;
+  const hasDate = created && !Number.isNaN(created.getTime());
+  const hasAuthor = typeof author === "string" && GITHUB_LOGIN.test(author);
+  if (!number && !hasAuthor && !hasDate) return null;
+
+  return (
+    <p className="issue-card-opened">
+      {number ? `#${number}` : ""}
+      {(hasAuthor || hasDate) && (number ? " opened" : "Opened")}
+      {hasAuthor && (
+        <>
+          {" by "}
+          <a href={`https://github.com/${author}`} target="_blank" rel="noopener noreferrer">
+            {author}
+          </a>
+        </>
+      )}
+      {hasDate && ` on ${dateFormat.format(created)}`}
+    </p>
+  );
+}
+
 const starFormat = new Intl.NumberFormat(undefined, { notation: "compact" });
 
 function IssueCard({
@@ -21,6 +47,9 @@ function IssueCard({
   onToggleSave,
   project,
   actions,
+  number,
+  author,
+  createdAt,
 }) {
   const preview = previewText(description);
   const details = [
@@ -64,6 +93,7 @@ function IssueCard({
       </div>
 
       <h2>{title}</h2>
+      <OpenedLine number={number} author={author} createdAt={createdAt} />
 
       <p className="issue-description">{preview}</p>
 

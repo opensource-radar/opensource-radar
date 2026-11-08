@@ -1439,6 +1439,23 @@ body {
   height: 14px;
 }
 
+.issue-card-opened {
+  margin: -4px 0 10px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.issue-card-opened a {
+  color: var(--text-soft);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.issue-card-opened a:hover {
+  color: var(--link);
+  text-decoration: underline;
+}
+
 .issue-card-links {
   display: inline-flex;
   gap: 16px;
