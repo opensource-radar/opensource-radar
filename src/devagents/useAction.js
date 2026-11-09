@@ -1,7 +1,13 @@
 import { createElement, useCallback, useEffect, useRef, useState } from "react";
 import { callDevAgents } from "./client";
+import BusyRetry from "./BusyRetry";
 import Failure from "./Failure";
 import { readPanelState, writePanelState } from "./storage";
+
+// How long to wait before trying once more when the helper is busy.
+export const BUSY_RETRY_SECONDS = 20;
+// Failures that waiting won't fix.
+const NO_RETRY = new Set(["sign_in", "limit", "not_found", "too_large", "invalid_request", "disabled"]);
 
 // Runs one DevAgents action for a section of the panel. A failed call keeps
 // whatever is already on screen. `stateKey` restores the answer after a refresh.
@@ -27,7 +33,8 @@ export function useAction(action, payload, stateKey, { notFoundMessage } = {}) {
   const payloadKey = JSON.stringify(payload);
 
   const run = useCallback(
-    async (extra) => {
+    // `retried` marks the automatic retry, so a busy helper is retried only once.
+    async (extra, { retried = false } = {}) => {
       if (inFlight.current) return;
       inFlight.current = true;
       setState((current) => ({ ...current, status: "loading", reason: null, extra }));
@@ -46,7 +53,14 @@ export function useAction(action, payload, stateKey, { notFoundMessage } = {}) {
               reason: null,
               ownKeyFailed: result.ownKeyFailed,
             }
-          : { ...current, status: "error", reason: result.reason },
+          : !retried && !NO_RETRY.has(result.reason)
+            ? {
+                ...current,
+                status: "waiting",
+                reason: result.reason,
+                retryAt: Date.now() + BUSY_RETRY_SECONDS * 1000,
+              }
+            : { ...current, status: "error", reason: result.reason },
       );
     },
     [action, stateKey, payloadKey],
@@ -55,7 +69,13 @@ export function useAction(action, payload, stateKey, { notFoundMessage } = {}) {
   // run() only touches its refs when a user clicks, never while rendering.
   /* eslint-disable react-hooks/refs */
   const failure =
-    state.status === "error"
+    state.status === "waiting"
+      ? createElement(BusyRetry, {
+          until: state.retryAt,
+          onRetry: () => run(state.extra, { retried: true }),
+          onCancel: () => setState((current) => ({ ...current, status: "error" })),
+        })
+      : state.status === "error"
       ? createElement(Failure, {
           reason: state.reason,
           onRetry: () => run(state.extra),

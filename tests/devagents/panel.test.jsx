@@ -7,7 +7,7 @@ import DevAgentsRoute from "../../src/devagents/DevAgentsRoute.jsx";
 import HelpPage from "../../src/devagents/HelpPage.jsx";
 import { OWN_KEY_SETTINGS_ID, clearOwnKey, setOwnKey } from "../../src/devagents/ownKey.js";
 import { readPanelState, writePanelState } from "../../src/devagents/storage.js";
-import { useAction } from "../../src/devagents/useAction.js";
+import { BUSY_RETRY_SECONDS, useAction } from "../../src/devagents/useAction.js";
 
 const issue = { repo: "a/b", issue: 7, title: "Fix the thing" };
 
@@ -26,6 +26,10 @@ function Fetcher({ onRun }) {
     </div>
   );
 }
+
+// A busy helper first counts down to one automatic retry; this skips the wait.
+const skipWait = async () =>
+  fireEvent.click(await screen.findByRole("button", { name: "Don't wait" }));
 
 beforeEach(() => {
   vi.spyOn(console, "error").mockImplementation(() => {});
@@ -184,6 +188,7 @@ describe("useAction", () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(reply({ error: "unavailable" }, 503)));
     render(<Fetcher />);
     fireEvent.click(screen.getByRole("button", { name: "Load" }));
+    await skipWait();
     await screen.findByRole("button", { name: "Try again" });
     expect(screen.getByRole("link", { name: /read the issue/i }).getAttribute("href")).toBe(
       "https://github.com/a/b/issues/7",
@@ -217,11 +222,88 @@ describe("useAction", () => {
   });
 });
 
+describe("busy retry", () => {
+  const reply = (body, status = 200) => Response.json(body, { status });
+  // Makes the countdown finish at once: the clock jumps past the wait and the
+  // one-second tick runs every few milliseconds.
+  const fastClock = () => {
+    const realNow = Date.now.bind(Date);
+    const realSetInterval = globalThis.setInterval;
+    vi.spyOn(Date, "now").mockImplementation(() => realNow() + (BUSY_RETRY_SECONDS + 1) * 1000);
+    vi.spyOn(globalThis, "setInterval").mockImplementation((fn, ms, ...rest) =>
+      realSetInterval(fn, ms === 1000 ? 5 : ms, ...rest),
+    );
+  };
+
+  it("announces the wait once and shows a countdown", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(reply({ error: "unavailable" }, 503)));
+    render(<Fetcher />);
+    fireEvent.click(screen.getByRole("button", { name: "Load" }));
+    const status = await screen.findByRole("status");
+    expect(status.textContent).toBe(
+      `The AI helper is busy, so it will try again in ${BUSY_RETRY_SECONDS} seconds.`,
+    );
+    expect(screen.getByText(/Trying again in \d+s/).getAttribute("aria-hidden")).toBe("true");
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("retries once by itself, and shows the answer if it comes back", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn()
+        .mockResolvedValueOnce(reply({ error: "unavailable" }, 503))
+        .mockResolvedValueOnce(reply({ data: { text: "second try" } })),
+    );
+    render(<Fetcher />);
+    fireEvent.click(screen.getByRole("button", { name: "Load" }));
+    await screen.findByRole("button", { name: "Don't wait" });
+    fastClock();
+    // The countdown's next tick may be up to a second away.
+    await screen.findByText("second try", {}, { timeout: 3000 });
+    expect(fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it("retries only once, then shows the busy message", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(reply({ error: "unavailable" }, 503)));
+    render(<Fetcher />);
+    fireEvent.click(screen.getByRole("button", { name: "Load" }));
+    await screen.findByRole("button", { name: "Don't wait" });
+    fastClock();
+    await screen.findByRole("button", { name: "Try again" }, { timeout: 3000 });
+    expect(fetch).toHaveBeenCalledTimes(2);
+    expect(screen.queryByRole("button", { name: "Don't wait" })).toBeNull();
+  });
+
+  it("\"Don't wait\" stops the retry and shows the busy message", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(reply({ error: "unavailable" }, 503)));
+    render(<Fetcher />);
+    fireEvent.click(screen.getByRole("button", { name: "Load" }));
+    await skipWait();
+    expect(screen.getByRole("button", { name: "Try again" })).toBeTruthy();
+    fastClock();
+    await new Promise((resolve) => setTimeout(resolve, 1200));
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([
+    ["limit", 429],
+    ["disabled", 503],
+    ["not_found", 404],
+  ])("doesn't wait when the reason is %s", async (error, status) => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(reply({ error }, status)));
+    render(<Fetcher />);
+    fireEvent.click(screen.getByRole("button", { name: "Load" }));
+    await screen.findByRole("alert");
+    expect(screen.queryByRole("button", { name: "Don't wait" })).toBeNull();
+  });
+});
+
 describe("Failure", () => {
   const failWith = async (error, status) => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(reply2({ error }, status)));
     render(<Fetcher />);
     fireEvent.click(screen.getByRole("button", { name: "Load" }));
+    if (status === 503 && error === "unavailable") await skipWait();
   };
   const reply2 = (body, status) => Response.json(body, { status });
 
