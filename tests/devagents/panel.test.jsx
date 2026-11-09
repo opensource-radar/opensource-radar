@@ -5,6 +5,7 @@ import App from "../../src/App.jsx";
 import DevAgentsEntry from "../../src/devagents/DevAgentsEntry.jsx";
 import DevAgentsRoute from "../../src/devagents/DevAgentsRoute.jsx";
 import HelpPage from "../../src/devagents/HelpPage.jsx";
+import { OWN_KEY_SETTINGS_ID, clearOwnKey, setOwnKey } from "../../src/devagents/ownKey.js";
 import { readPanelState, writePanelState } from "../../src/devagents/storage.js";
 import { useAction } from "../../src/devagents/useAction.js";
 
@@ -228,6 +229,41 @@ describe("Failure", () => {
     await failWith("unavailable", 503);
     await screen.findByText(/wait a minute/i);
     expect(screen.getByRole("button", { name: "Try again" })).toBeTruthy();
+  });
+
+  it("unavailable offers the reader's own key, which opens the key settings", async () => {
+    clearOwnKey();
+    const settings = document.createElement("details");
+    settings.id = OWN_KEY_SETTINGS_ID;
+    settings.innerHTML = "<summary>Use your own API key</summary>";
+    document.body.append(settings);
+    try {
+      await failWith("unavailable", 503);
+      fireEvent.click(await screen.findByRole("button", { name: "use your own free API key" }));
+      expect(settings.open).toBe(true);
+      expect(document.activeElement).toBe(settings.querySelector("summary"));
+    } finally {
+      settings.remove();
+    }
+  });
+
+  it("unavailable doesn't suggest an own key to someone already using one", async () => {
+    setOwnKey({ provider: "groq", model: "m", key: "test-key" }, false);
+    try {
+      await failWith("unavailable", 503);
+      await screen.findByText(/wait a minute/i);
+      expect(screen.queryByRole("button", { name: "use your own free API key" })).toBeNull();
+    } finally {
+      clearOwnKey();
+    }
+  });
+
+  it("disabled says the helper is switched off and still shows the manual steps", async () => {
+    await failWith("disabled", 503);
+    await screen.findByText(/switched off/i);
+    expect(screen.queryByText(/busy/i)).toBeNull();
+    expect(screen.queryByRole("button", { name: "Try again" })).toBeNull();
+    expect(screen.getByRole("link", { name: /read the issue/i })).toBeTruthy();
   });
 
   it("too_large explains itself and doesn't offer a pointless retry", async () => {

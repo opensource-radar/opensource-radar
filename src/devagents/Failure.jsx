@@ -1,4 +1,15 @@
 import ManualSteps from "./ManualSteps";
+import { OWN_KEY_SETTINGS_ID, getOwnKey } from "./ownKey";
+
+// Opens the "Use your own API key" settings on the help page and moves the
+// reader to them.
+function openOwnKeySettings() {
+  const settings = document.getElementById(OWN_KEY_SETTINGS_ID);
+  if (!settings) return;
+  settings.open = true;
+  settings.scrollIntoView?.({ behavior: "smooth", block: "start" });
+  settings.querySelector("summary")?.focus();
+}
 
 function Failure({ reason, onRetry, repo, issue, notFoundMessage }) {
   if (reason === "sign_in") {
@@ -37,14 +48,36 @@ function Failure({ reason, onRetry, repo, issue, notFoundMessage }) {
       </p>
     );
   }
+  if (reason === "disabled") {
+    return (
+      <div className="devagents-note" role="alert">
+        <p>The AI helper is switched off right now. You can still start from these:</p>
+        <ManualSteps repo={repo} issue={issue} />
+      </div>
+    );
+  }
+
+  // Anything else means no answer came back, usually because the shared AI
+  // service is busy for a minute.
+  const hasOwnKey = Boolean(getOwnKey());
   return (
     <div className="devagents-note" role="alert">
       <p>
-        We couldn't get this right now. The helper may be busy, so wait a minute and{" "}
+        The AI helper is busy right now. Wait a minute and{" "}
         <button type="button" className="devagents-link-button" onClick={onRetry}>
           Try again
         </button>
-        .
+        {hasOwnKey ? (
+          "."
+        ) : (
+          <>
+            , or{" "}
+            <button type="button" className="devagents-link-button" onClick={openOwnKeySettings}>
+              use your own free API key
+            </button>{" "}
+            to skip the wait.
+          </>
+        )}
       </p>
       <p>You can still start from these:</p>
       <ManualSteps repo={repo} issue={issue} />

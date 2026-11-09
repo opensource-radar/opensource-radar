@@ -1,6 +1,6 @@
 import { useId, useState } from "react";
 import { callDevAgents } from "../client";
-import { clearOwnKey, getOwnKey, setOwnKey } from "../ownKey";
+import { OWN_KEY_SETTINGS_ID, clearOwnKey, getOwnKey, setOwnKey } from "../ownKey";
 import { OWN_KEY_PROVIDERS } from "../ownKeyProviders";
 
 const nameOf = (id) => OWN_KEY_PROVIDERS.find((provider) => provider.id === id)?.name ?? id;
@@ -58,7 +58,7 @@ function KeySettings() {
   };
 
   return (
-    <details>
+    <details id={OWN_KEY_SETTINGS_ID}>
       <summary>Use your own API key</summary>
       <p className="devagents-muted">
         Use your own account with an AI provider, with no daily limit here. Its costs and terms are

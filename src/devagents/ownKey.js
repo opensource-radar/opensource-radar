@@ -2,6 +2,8 @@
 // It's kept in memory unless they choose "Remember on this device". Storage can
 // be blocked, so nothing here ever throws.
 const STORAGE_KEY = "devagents:own-key";
+// The id of the "Use your own API key" settings on the help page.
+export const OWN_KEY_SETTINGS_ID = "devagents-own-key";
 // The first version only supported Groq, and saved just the key.
 const OLD_STORAGE_KEY = "devagents:groq-key";
 let inMemory = null;
