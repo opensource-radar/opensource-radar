@@ -86,6 +86,8 @@ That's all you need for searching. Sign-in, saved-issue sync and the report form
 
 DevAgents is the "Get help with this issue" helper. It reads public GitHub data, explains issues and gives hints, and never writes to GitHub. It stays hidden unless `DEVAGENTS_ENABLED` is `true`. See the [DevAgents runbook](docs/devagents-runbook.md) to set it up.
 
+It needs at least one AI provider. Each provider needs both a key and a model, for example `DEVAGENTS_GROQ_KEY` and `DEVAGENTS_GROQ_MODEL`, and new settings only apply after a redeploy. Add more providers so requests can move to another one when one is busy. See [Adding AI providers](docs/devagents-runbook.md#adding-ai-providers).
+
 ### Settings
 
 | Name | Needed for | Where it comes from |
