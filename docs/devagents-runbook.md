@@ -22,7 +22,47 @@ DevAgents chooses a provider for each request:
 
 People aren't charged towards their daily limit when no answer comes back. What it learns is shared between servers through the database. Each AI call adds about two database commands, which count towards Upstash's monthly limit.
 
-To add capacity, add providers (see `.env.example`). A mistake in `DEVAGENTS_EXTRA_PROVIDERS` skips that entry, and names must be unique and can't be `own`. Use one account per provider: extra keys on the same account share its limits, and using several accounts to get more free quota can break a provider's terms.
+To add capacity, add more providers (see [Adding AI providers](#adding-ai-providers)).
+
+## Adding AI providers
+
+Every provider you add is another place to send requests when the others are busy. DevAgents picks among the providers that are set up, as described above.
+
+| Provider | Settings | Base address (set by the code) |
+| --- | --- | --- |
+| Groq | `DEVAGENTS_GROQ_KEY`, `DEVAGENTS_GROQ_MODEL` | `https://api.groq.com/openai/v1` |
+| Google Gemini | `DEVAGENTS_GEMINI_KEY`, `DEVAGENTS_GEMINI_MODEL` | `https://generativelanguage.googleapis.com/v1beta/openai` |
+| Cerebras | `DEVAGENTS_CEREBRAS_KEY`, `DEVAGENTS_CEREBRAS_MODEL` | `https://api.cerebras.ai/v1` |
+| Mistral | `DEVAGENTS_MISTRAL_KEY`, `DEVAGENTS_MISTRAL_MODEL` | `https://api.mistral.ai/v1` |
+| A FreeLLMAPI server you host | `DEVAGENTS_FREELLM_URL`, `DEVAGENTS_FREELLM_KEY`, `DEVAGENTS_FREELLM_MODEL` (defaults to `auto`) | Your server's `https://` address, ending in `/v1` |
+| Any other OpenAI-compatible provider | `DEVAGENTS_EXTRA_PROVIDERS` | You give it, in the list below |
+
+Rules:
+
+- **A provider is used only when both its key and its model are set.** A key on its own does nothing.
+- **Use the model name exactly as the provider lists it.** Model names change, so check the provider's current list.
+- **Settings only apply after a redeploy.** In Vercel, open Deployments, then the latest deployment, then **Redeploy**.
+- **Addresses must use `https://`.** Anything else is skipped, so a server running only on your own computer (`localhost`) can't be used.
+- **One account per provider.** Extra keys on the same account share its limits, and using several accounts to get more free quota can break a provider's terms. Check each provider's terms allow use on a public site.
+
+### The extra-providers list
+
+`DEVAGENTS_EXTRA_PROVIDERS` is a JSON list with one entry per provider:
+
+```json
+[
+  { "name": "openrouter", "baseUrl": "https://openrouter.ai/api/v1", "apiKey": "<key>", "model": "<model>" },
+  { "name": "nvidia", "baseUrl": "https://integrate.api.nvidia.com/v1", "apiKey": "<key>", "model": "<model>" }
+]
+```
+
+- `name` uses letters, numbers, `_` or `-`. It must be unique, and can't be `own` or the name of another provider you've set up.
+- `baseUrl` is the address before `/chat/completions`.
+- An entry with a mistake is skipped, and the others still work. If the whole value isn't valid JSON, the list is ignored.
+
+### Checking it worked
+
+After the redeploy, open a help page while signed in and click **Explain this issue**. Each provider's latest limits and errors are stored in the DevAgents database under `da:v1:provider:<name>`, so a provider that appears there has been used.
 
 ## People's own API keys
 
