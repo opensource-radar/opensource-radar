@@ -65,6 +65,8 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup();
+  // Back to the search page, even if a test failed on the help page.
+  window.history.pushState(null, "", "/");
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
@@ -77,6 +79,12 @@ describe("failure drill", () => {
       render(<App />);
       fireEvent.click(await screen.findByRole("link", { name: /get help/i }, { timeout: 3000 }));
       fireEvent.click(await screen.findByRole("button", { name: "Explain this issue" }, { timeout: 3000 }));
+      if (mode !== "429") {
+        // A busy helper first counts down to one automatic retry.
+        // Each section that failed shows its own countdown.
+        await screen.findAllByRole("button", { name: "Don't wait" }, { timeout: 3000 });
+        screen.queryAllByRole("button", { name: "Don't wait" }).forEach((button) => fireEvent.click(button));
+      }
 
       await waitFor(
         () => {

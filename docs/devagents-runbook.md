@@ -18,7 +18,7 @@ DevAgents chooses a provider for each request:
 - **Before a limit is hit:** when a provider reports how much it has left, DevAgents skips it if the request wouldn't fit. Providers that don't report this are only skipped after they refuse a request.
 - **Choosing:** it prefers providers with more room that are fast and reliable, with some randomness to spread the load.
 - **After a problem:** a rate limit rests a provider for as long as it asks, a rejected key for 10 minutes, and repeated errors for up to 2 minutes.
-- **When everything is busy:** it waits once if a provider will be ready within 13 seconds. Otherwise it tells the user straight away.
+- **When everything is busy:** it waits once if a provider will be ready within 13 seconds. Otherwise the page counts down 20 seconds and tries once more by itself, unless the reader clicks "Don't wait". If that also fails, it shows the busy message and the manual steps.
 
 People aren't charged towards their daily limit when no answer comes back. What it learns is shared between servers through the database. Each AI call adds about two database commands, which count towards Upstash's monthly limit.
 
