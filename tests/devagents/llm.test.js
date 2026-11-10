@@ -437,6 +437,38 @@ describe("light model", () => {
     expect(fetch.mock.calls.map(([, init]) => JSON.parse(init.body).model)).not.toContain("small-model");
   });
 
+  it("a light request tries the smaller model first, even when the main one has a better record", async () => {
+    vi.stubEnv("DEVAGENTS_GROQ_LIGHT_MODEL", "small-model");
+    vi.stubEnv("DEVAGENTS_GEMINI_KEY", "");
+    vi.stubGlobal("fetch", vi.fn(async () => good()));
+    // A normal request first, so the main model is known to be fast and reliable.
+    await ask();
+    expect(sentModel()).toBe("groq-model");
+
+    await ask({ light: true });
+    expect(sentModel()).toBe("small-model");
+  });
+
+  it("a light request skips a resting smaller model without waiting", async () => {
+    vi.stubEnv("DEVAGENTS_GROQ_LIGHT_MODEL", "small-model");
+    vi.stubEnv("DEVAGENTS_GEMINI_KEY", "");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (_url, init) =>
+        JSON.parse(init.body).model === "small-model"
+          ? new Response("{}", { status: 429, headers: { "retry-after": "30" } })
+          : good(),
+      ),
+    );
+    await ask({ light: true });
+    const models = () => fetch.mock.calls.map(([, init]) => JSON.parse(init.body).model);
+    expect(models()).toEqual(["small-model", "groq-model"]);
+
+    // While it rests, the next light request goes straight to the main model.
+    await ask({ light: true });
+    expect(models().slice(2)).toEqual(["groq-model"]);
+  });
+
   it("falls back to the other providers when the smaller model is busy", async () => {
     vi.stubEnv("DEVAGENTS_GROQ_LIGHT_MODEL", "small-model");
     vi.stubGlobal(
