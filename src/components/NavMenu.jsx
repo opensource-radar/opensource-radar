@@ -1,10 +1,10 @@
 import { useEffect, useId, useImperativeHandle, useRef, useState } from "react";
-import { GUIDE_PATH } from "../seoPages";
+import { GUIDE_PATH } from "../lib/seoPages";
 import {
   ABOUT_PATH,
   REPORT_PROBLEM_URL,
   isPlainClick,
-} from "../links";
+} from "../lib/links";
 import ContributionsDialog from "./ContributionsDialog";
 import ReportDialog from "./ReportDialog";
 import Icon from "./Icon";

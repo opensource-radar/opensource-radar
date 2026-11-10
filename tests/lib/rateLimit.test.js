@@ -4,7 +4,7 @@ import {
   isRateLimited,
   limitWaitSeconds,
   retryDelayMs,
-} from "../src/rateLimit.js";
+} from "../../src/lib/rateLimit.js";
 
 const response = (status, headers = {}) => new Response("{}", { status, headers });
 

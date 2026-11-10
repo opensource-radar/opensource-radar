@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { setupHint } from "../api/_lib/readme.js";
+import { setupHint } from "../../api/_lib/readme.js";
 
 describe("setupHint", () => {
   it("takes the setup section, without the next section", () => {

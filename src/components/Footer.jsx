@@ -6,9 +6,9 @@ import {
   REPORT_PROBLEM_URL,
   REPO_URL,
   isPlainClick,
-} from "../links";
-import { BEGINNER_PRESETS } from "../search";
-import { GUIDE_PATH } from "../seoPages";
+} from "../lib/links";
+import { BEGINNER_PRESETS } from "../lib/search";
+import { GUIDE_PATH } from "../lib/seoPages";
 import Icon from "./Icon";
 import Logo from "./Logo";
 

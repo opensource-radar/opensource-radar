@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import ErrorBoundary from "../components/ErrorBoundary";
 import Icon from "../components/Icon";
-import { isPlainClick } from "../links";
-import { setPageMeta } from "../pageMeta";
+import { isPlainClick } from "../lib/links";
+import { setPageMeta } from "../lib/pageMeta";
 import { helpPath, issueUrl, repoUrl } from "./links";
 import IssueDetails from "./IssueDetails";
 import ManualSteps from "./ManualSteps";

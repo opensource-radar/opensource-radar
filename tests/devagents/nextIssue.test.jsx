@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import Helpful from "../../src/devagents/Helpful.jsx";
 import { nextIssueUrl } from "../../src/devagents/nextIssue.js";
 import Next from "../../src/devagents/sections/Next.jsx";
-import { stateFromUrl } from "../../src/search.js";
+import { stateFromUrl } from "../../src/lib/search.js";
 
 afterEach(() => {
   cleanup();

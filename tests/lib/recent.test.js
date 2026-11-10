@@ -6,7 +6,7 @@ import {
   recentLabel,
   removeRecent,
   visibleRecent,
-} from "../src/recent.js";
+} from "../../src/lib/recent.js";
 
 const text = (value) => ({ type: "text", value });
 const language = (value) => ({ type: "language", value });

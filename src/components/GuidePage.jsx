@@ -1,5 +1,5 @@
-import { CONTRIBUTION_GUIDE_URL, isPlainClick } from "../links";
-import { GUIDE } from "../seoPages";
+import { CONTRIBUTION_GUIDE_URL, isPlainClick } from "../lib/links";
+import { GUIDE } from "../lib/seoPages";
 import Icon from "./Icon";
 import { LanguageLinks } from "./SearchHelp";
 

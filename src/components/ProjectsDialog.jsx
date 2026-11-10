@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState } from "react";
-import { githubUrl } from "../github";
+import { githubUrl } from "../lib/github";
 import Icon from "./Icon";
 
 const PROJECT_COUNT = 12;

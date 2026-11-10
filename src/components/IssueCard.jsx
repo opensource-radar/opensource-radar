@@ -1,4 +1,4 @@
-import { previewText } from "../preview";
+import { previewText } from "../lib/preview";
 import Icon from "./Icon";
 
 const dateFormat = new Intl.DateTimeFormat(undefined, {

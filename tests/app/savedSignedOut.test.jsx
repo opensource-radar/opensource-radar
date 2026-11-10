@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import App from "../src/App.jsx";
+import App from "../../src/App.jsx";
 
 const GUEST_KEY = "opensource-radar-saved-_signed-out";
 const item = (id) => ({

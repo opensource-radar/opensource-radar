@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { previewText } from "../src/preview.js";
+import { previewText } from "../../src/lib/preview.js";
 
 describe("previewText", () => {
   it("turns Markdown into short plain text", () => {

@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 import { cleanup, render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import App from "../src/App.jsx";
-import { clearOwnKey, getOwnKey, setOwnKey } from "../src/devagents/ownKey.js";
+import App from "../../src/App.jsx";
+import { clearOwnKey, getOwnKey, setOwnKey } from "../../src/devagents/ownKey.js";
 
 afterEach(() => {
   cleanup();

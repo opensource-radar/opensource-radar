@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import ContributionsDialog from "../src/components/ContributionsDialog.jsx";
+import ContributionsDialog from "../../src/components/ContributionsDialog.jsx";
 
 const NOTE = "This PR was prepared with AI assistance from DevAgents; the changes were made and reviewed by me.";
 const pr = (id, extra) => ({

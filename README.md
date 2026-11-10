@@ -6,9 +6,9 @@ OpenSource Radar helps developers find open issues they can contribute to, acros
 
 🌐 **Live site:** [opensource-radar.com](https://opensource-radar.com/)
 
-![A short demo: searching beginner issues across GitHub, saving one without signing in, the step-by-step help page, choosing your own AI provider, and sharing a merged pull request. The issues and people shown are examples.](docs/demo.gif)
+![A short demo: searching beginner issues across GitHub, saving one without signing in, the step-by-step help page, choosing your own AI provider, and sharing a merged pull request. The issues and people shown are examples.](docs/images/demo.gif)
 
-![OpenSource Radar showing good first Python issues from popular, active projects](docs/screenshot.png)
+![OpenSource Radar showing good first Python issues from popular, active projects](docs/images/screenshot.png)
 
 ## ✨ Features
 
@@ -119,25 +119,32 @@ opensource-radar/
 ├── api/                    # Vercel Functions (run on the server)
 │   ├── auth/               # Sign in, callback, sign out
 │   ├── _lib/               # Shared helpers (not public routes)
+│   │   └── devagents/      # The "Get help with this issue" helper
+│   ├── devagents.js        # The helper's single endpoint
 │   ├── github.js           # Proxy that uses the signed-in user's token
+│   ├── health.js           # Health check for uptime monitors
+│   ├── issue.js            # One issue's details for its help page
 │   ├── me.js               # Who is signed in, which features are on
 │   ├── report.js           # Report form → GitHub issue
+│   ├── repos.js            # Project details for issue cards
 │   └── saved.js            # Saved issues per account
 ├── src/
 │   ├── components/         # Search bar, filters, issue cards, menu, dialogs
+│   ├── devagents/          # The help page and its steps
+│   ├── lib/                # Search, links, page details, previews, sharing
+│   ├── styles/             # Site-wide CSS
 │   ├── App.jsx             # Page layout and state
-│   ├── search.js           # Filters ⇄ GitHub search query ⇄ address bar
-│   ├── spokenLanguages.js  # GitHub's spoken language list, for the regional filter
-│   ├── recent.js           # Recent searches, kept in the browser
-│   ├── rateLimit.js        # Waiting out GitHub's limit, sharing repeat requests
-│   ├── links.js            # Links used around the site
-│   ├── seoPages.js         # Text of the language pages, guide and FAQ
-│   ├── pageMeta.js         # Page title and description for search engines
-│   ├── preview.js          # Safe plain-text issue previews
-│   └── github.js           # Chooses direct GitHub or the proxy
+│   └── main.jsx            # Starts the app
+├── tests/                  # Automated tests, in folders that match the code
+│   ├── api/
+│   ├── app/
+│   ├── components/
+│   ├── devagents/
+│   └── lib/
 ├── scripts/                # Builds each page's HTML and the sitemap
-├── tests/                  # Automated tests
-├── .github/                # Issue and pull request templates, CI
+├── public/                 # Icons, sharing image, robots.txt
+├── docs/                   # Runbook and README images
+├── .github/                # Issue and pull request templates, CI, uptime check
 ├── .env.example            # Settings template
 └── vercel.json             # Maps /auth/* to the sign-in functions, and pages to their own HTML
 ```

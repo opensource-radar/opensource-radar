@@ -12,17 +12,17 @@ import ProjectsDialog from "./components/ProjectsDialog";
 import SearchHelp from "./components/SearchHelp";
 import SearchLimitNotice from "./components/SearchLimitNotice";
 import SearchBar from "./components/SearchBar";
-import { githubUrl } from "./github";
-import { ABOUT_PATH } from "./links";
-import { setPageMeta } from "./pageMeta";
-import { ABOUT, GUIDE, GUIDE_PATH, HOME, withoutTrailingSlash } from "./seoPages";
+import { githubUrl } from "./lib/github";
+import { ABOUT_PATH } from "./lib/links";
+import { setPageMeta } from "./lib/pageMeta";
+import { ABOUT, GUIDE, GUIDE_PATH, HOME, withoutTrailingSlash } from "./lib/seoPages";
 import {
   MAX_LIMIT_RETRIES,
   fetchShared,
   isRateLimited,
   limitWaitSeconds,
   retryDelayMs,
-} from "./rateLimit";
+} from "./lib/rateLimit";
 import {
   DEFAULT_FILTERS,
   MAX_RESULTS,
@@ -38,8 +38,8 @@ import {
   regionalName,
   stateToUrl,
   toIssue,
-} from "./search";
-import "./App.css";
+} from "./lib/search";
+import "./styles/App.css";
 import DevAgentsEntry from "./devagents/DevAgentsEntry";
 import DevAgentsRoute from "./devagents/DevAgentsRoute";
 import { helpPath, parseHelpPath, parseIssueUrl } from "./devagents/links";

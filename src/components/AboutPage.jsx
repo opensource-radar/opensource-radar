@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { CONTRIBUTING_URL, REPO_URL, isPlainClick } from "../links";
+import { CONTRIBUTING_URL, REPO_URL, isPlainClick } from "../lib/links";
 import Icon from "./Icon";
 
 const PROBLEMS = [

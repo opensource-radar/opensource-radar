@@ -6,7 +6,7 @@ import {
   shareText,
   wrapLines,
   xShareUrl,
-} from "../src/shareCard.js";
+} from "../../src/lib/shareCard.js";
 
 const merged = (extra = {}) => ({ title: "Fix the thing", repo: "a/b", number: 7, ...extra });
 
