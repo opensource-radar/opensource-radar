@@ -2,6 +2,10 @@
 
 **Find your first open-source contribution.**
 
+[![Checks](https://github.com/opensource-radar/opensource-radar/actions/workflows/ci.yml/badge.svg)](https://github.com/opensource-radar/opensource-radar/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Live site](https://img.shields.io/badge/live-opensource--radar.com-3fb950.svg)](https://opensource-radar.com/)
+
 OpenSource Radar helps developers find open issues they can contribute to, across all public projects on GitHub. It starts with beginner-friendly issues that nobody has taken yet, and lets you narrow things down by language, project, activity and more.
 
 🌐 **Live site:** [opensource-radar.com](https://opensource-radar.com/)
@@ -172,6 +176,8 @@ opensource-radar/
 ## 🤝 Contributing
 
 Contributions are welcome — especially from first-time contributors. See [CONTRIBUTING.md](CONTRIBUTING.md) to get started.
+
+Please follow the [code of conduct](CODE_OF_CONDUCT.md). To report a security problem, see [SECURITY.md](SECURITY.md). Changes are listed in the [changelog](CHANGELOG.md).
 
 ## 📄 License
 
