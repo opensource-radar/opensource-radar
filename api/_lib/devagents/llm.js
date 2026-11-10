@@ -231,8 +231,16 @@ async function tryOwnKey(provider, call, state) {
 async function tryShared(shared, call, state) {
   const needTokens = estimateTokens(call.system, String(call.user), MAX_REPLY_TOKENS);
   const states = await loadStates(shared.map((provider) => provider.name));
-  const { ready, soonestMs } = rankProviders(shared, states, { needTokens, now: Date.now() });
+  const { ready: ranked, soonestMs } = rankProviders(shared, states, { needTokens, now: Date.now() });
   state.waitMs = soonestMs;
+  // Light requests try the smaller model first when it can take them, which
+  // keeps the main model's allowance for explanations and checks.
+  const ready = call.light
+    ? [
+        ...ranked.filter((provider) => provider.name === LIGHT_NAME),
+        ...ranked.filter((provider) => provider.name !== LIGHT_NAME),
+      ]
+    : ranked;
 
   for (const provider of ready) {
     const result = await tryProvider(provider, call);
@@ -267,7 +275,7 @@ export async function askJson({
   const chain = providerChain(userKey, process.env, { light });
   const own = chain.find((provider) => provider.name === "own");
   const shared = ownKeyOnly ? [] : chain.filter((provider) => provider.name !== "own");
-  const call = { system, user, validate, deadline };
+  const call = { system, user, validate, deadline, light };
   const state = { ownKeyFailed: false, ownWaitMs: null, waitMs: null };
 
   const run = async (includeOwn) => {
