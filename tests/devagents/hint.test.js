@@ -17,6 +17,19 @@ afterEach(() => {
 });
 
 describe("hint", () => {
+  it("hints 1 and 2 may use the smaller Groq model, but the last hint keeps the main one", async () => {
+    vi.stubEnv("DEVAGENTS_GROQ_LIGHT_MODEL", "small-model");
+    vi.stubEnv("DEVAGENTS_GROQ_MODEL", "");
+    const world = fakeWorld({ github: github(), llm: [{ hint: "Look here" }] });
+    await hintAt(1);
+    expect(JSON.parse(world.llmCalls()[0].init.body).model).toBe("small-model");
+
+    vi.stubEnv("DEVAGENTS_GROQ_MODEL", "groq-model");
+    const last = fakeWorld({ github: github(), llm: [{ hint: "Try this", draft }] });
+    await hintAt(3);
+    expect(last.llmCalls().map((call) => JSON.parse(call.init.body).model)).not.toContain("small-model");
+  });
+
   it.each([[1], [2]])("level %i never returns a draft, even if the LLM sends one", async (level) => {
     fakeWorld({ github: github(), llm: [{ hint: "Look here", draft }] });
     const { body } = await hintAt(level);
