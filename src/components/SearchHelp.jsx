@@ -1,4 +1,4 @@
-import { FAQ, GUIDE_PATH, LANGUAGE_PAGES } from "../seoPages";
+import { FAQ, GUIDE_PATH, LANGUAGE_PAGES } from "../lib/seoPages";
 
 // Language links shown here and on the guide. They're ordinary links, so they
 // load the page's own HTML, the back button works, and search engines follow them.

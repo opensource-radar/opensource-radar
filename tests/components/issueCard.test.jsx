@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import IssueCard from "../src/components/IssueCard.jsx";
-import { toIssue } from "../src/search.js";
+import IssueCard from "../../src/components/IssueCard.jsx";
+import { toIssue } from "../../src/lib/search.js";
 
 afterEach(cleanup);
 

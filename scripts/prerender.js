@@ -13,7 +13,7 @@ import {
   HOME,
   LANGUAGE_PAGES,
   SITE_URL,
-} from "../src/seoPages.js";
+} from "../src/lib/seoPages.js";
 
 export const escapeHtml = (text) =>
   String(text)

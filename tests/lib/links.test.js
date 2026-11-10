@@ -1,6 +1,6 @@
 
 import { describe, expect, it } from "vitest";
-import { isPlainClick } from "../src/links.js";
+import { isPlainClick } from "../../src/lib/links.js";
 
 describe("isPlainClick", () => {
   it("returns true for a normal left click", () => {

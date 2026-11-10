@@ -6,8 +6,8 @@ import {
   recentLabel,
   rememberSearch,
   visibleRecent,
-} from "../recent";
-import { BEGINNER_PRESETS, LANGUAGES, isValidProject } from "../search";
+} from "../lib/recent";
+import { BEGINNER_PRESETS, LANGUAGES, isValidProject } from "../lib/search";
 import Icon from "./Icon";
 
 const MAX_LANGUAGE_MATCHES = 3;

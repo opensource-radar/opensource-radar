@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { GET } from "../api/issue.js";
-import { seal } from "../api/_lib/session.js";
+import { GET } from "../../api/issue.js";
+import { seal } from "../../api/_lib/session.js";
 
 const SESSION_SECRET = "test-session-secret-0123456789abcdef0123456789abcdef";
 const REDIS_URL = "https://fake-redis.test";

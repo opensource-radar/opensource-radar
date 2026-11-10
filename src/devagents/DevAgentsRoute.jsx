@@ -1,7 +1,7 @@
 import { lazy, Suspense, useState } from "react";
 import ErrorBoundary from "../components/ErrorBoundary";
 import Icon from "../components/Icon";
-import { isPlainClick } from "../links";
+import { isPlainClick } from "../lib/links";
 import { issueUrl } from "./links";
 
 const importPage = () => import("./HelpPage.jsx");

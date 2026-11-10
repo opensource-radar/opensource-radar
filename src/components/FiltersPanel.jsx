@@ -7,8 +7,8 @@ import {
   SORT_OPTIONS,
   UPDATED_OPTIONS,
   isValidProject,
-} from "../search";
-import { INDIAN_LANGUAGE_CODES, SPOKEN_LANGUAGES } from "../spokenLanguages";
+} from "../lib/search";
+import { INDIAN_LANGUAGE_CODES, SPOKEN_LANGUAGES } from "../lib/spokenLanguages";
 
 const languageOption = ({ code, name, native }) => (
   <option key={code} value={code}>

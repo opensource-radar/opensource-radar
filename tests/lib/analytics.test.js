@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { withoutSearchText } from "../src/analytics.js";
+import { withoutSearchText } from "../../src/lib/analytics.js";
 
 describe("analytics privacy", () => {
   it("sends the page path without what people searched for", () => {

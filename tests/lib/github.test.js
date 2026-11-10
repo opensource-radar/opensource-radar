@@ -1,6 +1,6 @@
 
 import { describe, expect, it } from "vitest";
-import { githubUrl } from "../src/github.js";
+import { githubUrl } from "../../src/lib/github.js";
 
 describe("githubUrl", () => {
   it("uses the server API when signed in", () => {

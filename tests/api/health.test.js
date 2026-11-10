@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { GET as health } from "../api/health.js";
-import { resetRouterMemory } from "../api/_lib/devagents/router.js";
+import { GET as health } from "../../api/health.js";
+import { resetRouterMemory } from "../../api/_lib/devagents/router.js";
 
 const STORE_URL = "https://fake-store.test";
 const DA_STORE_URL = "https://fake-devagents-store.test";

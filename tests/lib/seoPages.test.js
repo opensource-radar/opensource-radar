@@ -6,7 +6,7 @@ import {
   languagePageForSearch,
   stateFromLocation,
   stateToUrl,
-} from "../src/search.js";
+} from "../../src/lib/search.js";
 import {
   ABOUT,
   ALL_PAGES,
@@ -16,8 +16,8 @@ import {
   SITE_URL,
   languagePageForPath,
   withoutTrailingSlash,
-} from "../src/seoPages.js";
-import { escapeHtml, pageBody, renderPage, sitemapXml } from "../scripts/prerender.js";
+} from "../../src/lib/seoPages.js";
+import { escapeHtml, pageBody, renderPage, sitemapXml } from "../../scripts/prerender.js";
 
 const template = fs.readFileSync("index.html", "utf8");
 const python = LANGUAGE_PAGES.find((page) => page.language === "Python");

@@ -1,4 +1,4 @@
-import { isPlainClick } from "../links";
+import { isPlainClick } from "../lib/links";
 import { helpPath } from "./links";
 
 // The link on each issue card. It's a real link, so it can open in a new tab. A

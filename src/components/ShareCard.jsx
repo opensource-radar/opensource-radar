@@ -6,7 +6,7 @@ import {
   shareHeadline,
   shareText,
   xShareUrl,
-} from "../shareCard";
+} from "../lib/shareCard";
 
 // A picture to post after a pull request is merged, with ways to share it.
 // It's made in the browser, so nothing is uploaded anywhere.

@@ -1,4 +1,4 @@
-import { DEFAULT_FILTERS, stateToUrl } from "../search";
+import { DEFAULT_FILTERS, stateToUrl } from "../lib/search";
 
 // A small step up from "good first issue", in the same language.
 export function nextIssueUrl(language) {

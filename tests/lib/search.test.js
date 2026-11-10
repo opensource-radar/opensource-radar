@@ -10,8 +10,8 @@ import {
   stateFromUrl,
   stateToUrl,
   toIssue,
-} from "../src/search.js";
-import { INDIAN_LANGUAGE_CODES, SPOKEN_LANGUAGES } from "../src/spokenLanguages.js";
+} from "../../src/lib/search.js";
+import { INDIAN_LANGUAGE_CODES, SPOKEN_LANGUAGES } from "../../src/lib/spokenLanguages.js";
 
 const allFilters = {
   ...DEFAULT_FILTERS,

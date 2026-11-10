@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState } from "react";
-import { githubUrl } from "../github";
-import { isRadarPullRequest } from "../shareCard";
+import { githubUrl } from "../lib/github";
+import { isRadarPullRequest } from "../lib/shareCard";
 import Icon from "./Icon";
 import ShareCard from "./ShareCard";
 
