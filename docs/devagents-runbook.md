@@ -11,7 +11,7 @@ DevAgents is the optional "Get help with this issue" helper, which opens its own
 
 ## Capacity and routing
 
-Free LLM plans limit tokens per minute and per day, and every user shares the same keys. On Groq's free plan, one new Explain uses about 7,000 tokens, so its limits allow only a few dozen new explanations a day. Answers are cached, so repeat requests cost nothing.
+Free LLM plans limit tokens per minute and per day, and every user shares the same keys. On Groq's free plan, one new Explain uses at most about 4,500 tokens of input (plus the replies), so its limits still allow only a few dozen new explanations a day. Answers are cached, so repeat requests cost nothing.
 
 DevAgents chooses a provider for each request:
 

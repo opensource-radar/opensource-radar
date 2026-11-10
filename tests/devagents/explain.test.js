@@ -201,3 +201,35 @@ describe("explain", () => {
     expect((await callAction("explain", target)).body).toEqual({ error: "limit" });
   });
 });
+
+describe("explain request size", () => {
+  // A worst case: everything the project sends is far longer than the limits.
+  const huge = (word) => `${word} `.repeat(5000);
+  const bigWorld = () => {
+    const paths = Array.from({ length: 2000 }, (_, i) => `src/module_${i}/file_${i}.py`);
+    return {
+      ...github(),
+      "/repos/a/b/issues/1": { number: 1, title: "Fix it", body: huge("issue"), state: "open", updated_at: "2026-11-01T00:00:00Z" },
+      "/repos/a/b/git/trees/abc": { tree: paths.map((path) => ({ type: "blob", path })) },
+      "/repos/a/b/contents/README.md": huge("readme"),
+      "/repos/a/b/contents/CONTRIBUTING.md": huge("contributing"),
+      ...Object.fromEntries(paths.slice(0, 3).map((path) => [`/repos/a/b/contents/${path}`, huge("code")])),
+    };
+  };
+
+  it("fits a whole explanation in about 4,500 tokens of input, even for a huge project", async () => {
+    const reads = ["src/module_0/file_0.py", "src/module_1/file_1.py", "src/module_2/file_2.py"];
+    const world = fakeWorld({
+      github: bigWorld(),
+      llm: [{ read: reads }, done(reads.map((path) => ({ path, why: "x" }))), explained],
+    });
+    const { status } = await callAction("explain", target);
+    expect(status).toBe(200);
+
+    const calls = world.llmCalls().map((call) => JSON.parse(call.init.body).messages);
+    expect(calls).toHaveLength(3);
+    const chars = calls.flat().reduce((total, message) => total + message.content.length, 0);
+    // About 4 characters make a token. Before this limit it was about 7,000.
+    expect(Math.ceil(chars / 4)).toBeLessThanOrEqual(4500);
+  });
+});

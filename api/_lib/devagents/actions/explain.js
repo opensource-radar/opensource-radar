@@ -9,6 +9,12 @@ const WEEK_SECONDS = 7 * 24 * 60 * 60;
 const FINAL_CALL_RESERVE_MS = 12000;
 const LARGE_REPO_FILES = 300;
 const DIFFICULTIES = new Set(["easy", "medium", "hard"]);
+// How much of each text goes into the final answer's request. Kept small so a
+// whole explanation fits in a free plan's per-minute allowance.
+const ISSUE_CHARS = 1200;
+const README_CHARS = 1500;
+const CONTRIBUTING_CHARS = 1200;
+const EXCERPT_CHARS = 500;
 
 const SYSTEM = `You explain open-source issues to someone making their first contribution.
 Use plain words and short sentences. Don't invent files, commands or rules.
@@ -78,13 +84,13 @@ async function produceExplanation(ctx, { repo, issue, repoInfo }) {
     validate: validateExplanation,
     user: [
       asData("issue title", issue.title ?? ""),
-      asData("issue body", (issue.body ?? "").slice(0, 2500)),
-      asData("README", (readme ?? "").slice(0, 2500)),
-      asData("contributing guide", (contributing ?? "").slice(0, 2000)),
+      asData("issue body", (issue.body ?? "").slice(0, ISSUE_CHARS)),
+      asData("README", (readme ?? "").slice(0, README_CHARS)),
+      asData("contributing guide", (contributing ?? "").slice(0, CONTRIBUTING_CHARS)),
       asData("files to read", filesToRead.map((f) => `${f.path}: ${f.why}`).join("\n")),
       ...filesToRead
         .slice(0, 2)
-        .map((f) => asData(`file ${f.path}`, (contents.get(f.path) ?? "").slice(0, 800))),
+        .map((f) => asData(`file ${f.path}`, (contents.get(f.path) ?? "").slice(0, EXCERPT_CHARS))),
     ].join("\n"),
   });
 
