@@ -63,6 +63,7 @@ export async function prText(ctx, payload) {
   const { value } = await ctx.askJson({
     system: SYSTEM,
     validate,
+    light: true,
     user: [
       asData("issue title", issue.title ?? ""),
       asData("issue body", (issue.body ?? "").slice(0, 2000)),

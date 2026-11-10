@@ -54,6 +54,8 @@ export async function hint(ctx, payload) {
     const { value } = await ctx.askJson({
       system: SYSTEM(level),
       validate,
+      // The last hint also drafts text, so it keeps the main model.
+      light: level !== 3,
       user: [
         asData("issue title", issue.title ?? ""),
         asData("issue body", (issue.body ?? "").slice(0, 4000)),

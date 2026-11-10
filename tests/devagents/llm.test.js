@@ -383,3 +383,69 @@ describe("scrubSecrets", () => {
     expect(scrubSecrets(text)).toBe(text);
   });
 });
+
+describe("light model", () => {
+  const sentModel = () => JSON.parse(fetch.mock.calls.at(-1)[1].body).model;
+
+  it("adds the smaller Groq model only to light requests", () => {
+    vi.stubEnv("DEVAGENTS_GROQ_LIGHT_MODEL", "small-model");
+    expect(providerChain().map((p) => p.name)).toEqual(["groq", "gemini"]);
+    expect(providerChain(null, process.env, { light: true })).toContainEqual({
+      name: "groq-light",
+      baseUrl: "https://api.groq.com/openai/v1",
+      apiKey: "groq-key",
+      model: "small-model",
+    });
+  });
+
+  it("isn't added without a Groq key, or without a light model", () => {
+    vi.stubEnv("DEVAGENTS_GROQ_LIGHT_MODEL", "small-model");
+    vi.stubEnv("DEVAGENTS_GROQ_KEY", "");
+    expect(providerChain(null, process.env, { light: true }).map((p) => p.name)).toEqual(["gemini"]);
+    vi.stubEnv("DEVAGENTS_GROQ_KEY", "groq-key");
+    vi.stubEnv("DEVAGENTS_GROQ_LIGHT_MODEL", "");
+    expect(providerChain(null, process.env, { light: true }).map((p) => p.name)).toEqual(["groq", "gemini"]);
+  });
+
+  it("an extra provider can't take its name", () => {
+    vi.stubEnv("DEVAGENTS_GROQ_LIGHT_MODEL", "small-model");
+    vi.stubEnv(
+      "DEVAGENTS_EXTRA_PROVIDERS",
+      JSON.stringify([{ name: "groq-light", baseUrl: "https://x.example/v1", apiKey: "k", model: "m" }]),
+    );
+    const names = providerChain(null, process.env, { light: true }).map((p) => p.name);
+    expect(names.filter((name) => name === "groq-light")).toHaveLength(1);
+  });
+
+  it("a light request can be answered by the smaller model", async () => {
+    // Only the smaller model is set up, so it must be the one that answers.
+    vi.stubEnv("DEVAGENTS_GROQ_LIGHT_MODEL", "small-model");
+    vi.stubEnv("DEVAGENTS_GEMINI_KEY", "");
+    vi.stubEnv("DEVAGENTS_GROQ_MODEL", "");
+    vi.stubGlobal("fetch", vi.fn(async () => good()));
+    const { value, model } = await ask({ light: true });
+    expect(value).toEqual({ answer: "hi" });
+    expect(model).toBe("small-model");
+    expect(sentModel()).toBe("small-model");
+  });
+
+  it("a normal request never uses the smaller model", async () => {
+    vi.stubEnv("DEVAGENTS_GROQ_LIGHT_MODEL", "small-model");
+    vi.stubEnv("DEVAGENTS_GEMINI_KEY", "");
+    vi.stubGlobal("fetch", vi.fn(async () => good()));
+    await ask();
+    expect(fetch.mock.calls.map(([, init]) => JSON.parse(init.body).model)).not.toContain("small-model");
+  });
+
+  it("falls back to the other providers when the smaller model is busy", async () => {
+    vi.stubEnv("DEVAGENTS_GROQ_LIGHT_MODEL", "small-model");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (_url, init) =>
+        JSON.parse(init.body).model === "small-model" ? new Response("{}", { status: 429 }) : good(),
+      ),
+    );
+    const { value } = await ask({ light: true });
+    expect(value).toEqual({ answer: "hi" });
+  });
+});

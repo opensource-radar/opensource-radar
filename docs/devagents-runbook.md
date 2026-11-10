@@ -31,6 +31,7 @@ Every provider you add is another place to send requests when the others are bus
 | Provider | Settings | Base address (set by the code) |
 | --- | --- | --- |
 | Groq | `DEVAGENTS_GROQ_KEY`, `DEVAGENTS_GROQ_MODEL` | `https://api.groq.com/openai/v1` |
+| Groq, smaller model (optional) | `DEVAGENTS_GROQ_LIGHT_MODEL`, using the same key | Used only for hints 1 and 2 and pull request text. Groq sets limits per model, so this adds capacity on the same key. |
 | Google Gemini | `DEVAGENTS_GEMINI_KEY`, `DEVAGENTS_GEMINI_MODEL` | `https://generativelanguage.googleapis.com/v1beta/openai` |
 | Cerebras | `DEVAGENTS_CEREBRAS_KEY`, `DEVAGENTS_CEREBRAS_MODEL` | `https://api.cerebras.ai/v1` |
 | Mistral | `DEVAGENTS_MISTRAL_KEY`, `DEVAGENTS_MISTRAL_MODEL` | `https://api.mistral.ai/v1` |

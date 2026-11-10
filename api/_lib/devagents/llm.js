@@ -98,10 +98,23 @@ function ownKeyProvider(userKey, env) {
   return baseUrl && model ? { name: "own", baseUrl, apiKey: own.key, model } : null;
 }
 
-export function providerChain(userKey, env = process.env) {
+// A smaller Groq model for simple steps. Groq sets limits per model, so it
+// adds capacity on the same key. It's never used for full explanations.
+const LIGHT_NAME = "groq-light";
+
+// `light` adds the smaller model, for requests that don't need the main one.
+export function providerChain(userKey, env = process.env, { light = false } = {}) {
   const chain = [];
   const own = ownKeyProvider(userKey, env);
   if (own) chain.push(own);
+  if (light && env.DEVAGENTS_GROQ_KEY && env.DEVAGENTS_GROQ_LIGHT_MODEL) {
+    chain.push({
+      name: LIGHT_NAME,
+      baseUrl: GROQ_URL,
+      apiKey: env.DEVAGENTS_GROQ_KEY,
+      model: env.DEVAGENTS_GROQ_LIGHT_MODEL,
+    });
+  }
   for (const { name, baseUrl, keyVar, modelVar } of SHARED_PROVIDERS) {
     if (env[keyVar] && env[modelVar]) {
       chain.push({ name, baseUrl, apiKey: env[keyVar], model: env[modelVar] });
@@ -118,7 +131,7 @@ export function providerChain(userKey, env = process.env) {
     });
   }
 
-  const taken = ["own", ...chain.map((provider) => provider.name)];
+  const taken = ["own", LIGHT_NAME, ...chain.map((provider) => provider.name)];
   return [...chain, ...extraProviders(env, taken)];
 }
 
@@ -241,8 +254,17 @@ async function tryShared(shared, call, state) {
 // `unavailable` straight away, so nobody waits for an answer that can't come.
 // `ownKeyOnly` tries just the user's key, so the caller can charge shared limits
 // before any shared provider is used.
-export async function askJson({ system, user, validate, userKey, deadline, ownKeyOnly = false }) {
-  const chain = providerChain(userKey);
+// `light` lets the smaller Groq model answer too, when one is set up.
+export async function askJson({
+  system,
+  user,
+  validate,
+  userKey,
+  deadline,
+  ownKeyOnly = false,
+  light = false,
+}) {
+  const chain = providerChain(userKey, process.env, { light });
   const own = chain.find((provider) => provider.name === "own");
   const shared = ownKeyOnly ? [] : chain.filter((provider) => provider.name !== "own");
   const call = { system, user, validate, deadline };
