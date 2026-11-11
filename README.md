@@ -183,11 +183,15 @@ Please follow the [code of conduct](CODE_OF_CONDUCT.md). To report a security pr
 
 [MIT](LICENSE)
 
-## 👩‍💻 Author
+## 🧑‍💻 Authors
 
-**Deepti Nanda**
+OpenSource Radar is built by:
 
-- GitHub: [@Deepti-Nanda](https://github.com/Deepti-Nanda)
+- **Deepti Nanda**: [@Deepti-Nanda](https://github.com/Deepti-Nanda)
+- **Aditya Raj**: [@xreep](https://github.com/xreep)
+
+Links:
+
 - Project repository: [opensource-radar/opensource-radar](https://github.com/opensource-radar/opensource-radar)
 - Live site: [OpenSource Radar](https://opensource-radar.com/)
 
