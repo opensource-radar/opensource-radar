@@ -15,3 +15,8 @@ export const isPlainClick = (event) =>
   !event.ctrlKey &&
   !event.shiftKey &&
   !event.altKey;
+
+// Public profiles: /u/<github login>
+const PROFILE_PATH = /^\/u\/([A-Za-z0-9-]{1,39})\/?$/;
+export const profilePath = (login) => `/u/${login}`;
+export const parseProfilePath = (pathname) => pathname.match(PROFILE_PATH)?.[1] ?? null;

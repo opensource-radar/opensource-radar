@@ -11,10 +11,11 @@ import Logo from "./components/Logo";
 import NavMenu from "./components/NavMenu";
 import ProjectsDialog from "./components/ProjectsDialog";
 import SearchHelp from "./components/SearchHelp";
+import ProfilePage from "./components/ProfilePage";
 import SearchLimitNotice from "./components/SearchLimitNotice";
 import SearchBar from "./components/SearchBar";
 import { githubUrl } from "./lib/github";
-import { ABOUT_PATH } from "./lib/links";
+import { ABOUT_PATH, parseProfilePath } from "./lib/links";
 import { setPageMeta } from "./lib/pageMeta";
 import {
   ABOUT,
@@ -240,6 +241,7 @@ const routeFromPath = () => {
   if (pathname === GUIDE_PATH) return "guide";
   if (pathname === MAINTAINERS_PATH) return "maintainers";
   if (parseHelpPath(pathname)) return "help";
+  if (parseProfilePath(pathname)) return "profile";
   return "search";
 };
 
@@ -413,7 +415,8 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (route === "help") return; // The help page sets its own details.
+    // The help and profile pages set their own details.
+    if (route === "help" || route === "profile") return;
     if (route === "about") setPageMeta(ABOUT);
     else if (route === "guide") setPageMeta(GUIDE);
     else if (route === "maintainers") setPageMeta(MAINTAINERS);
@@ -879,6 +882,7 @@ function App() {
               signInAvailable={account.signInAvailable}
               onSignOut={signOut}
               savedCount={savedIssues.length}
+              savedIssues={savedIssues}
               onShowSaved={showSaved}
               onShowRecommended={showRecommended}
             onShowAbout={showAbout}
@@ -1140,6 +1144,9 @@ function App() {
           )}
         </section>
 
+        {route === "profile" && (
+          <ProfilePage login={parseProfilePath(window.location.pathname)} onBack={backToSearch} />
+        )}
         {route === "search" && view === "search" && <SearchHelp languagePage={languagePage} />}
 
         {projectsOpen && (

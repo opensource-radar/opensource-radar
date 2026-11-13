@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { githubUrl } from "../lib/github";
 import { isRadarPullRequest } from "../lib/shareCard";
 import Icon from "./Icon";
+import ProfileSettings from "./ProfileSettings";
 import ShareCard from "./ShareCard";
 
 const PULL_REQUEST_LIMIT = 30;
@@ -223,6 +224,7 @@ function ContributionsDialog({ login, onClose }) {
             </a>
           </p>
         )}
+        <ProfileSettings login={login} />
       </div>
     </dialog>
   );

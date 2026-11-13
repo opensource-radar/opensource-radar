@@ -17,6 +17,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/u/:login",
+      "destination": "/index.html"
+    },
+    {
       "source": "/about",
       "destination": "/about/index.html"
     },

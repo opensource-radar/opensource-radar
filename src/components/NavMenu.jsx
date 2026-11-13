@@ -1,11 +1,13 @@
-import { useEffect, useId, useImperativeHandle, useRef, useState } from "react";
+import { useEffect, useId, useImperativeHandle, useRef, useState, useSyncExternalStore } from "react";
 import { GUIDE_PATH } from "../lib/seoPages";
 import {
   ABOUT_PATH,
   REPORT_PROBLEM_URL,
   isPlainClick,
 } from "../lib/links";
+import { canInstall, promptInstall, subscribe } from "../lib/installApp";
 import ContributionsDialog from "./ContributionsDialog";
+import JourneyDialog from "./JourneyDialog";
 import ReportDialog from "./ReportDialog";
 import Icon from "./Icon";
 
@@ -35,6 +37,7 @@ function NavMenu({
   signInAvailable,
   onSignOut,
   savedCount,
+  savedIssues = [],
   onShowSaved,
   onShowRecommended,
   onShowAbout,
@@ -43,7 +46,10 @@ function NavMenu({
   ref,
 }) {
   const [open, setOpen] = useState(false);
+  // Only shown when the browser says the site can be installed.
+  const installable = useSyncExternalStore(subscribe, canInstall, () => false);
   const [contributionsOpen, setContributionsOpen] = useState(false);
+  const [journeyOpen, setJourneyOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const wrapperRef = useRef(null);
   const triggerRef = useRef(null);
@@ -208,6 +214,18 @@ function NavMenu({
                 <Icon name="gitPullRequest" />
                 My contributions
               </button>
+              <button
+                type="button"
+                role="menuitem"
+                className="menu-item"
+                onClick={() => {
+                  closeMenu();
+                  setJourneyOpen(true);
+                }}
+              >
+                <Icon name="history" />
+                My journey
+              </button>
               <div className="menu-divider" role="separator" />
             </>
           )}
@@ -272,6 +290,20 @@ function NavMenu({
 
           <div className="menu-divider" role="separator" />
 
+          {installable && (
+            <button
+              type="button"
+              role="menuitem"
+              className="menu-item"
+              onClick={() => {
+                closeMenu({ restoreFocus: true });
+                promptInstall();
+              }}
+            >
+              <Icon name="deviceDesktop" />
+              Install app
+            </button>
+          )}
           <a
             role="menuitem"
             className="menu-item"
@@ -354,6 +386,16 @@ function NavMenu({
           onClose={() => {
             setReportOpen(false);
             restoreDialogFocus();
+          }}
+        />
+      )}
+
+      {journeyOpen && user && (
+        <JourneyDialog
+          savedIssues={savedIssues}
+          onClose={() => {
+            setJourneyOpen(false);
+            triggerRef.current?.focus();
           }}
         />
       )}
