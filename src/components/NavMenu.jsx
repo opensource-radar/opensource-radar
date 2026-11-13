@@ -6,6 +6,7 @@ import {
   isPlainClick,
 } from "../lib/links";
 import ContributionsDialog from "./ContributionsDialog";
+import JourneyDialog from "./JourneyDialog";
 import ReportDialog from "./ReportDialog";
 import Icon from "./Icon";
 
@@ -35,6 +36,7 @@ function NavMenu({
   signInAvailable,
   onSignOut,
   savedCount,
+  savedIssues = [],
   onShowSaved,
   onShowRecommended,
   onShowAbout,
@@ -44,6 +46,7 @@ function NavMenu({
 }) {
   const [open, setOpen] = useState(false);
   const [contributionsOpen, setContributionsOpen] = useState(false);
+  const [journeyOpen, setJourneyOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const wrapperRef = useRef(null);
   const triggerRef = useRef(null);
@@ -208,6 +211,18 @@ function NavMenu({
                 <Icon name="gitPullRequest" />
                 My contributions
               </button>
+              <button
+                type="button"
+                role="menuitem"
+                className="menu-item"
+                onClick={() => {
+                  closeMenu();
+                  setJourneyOpen(true);
+                }}
+              >
+                <Icon name="history" />
+                My journey
+              </button>
               <div className="menu-divider" role="separator" />
             </>
           )}
@@ -354,6 +369,16 @@ function NavMenu({
           onClose={() => {
             setReportOpen(false);
             restoreDialogFocus();
+          }}
+        />
+      )}
+
+      {journeyOpen && user && (
+        <JourneyDialog
+          savedIssues={savedIssues}
+          onClose={() => {
+            setJourneyOpen(false);
+            triggerRef.current?.focus();
           }}
         />
       )}
