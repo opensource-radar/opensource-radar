@@ -1,5 +1,6 @@
 import { useEffect, useId, useState } from "react";
 import { SITE_URL } from "../lib/seoPages";
+import "./Profile.css";
 
 // In My contributions: the signed-in user's public profile switch. It's off
 // until they turn it on.

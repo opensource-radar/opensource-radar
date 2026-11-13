@@ -4,6 +4,7 @@ import { isPlainClick } from "../lib/links";
 import { setPageMeta } from "../lib/pageMeta";
 import { SITE_URL } from "../lib/seoPages";
 import Icon from "./Icon";
+import "./Profile.css";
 
 const dateFormat = new Intl.DateTimeFormat(undefined, { day: "numeric", month: "short", year: "numeric" });
 
