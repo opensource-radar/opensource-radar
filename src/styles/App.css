@@ -2128,3 +2128,66 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* Public profile */
+.profile-settings {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-card);
+  font-size: 14px;
+}
+
+.profile-settings h3 {
+  margin: 0 0 6px;
+  color: var(--text-strong);
+  font-size: 15px;
+}
+
+.profile-settings p {
+  margin: 4px 0;
+}
+
+.profile-settings input {
+  accent-color: var(--success);
+}
+
+.profile-settings-note {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 12px 0 8px;
+}
+
+.profile-header img {
+  border-radius: 50%;
+}
+
+.profile-header h1 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.profile-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  color: var(--muted);
+}
+
+.profile-stats strong {
+  color: var(--text-strong);
+}
+
+.profile-prs {
+  margin-top: 12px;
+}
+
+.profile-status {
+  margin-top: 24px;
+  color: var(--muted);
+}
