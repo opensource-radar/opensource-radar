@@ -173,6 +173,14 @@ opensource-radar/
 - [x] Recent searches, regional language filter and About page
 - [x] Saved searches
 
+## 🏷️ For maintainers
+
+Show beginners that your project welcomes them. This badge shows how many open, unassigned `good first issue` issues your project has, and links to them on OpenSource Radar. Replace `owner/repo` with your project:
+
+```markdown
+[![Good first issues on OpenSource Radar](https://opensource-radar.com/api/badge?repo=owner%2Frepo)](https://opensource-radar.com/?labels=good-first-issue&available=1&project=owner%2Frepo)
+```
+
 ## 🤝 Contributing
 
 Contributions are welcome — especially from first-time contributors. See [CONTRIBUTING.md](CONTRIBUTING.md) to get started.
