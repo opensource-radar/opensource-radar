@@ -1,5 +1,6 @@
 import { replyLine } from "../lib/friendliness";
 import { previewText } from "../lib/preview";
+import { ESTIMATES, estimateTime } from "../lib/timeEstimate";
 import Icon from "./Icon";
 
 const dateFormat = new Intl.DateTimeFormat(undefined, {
@@ -53,6 +54,7 @@ function IssueCard({
   createdAt,
 }) {
   const preview = previewText(description);
+  const estimate = ESTIMATES[estimateTime({ title, labels: label, body: description })];
   const details = [
     typeof comments === "number" &&
       (comments === 1 ? "1 comment" : `${comments} comments`),
@@ -66,6 +68,13 @@ function IssueCard({
       <div className="issue-card-header">
         <div className="issue-card-labels">
           <span className="issue-label">{label}</span>
+          <span
+            className="issue-estimate"
+            title={`${estimate.detail}. A rough guess from the issue's labels and text.`}
+          >
+            <span className="sr-only">Estimated time: </span>
+            {estimate.label}
+          </span>
           {project?.archived ? (
             <span className="project-warning project-warning-archived">
               Archived project

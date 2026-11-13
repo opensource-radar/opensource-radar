@@ -72,3 +72,12 @@ describe("reply time on the card", () => {
     expect(screen.queryByText(/Maintainers usually reply/)).toBeNull();
   });
 });
+
+describe("time estimate on the card", () => {
+  it("shows a rough estimate and explains it's a guess", () => {
+    render(<IssueCard title="Fix typo in README" description="Says teh." label="documentation" repo="a/b" url="#" />);
+    const chip = screen.getByText("~30 min").closest(".issue-estimate");
+    expect(chip.getAttribute("title")).toMatch(/rough guess/);
+    expect(chip.textContent).toBe("Estimated time: ~30 min");
+  });
+});
