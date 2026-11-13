@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Icon from "../components/Icon";
+import { LEVEL_LABELS, friendlinessFacts } from "../lib/friendliness";
 
 const GITHUB_LOGIN = /^[A-Za-z0-9-]{1,39}$/;
 const dateFormat = new Intl.DateTimeFormat(undefined, {
@@ -15,6 +16,39 @@ const formatDate = (value) => {
 
 const looksValid = (data) =>
   typeof data?.issue?.title === "string" && typeof data.issue.url === "string";
+
+// How beginner-friendly the project looks. It loads after the issue, and
+// shows nothing if it can't be worked out.
+function Friendliness({ repo }) {
+  const [score, setScore] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`/api/friendliness?names=${encodeURIComponent(repo)}`, { headers: { Accept: "application/json" } })
+      .then((response) => response.json().catch(() => null))
+      .then((data) => {
+        if (!cancelled) setScore(data?.friendliness?.[repo] ?? null);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [repo]);
+
+  const facts = friendlinessFacts(score);
+  if (facts.length === 0) return null;
+  return (
+    <div className={`helppage-friendliness level-${score.level ?? "unknown"}`}>
+      <h2>{LEVEL_LABELS[score.level] ?? "Not enough recent activity to judge"}</h2>
+      <ul>
+        {facts.map((fact) => (
+          <li key={fact}>{fact}</li>
+        ))}
+      </ul>
+      <p className="devagents-muted">From this project's recent issues and pull requests.</p>
+    </div>
+  );
+}
 
 // The issue itself and its project, readable without signing in. Everything
 // from GitHub is shown as plain text.
@@ -120,6 +154,8 @@ function IssueDetails({ repo, number, onLoaded }) {
           )}
         </p>
       )}
+
+      <Friendliness repo={repo} />
 
       {setupHint?.text && (
         <div className="helppage-issue-setup">

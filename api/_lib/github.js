@@ -1,4 +1,5 @@
 // Calls to GitHub's OAuth and REST APIs used by the sign-in functions.
+import { FRIENDLINESS_FIELDS } from "./friendliness.js";
 
 const TOKEN_URL = "https://github.com/login/oauth/access_token";
 
@@ -81,7 +82,9 @@ export async function fetchUser(accessToken) {
 
 // Looks up several repositories in one GraphQL request. Returns one entry
 // per name (null when the repository doesn't exist or can't be read).
-export async function fetchRepositories(accessToken, names) {
+// `friendliness` also fetches recent issues and pull requests, which is much
+// slower, so it's only asked for separately (see api/friendliness.js).
+export async function fetchRepositories(accessToken, names, { friendliness = false } = {}) {
   const variables = {};
   const params = [];
   const fields = names.map((name, index) => {
@@ -94,7 +97,7 @@ export async function fetchRepositories(accessToken, names) {
       pushedAt
       isArchived
       primaryLanguage { name }
-      contributingGuidelines { url }
+      contributingGuidelines { url }${friendliness ? FRIENDLINESS_FIELDS : ""}
     }`;
   });
 

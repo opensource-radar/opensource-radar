@@ -1,3 +1,4 @@
+import { replyLine } from "../lib/friendliness";
 import { previewText } from "../lib/preview";
 import Icon from "./Icon";
 
@@ -96,6 +97,12 @@ function IssueCard({
       <OpenedLine number={number} author={author} createdAt={createdAt} />
 
       <p className="issue-description">{preview}</p>
+      {replyLine(project?.friendliness) && (
+        <p className="issue-card-health">
+          <Icon name="clock" />
+          {replyLine(project.friendliness)}
+        </p>
+      )}
 
       <div className="issue-card-footer">
         <span className="issue-card-details">
