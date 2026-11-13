@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState } from "react";
 import Icon from "./Icon";
+import "./JourneyDialog.css";
 
 const MAX_ISSUES = 20;
 const STAGES = [
