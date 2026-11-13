@@ -868,6 +868,7 @@ function App() {
               signInAvailable={account.signInAvailable}
               onSignOut={signOut}
               savedCount={savedIssues.length}
+              savedIssues={savedIssues}
               onShowSaved={showSaved}
               onShowRecommended={showRecommended}
             onShowAbout={showAbout}
