@@ -2244,3 +2244,15 @@ body {
   margin: 0;
   font-size: 12px;
 }
+
+/* Rough time estimate on issue cards */
+.issue-estimate {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border: 1px solid var(--border-card);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
