@@ -34,7 +34,9 @@ describe("ProfilePage", () => {
     vi.stubGlobal("fetch", vi.fn(async () => Response.json({ profile: { ...profile, indexable: true } })));
     render(<ProfilePage login="sam" onBack={() => {}} />);
     await screen.findByRole("heading", { name: "Sam Rivera" });
-    expect(document.head.querySelector('meta[name="robots"]')).toBeNull();
+    // While loading, the page stays hidden from search engines; it's only
+    // allowed once the profile says so.
+    await waitFor(() => expect(document.head.querySelector('meta[name="robots"]')).toBeNull());
   });
 
   it("says when a profile isn't public", async () => {
