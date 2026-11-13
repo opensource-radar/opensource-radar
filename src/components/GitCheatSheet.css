@@ -1,0 +1,35 @@
+/* Git commands on the help page (GitCheatSheet.jsx) */
+.git-cheat-sheet {
+  margin: 16px 0;
+}
+
+.git-cheat-sheet summary {
+  color: var(--text-strong);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.git-cheat-sheet ol {
+  display: grid;
+  gap: 8px;
+  margin: 10px 0 12px;
+  padding-left: 20px;
+}
+
+.git-cheat-sheet li span {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.git-cheat-sheet code {
+  display: inline-block;
+  max-width: 100%;
+  margin-right: 8px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: var(--control-bg);
+  font-size: 13px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
