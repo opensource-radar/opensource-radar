@@ -10,6 +10,7 @@ import {
   FAQ,
   GUIDE,
   GUIDE_PATH,
+  MAINTAINERS,
   HOME,
   LANGUAGE_PAGES,
   SITE_URL,
@@ -111,6 +112,14 @@ export function pageBody(page) {
       .join("")}</ol></section>
 <section class="aboutpage-section"><h2>If you get stuck</h2><div class="search-help-grid">${faqHtml(GUIDE.tips)}</div></section>
 ${browseHtml(null)}</article>`);
+  }
+  if (page === MAINTAINERS) {
+    return shell(`<article class="aboutpage"><header class="aboutpage-intro">
+  <p class="eyebrow">FOR MAINTAINERS</p>
+  <h1>${escapeHtml(MAINTAINERS.heading)}</h1>
+  <p class="aboutpage-lead">${escapeHtml(MAINTAINERS.lead)}</p>
+</header>
+<section class="aboutpage-section"><h2>Questions maintainers ask</h2><div class="search-help-grid">${faqHtml(MAINTAINERS.tips)}</div></section></article>`);
   }
   if (page === HOME) {
     return shell(`${heroHtml("Find your first open-source issue.", "Search open issues across all of GitHub.", 2)}

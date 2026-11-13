@@ -3,6 +3,7 @@ import AboutPage from "./components/AboutPage";
 import FiltersPanel from "./components/FiltersPanel";
 import Footer from "./components/Footer";
 import GuidePage from "./components/GuidePage";
+import MaintainersPage from "./components/MaintainersPage";
 import Icon from "./components/Icon";
 import ErrorBoundary from "./components/ErrorBoundary";
 import IssueCard from "./components/IssueCard";
@@ -16,7 +17,15 @@ import SearchBar from "./components/SearchBar";
 import { githubUrl } from "./lib/github";
 import { ABOUT_PATH, parseProfilePath } from "./lib/links";
 import { setPageMeta } from "./lib/pageMeta";
-import { ABOUT, GUIDE, GUIDE_PATH, HOME, withoutTrailingSlash } from "./lib/seoPages";
+import {
+  ABOUT,
+  GUIDE,
+  GUIDE_PATH,
+  HOME,
+  MAINTAINERS,
+  MAINTAINERS_PATH,
+  withoutTrailingSlash,
+} from "./lib/seoPages";
 import {
   MAX_LIMIT_RETRIES,
   fetchShared,
@@ -230,6 +239,7 @@ const routeFromPath = () => {
   const pathname = withoutTrailingSlash(window.location.pathname);
   if (pathname === ABOUT_PATH) return "about";
   if (pathname === GUIDE_PATH) return "guide";
+  if (pathname === MAINTAINERS_PATH) return "maintainers";
   if (parseHelpPath(pathname)) return "help";
   if (parseProfilePath(pathname)) return "profile";
   return "search";
@@ -409,6 +419,7 @@ function App() {
     if (route === "help" || route === "profile") return;
     if (route === "about") setPageMeta(ABOUT);
     else if (route === "guide") setPageMeta(GUIDE);
+    else if (route === "maintainers") setPageMeta(MAINTAINERS);
     else setPageMeta(languagePage ?? HOME);
   }, [route, languagePage]);
 
@@ -883,6 +894,7 @@ function App() {
 
         {route === "about" && <AboutPage onBack={backToSearch} />}
         {route === "guide" && <GuidePage onBack={backToSearch} />}
+        {route === "maintainers" && <MaintainersPage onBack={backToSearch} />}
         {route === "help" && (
           <ErrorBoundary fallback={null}>
             <DevAgentsRoute

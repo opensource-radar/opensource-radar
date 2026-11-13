@@ -41,6 +41,10 @@
       "destination": "/first-contribution/index.html"
     },
     {
+      "source": "/for-maintainers",
+      "destination": "/for-maintainers/index.html"
+    },
+    {
       "source": "/good-first-issues/:language",
       "destination": "/good-first-issues/:language/index.html"
     }

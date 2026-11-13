@@ -4,6 +4,7 @@
 export const SITE_URL = "https://opensource-radar.com";
 export const CONTENT_UPDATED = "2026-11-05";
 export const GUIDE_PATH = "/first-contribution";
+export const MAINTAINERS_PATH = "/for-maintainers";
 
 export const HOME = {
   path: "/",
@@ -19,6 +20,37 @@ export const ABOUT = {
     "Why OpenSource Radar exists, how to find a good first issue and make your first open-source contribution, and what the site stores about you.",
   heading: "Your first open-source contribution starts here.",
   lead: "OpenSource Radar helps beginners find an issue worth working on. It searches open issues across all of GitHub, then gets you to the project that needs your help.",
+};
+
+export const MAINTAINERS = {
+  path: MAINTAINERS_PATH,
+  title: "Get First-Time Contributors for Your Project | OpenSource Radar",
+  description:
+    "Check how beginner-friendly your open-source project looks, add a good first issues badge to your README, and learn how to write issues newcomers can finish.",
+  heading: "Welcome first-time contributors to your project",
+  lead: "OpenSource Radar sends beginners to open issues labelled “good first issue”. Check how friendly your project looks to them, add a badge to your README, and write issues they can actually finish.",
+  tips: [
+    {
+      question: "How does my project appear on OpenSource Radar?",
+      answer:
+        "There's nothing to sign up for. Radar searches all public GitHub repositories, so any open issue labelled “good first issue” with nobody assigned can appear. Unassign issues nobody is working on, so they show up as available.",
+    },
+    {
+      question: "What makes a good first issue?",
+      answer:
+        "A small, clear task: say what's wrong, where in the code to look, and what “done” means. Link the files involved and how to run the tests. If a beginner would need to understand the whole project, it's not a first issue yet.",
+    },
+    {
+      question: "How quickly should we reply?",
+      answer:
+        "Within a few days if you can. Beginners often give up when nobody answers their first comment. Assign the issue when someone asks, and thank them, even when you suggest changes.",
+    },
+    {
+      question: "How is the friendliness check worked out?",
+      answer:
+        "From your recent public issues and pull requests: how long maintainers take to post a first reply, how many pull requests from outside contributors get merged, and whether you have a contributing guide and automatic checks. It's a rough guide from a small sample, refreshed daily.",
+    },
+  ],
 };
 
 export const FAQ = [
@@ -250,4 +282,4 @@ export const languagePageForPath = (pathname) => {
 export const languagePageFor = (name) =>
   LANGUAGE_PAGES.find((page) => page.language === name) ?? null;
 
-export const ALL_PAGES = [HOME, ABOUT, GUIDE, ...LANGUAGE_PAGES];
+export const ALL_PAGES = [HOME, ABOUT, GUIDE, MAINTAINERS, ...LANGUAGE_PAGES];
