@@ -1,7 +1,7 @@
-import { loadSession } from "./_lib/auth.js";
-import { fetchRepositories } from "./_lib/github.js";
-import { getConfig, json } from "./_lib/session.js";
-import { redis, storeAvailable } from "./_lib/store.js";
+import { loadSession } from "../auth.js";
+import { fetchRepositories } from "../github.js";
+import { getConfig, json } from "../session.js";
+import { redis, storeAvailable } from "../store.js";
 
 const MAX_NAMES = 10;
 const REPO_PATTERN = /^[\w.-]+\/[\w.-]+$/;

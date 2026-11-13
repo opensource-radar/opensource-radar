@@ -1,5 +1,5 @@
-import { githubHeaders } from "./_lib/github.js";
-import { redis, storeAvailable } from "./_lib/store.js";
+import { githubHeaders } from "../github.js";
+import { redis, storeAvailable } from "../store.js";
 
 const REPO_PATTERN = /^[\w.-]+\/[\w.-]+$/;
 const CACHE_SECONDS = 6 * 60 * 60;

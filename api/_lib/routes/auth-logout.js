@@ -1,4 +1,4 @@
-import { revokeToken } from "../_lib/github.js";
+import { revokeToken } from "../github.js";
 import {
   SESSION_COOKIE,
   clearCookie,
@@ -6,7 +6,7 @@ import {
   json,
   readCookie,
   unseal,
-} from "../_lib/session.js";
+} from "../session.js";
 
 // POST /auth/logout: revokes the GitHub token and clears the session cookie.
 // POST (not GET) so another site can't sign people out with a plain link.

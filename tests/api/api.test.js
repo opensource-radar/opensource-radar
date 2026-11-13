@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { GET as proxy } from "../../api/github.js";
-import { GET as callback } from "../../api/auth/callback.js";
-import { GET as login } from "../../api/auth/login.js";
+import { GET as callback } from "../../api/_lib/routes/auth-callback.js";
+import { GET as login } from "../../api/_lib/routes/auth-login.js";
 import { GET as me } from "../../api/me.js";
 import { POST as report } from "../../api/report.js";
-import { GET as repos } from "../../api/repos.js";
+import { GET as repos } from "../../api/_lib/routes/repos.js";
 import { GET as getSaved, PUT as putSaved } from "../../api/saved.js";
 import { seal, unseal } from "../../api/_lib/session.js";
 
