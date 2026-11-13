@@ -202,6 +202,10 @@ function getInitialThemePreference() {
 
 // DevAgents is optional: when it's off, or anything about it fails, cards look
 // and work exactly as they do without it.
+// Adds the friendliness score to a card's project details, when it's known.
+const withFriendliness = (project, score) =>
+  score ? { ...(project ?? {}), friendliness: score } : project;
+
 function devAgentsActions(enabled, issue, onOpen) {
   const target = enabled ? parseIssueUrl(issue.url) : null;
   if (!target) return undefined;
@@ -359,6 +363,10 @@ function App() {
   // Stars, activity and contributing guide per project ("owner/repo").
   const [projects, setProjects] = useState({});
   const requestedProjects = useRef(new Set());
+  // How beginner-friendly each project looks. Slower to work out, so it's
+  // asked for after the cards are on screen.
+  const [friendliness, setFriendliness] = useState({});
+  const requestedFriendliness = useRef(new Set());
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [projectsOpen, setProjectsOpen] = useState(false);
   const [recommendation, setRecommendation] = useState(null);
@@ -793,6 +801,27 @@ function App() {
       .catch(() => names.forEach((name) => requestedProjects.current.delete(name)));
   }, [shownRepos, canLoadProjects]);
 
+  useEffect(() => {
+    if (!canLoadProjects || !shownRepos) return;
+
+    const names = shownRepos
+      .split(",")
+      .filter((name) => !requestedFriendliness.current.has(name));
+    if (names.length === 0) return;
+    names.forEach((name) => requestedFriendliness.current.add(name));
+
+    fetch(`/api/friendliness?names=${encodeURIComponent(names.join(","))}`)
+      .then((response) => response.json().catch(() => null))
+      .then((data) => {
+        if (data?.friendliness) setFriendliness((current) => ({ ...current, ...data.friendliness }));
+        // Names it couldn't answer can be tried again later.
+        names
+          .filter((name) => !data?.friendliness?.[name])
+          .forEach((name) => requestedFriendliness.current.delete(name));
+      })
+      .catch(() => names.forEach((name) => requestedFriendliness.current.delete(name)));
+  }, [shownRepos, canLoadProjects]);
+
   const popularRepos = results.popularRepos || [];
   const popularNote =
     popularRepos.length > 3
@@ -1064,7 +1093,10 @@ function App() {
                   createdAt={issue.createdAt}
                   saved={savedIds.has(issue.id)}
                   onToggleSave={() => toggleSaved(issue)}
-                  project={projects[issue.repo.replace(" / ", "/")]}
+                  project={withFriendliness(
+                    projects[issue.repo.replace(" / ", "/")],
+                    friendliness[issue.repo.replace(" / ", "/")],
+                  )}
                   actions={devAgentsActions(account.devAgents, issue, showHelp)}
                 />
               ))

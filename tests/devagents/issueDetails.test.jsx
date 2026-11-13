@@ -33,6 +33,18 @@ function stub(response) {
   );
 }
 
+// The issue and, separately, how beginner-friendly its project looks.
+function stubWithFriendliness(score) {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (url) => {
+      if (String(url).startsWith("/api/issue")) return Response.json(details);
+      if (String(url).startsWith("/api/friendliness")) return Response.json({ friendliness: { "a/b": score } });
+      return Response.json({ error: "unavailable" }, { status: 503 });
+    }),
+  );
+}
+
 beforeEach(() => sessionStorage.clear());
 afterEach(() => {
   cleanup();
@@ -70,6 +82,22 @@ describe("issue details on the help page", () => {
     expect((await screen.findByRole("link", { name: /read the rest on github/i })).getAttribute("href")).toBe(
       "https://github.com/a/b/issues/24",
     );
+  });
+
+  it("shows how beginner-friendly the project looks", async () => {
+    const friendliness = { level: "high", replyHours: 30, replyRate: 0.9, outsideMerged: 8, outsideClosed: 10, hasCi: true, hasContributing: true };
+    stubWithFriendliness(friendliness);
+    page();
+    await screen.findByRole("heading", { name: "Very beginner-friendly" });
+    expect(screen.getByText("Maintainers usually reply in about 1 day")).toBeTruthy();
+    expect(screen.getByText("8 of the last 10 pull requests from outside contributors were merged")).toBeTruthy();
+  });
+
+  it("says when there isn't enough activity to judge", async () => {
+    const friendliness = { level: null, replyHours: null, replyRate: null, outsideMerged: 0, outsideClosed: 0, hasCi: false, hasContributing: true };
+    stubWithFriendliness(friendliness);
+    page();
+    await screen.findByRole("heading", { name: "Not enough recent activity to judge" });
   });
 
   it("shows the project's stars, language, contributing guide and setup hint", async () => {

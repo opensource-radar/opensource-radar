@@ -2128,3 +2128,17 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* "Maintainers usually reply in about 2 days" on issue cards */
+.issue-card-health {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: -2px 0 12px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.issue-card-health svg {
+  flex: none;
+}

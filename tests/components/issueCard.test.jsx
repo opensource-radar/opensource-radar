@@ -60,3 +60,15 @@ describe("IssueCard details", () => {
     expect(screen.getByText("#123").textContent).toBe("#123");
   });
 });
+
+describe("reply time on the card", () => {
+  it("shows how fast maintainers usually reply when it's known", () => {
+    render(<IssueCard title="T" description="d" label="good first issue" repo="a/b" url="#" project={{ friendliness: { replyHours: 50 } }} />);
+    expect(screen.getByText("Maintainers usually reply in about 2 days")).toBeTruthy();
+  });
+
+  it("shows nothing when there isn't enough data", () => {
+    render(<IssueCard title="T2" description="d" label="good first issue" repo="a/b" url="#" project={{ friendliness: { replyHours: null } }} />);
+    expect(screen.queryByText(/Maintainers usually reply/)).toBeNull();
+  });
+});
