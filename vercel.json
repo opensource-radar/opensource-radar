@@ -3,11 +3,23 @@
     "api/devagents.js": {
       "maxDuration": 30
     },
-    "api/friendliness.js": {
+    "api/projects/[kind].js": {
       "maxDuration": 30
     }
   },
   "rewrites": [
+    {
+      "source": "/api/repos",
+      "destination": "/api/projects/repos"
+    },
+    {
+      "source": "/api/friendliness",
+      "destination": "/api/projects/friendliness"
+    },
+    {
+      "source": "/api/badge",
+      "destination": "/api/projects/badge"
+    },
     {
       "source": "/auth/:action",
       "destination": "/api/auth/:action"

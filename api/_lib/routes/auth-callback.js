@@ -1,4 +1,4 @@
-import { exchangeCode, fetchUser } from "../_lib/github.js";
+import { exchangeCode, fetchUser } from "../github.js";
 import {
   SESSION_COOKIE,
   STATE_COOKIE,
@@ -10,7 +10,7 @@ import {
   seal,
   sessionMaxAge,
   setCookie,
-} from "../_lib/session.js";
+} from "../session.js";
 
 // GET /auth/callback: GitHub redirects here after the user authorizes.
 export async function GET(request) {

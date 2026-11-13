@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { GET, badgeSvg } from "../../api/badge.js";
+import { GET, badgeSvg } from "../../api/_lib/routes/badge.js";
 import { badgeLink, badgeMarkdown } from "../../src/lib/badge.js";
 
 let searches;

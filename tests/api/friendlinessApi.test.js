@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { GET } from "../../api/friendliness.js";
+import { GET } from "../../api/_lib/routes/friendliness.js";
 
 const REDIS = "https://fake-redis.test";
 let db;

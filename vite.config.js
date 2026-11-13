@@ -1,5 +1,5 @@
 import react from '@vitejs/plugin-react'
-import { existsSync } from 'node:fs'
+import { existsSync, readdirSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { defineConfig, loadEnv } from 'vite'
@@ -52,13 +52,22 @@ function vercelFunctions() {
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
         const { pathname } = new URL(req.url, 'http://localhost')
-        const route = pathname.replace(/^\/auth\//, '/api/auth/')
+        const route = pathname
+          .replace(/^\/auth\//, '/api/auth/')
+          // vercel.json sends these to one shared function, api/projects/[kind].js.
+          .replace(/^\/api\/(repos|friendliness|badge)$/, '/api/projects/$1')
 
         // Lowercase segments only: no "..", and "_lib" helpers stay private.
         if (!/^\/api(\/[a-z0-9-]+)+$/.test(route)) return next()
 
-        const file = fileURLToPath(new URL(`.${route}.js`, import.meta.url))
-        if (!existsSync(file)) return next()
+        let file = fileURLToPath(new URL(`.${route}.js`, import.meta.url))
+        // A file named like [action].js handles every name in its folder.
+        if (!existsSync(file)) {
+          const folder = path.dirname(file)
+          const dynamic = existsSync(folder) && readdirSync(folder).find((name) => /^\[\w+\]\.js$/.test(name))
+          if (!dynamic) return next()
+          file = path.join(folder, dynamic)
+        }
 
         try {
           const handler = (await server.ssrLoadModule(file))[req.method]

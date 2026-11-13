@@ -6,7 +6,7 @@ import {
   randomToken,
   redirect,
   setCookie,
-} from "../_lib/session.js";
+} from "../session.js";
 
 // GET /auth/login: sends the user to GitHub's "Authorize" page.
 export function GET(request) {
