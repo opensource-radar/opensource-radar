@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import ErrorBoundary from "../components/ErrorBoundary";
+import GlossaryText from "../components/Glossary";
 import Icon from "../components/Icon";
 import { isPlainClick } from "../lib/links";
 import { setPageMeta } from "../lib/pageMeta";
@@ -155,7 +156,9 @@ function HelpPage({ issue, language, signedIn, onBack, sections = SECTIONS }) {
                   >
                     {name}
                   </h2>
-                  <p className="helppage-intro">{intro}</p>
+                  <p className="helppage-intro">
+                    <GlossaryText text={intro} />
+                  </p>
                   <ErrorBoundary fallback={stepFallback}>
                     {Component && (
                       <Component

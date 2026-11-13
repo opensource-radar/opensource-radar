@@ -1,10 +1,16 @@
 import { CONTRIBUTION_GUIDE_URL, isPlainClick } from "../lib/links";
 import { GUIDE } from "../lib/seoPages";
+import { splitGlossaryBlocks } from "../lib/glossary";
+import GlossaryText from "./Glossary";
 import Icon from "./Icon";
 import SevenDays from "./SevenDays";
 import { LanguageLinks } from "./SearchHelp";
 
 function GuidePage({ onBack }) {
+  // Each open-source word is explained the first time it appears on the page.
+  const blocks = splitGlossaryBlocks([...GUIDE.steps.map((step) => step.detail), ...GUIDE.tips.map((tip) => tip.answer)]);
+  const stepParts = blocks.slice(0, GUIDE.steps.length);
+  const tipParts = blocks.slice(GUIDE.steps.length);
   return (
     <article className="aboutpage">
       <a
@@ -29,14 +35,16 @@ function GuidePage({ onBack }) {
       <section className="aboutpage-section">
         <h2>The seven steps</h2>
         <ol className="aboutpage-steps">
-          {GUIDE.steps.map(({ name, detail }, index) => (
+          {GUIDE.steps.map(({ name }, index) => (
             <li key={name} className="guide-step">
               <span className="aboutpage-step-number" aria-hidden="true">
                 {index + 1}
               </span>
               <div>
                 <strong>{name}</strong>
-                <span>{detail}</span>
+                <span>
+                  <GlossaryText parts={stepParts[index]} />
+                </span>
               </div>
             </li>
           ))}
@@ -48,10 +56,12 @@ function GuidePage({ onBack }) {
       <section className="aboutpage-section">
         <h2>If you get stuck</h2>
         <div className="search-help-grid">
-          {GUIDE.tips.map(({ question, answer }) => (
+          {GUIDE.tips.map(({ question }, index) => (
             <div key={question} className="search-help-item">
               <h3>{question}</h3>
-              <p>{answer}</p>
+              <p>
+                <GlossaryText parts={tipParts[index]} />
+              </p>
             </div>
           ))}
         </div>

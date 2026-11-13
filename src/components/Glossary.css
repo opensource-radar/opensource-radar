@@ -1,0 +1,46 @@
+/* Explained words (Glossary.jsx) */
+.glossary {
+  position: relative;
+  display: inline;
+}
+
+.glossary-term {
+  padding: 0;
+  border: 0;
+  border-bottom: 1px dotted currentColor;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: help;
+}
+
+.glossary-term:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.glossary-tip {
+  position: absolute;
+  z-index: 20;
+  bottom: calc(100% + 6px);
+  left: 0;
+  display: none;
+  width: max-content;
+  max-width: min(280px, 80vw);
+  padding: 8px 10px;
+  border: 1px solid var(--border-card);
+  border-radius: 6px;
+  background: var(--overlay-bg);
+  box-shadow: var(--overlay-shadow);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.45;
+  white-space: normal;
+}
+
+.glossary:hover .glossary-tip,
+.glossary:focus-within .glossary-tip,
+.glossary.is-open .glossary-tip {
+  display: block;
+}
