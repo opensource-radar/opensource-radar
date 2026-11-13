@@ -1,6 +1,7 @@
 import { CONTRIBUTION_GUIDE_URL, isPlainClick } from "../lib/links";
 import { GUIDE } from "../lib/seoPages";
 import Icon from "./Icon";
+import SevenDays from "./SevenDays";
 import { LanguageLinks } from "./SearchHelp";
 
 function GuidePage({ onBack }) {
@@ -41,6 +42,8 @@ function GuidePage({ onBack }) {
           ))}
         </ol>
       </section>
+
+      <SevenDays />
 
       <section className="aboutpage-section">
         <h2>If you get stuck</h2>
