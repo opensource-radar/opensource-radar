@@ -4,6 +4,7 @@ import Helpful from "../Helpful";
 import { fileUrl } from "../links";
 import { useAction } from "../useAction";
 import IssueCheck from "./IssueCheck";
+import ReadAloud from "../../components/ReadAloud";
 
 const DIFFICULTY = { easy: "Easy", medium: "Medium", hard: "Hard" };
 
@@ -40,6 +41,7 @@ function Understand({ issue, onShare }) {
       {data && (
         <>
           <p className="devagents-text">{data.summary}</p>
+          <ReadAloud text={data.summary} />
           {DIFFICULTY[data.difficulty] && (
             <p className="devagents-difficulty">Difficulty: {DIFFICULTY[data.difficulty]}</p>
           )}

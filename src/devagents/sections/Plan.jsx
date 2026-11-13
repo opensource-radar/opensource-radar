@@ -1,3 +1,4 @@
+import ReadAloud from "../../components/ReadAloud";
 import CopyButton from "../CopyButton";
 import Helpful from "../Helpful";
 import { useAction } from "../useAction";
@@ -15,7 +16,10 @@ function HintLevel({ issue, level, children }) {
   return (
     <>
       {data ? (
-        <p className="devagents-text">{data.hint}</p>
+        <>
+          <p className="devagents-text">{data.hint}</p>
+          <ReadAloud text={data.hint} label="Read the hint aloud" />
+        </>
       ) : (
         <button type="button" className="secondary-button" disabled={loading} onClick={() => run()}>
           {loading ? "Thinking…" : BUTTONS[level]}

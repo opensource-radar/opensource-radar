@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Icon from "../components/Icon";
+import ReadAloud from "../components/ReadAloud";
 import { LEVEL_LABELS, friendlinessFacts } from "../lib/friendliness";
 
 const GITHUB_LOGIN = /^[A-Za-z0-9-]{1,39}$/;
@@ -127,7 +128,10 @@ function IssueDetails({ repo, number, onLoaded }) {
       )}
 
       {issue.body ? (
-        <p className="helppage-issue-body devagents-text">{issue.body}</p>
+        <>
+          <ReadAloud text={`${issue.title}. ${issue.body}`} label="Read the issue aloud" />
+          <p className="helppage-issue-body devagents-text">{issue.body}</p>
+        </>
       ) : (
         <p className="helppage-issue-body devagents-muted">No description provided.</p>
       )}
