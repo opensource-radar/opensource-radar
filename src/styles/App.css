@@ -2142,3 +2142,105 @@ body {
 .issue-card-health svg {
   flex: none;
 }
+
+/* For maintainers page */
+.maintainers-form label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--text-strong);
+  font-weight: 600;
+}
+
+.maintainers-form-row {
+  display: flex;
+  gap: 8px;
+  max-width: 520px;
+}
+
+.maintainers-form-row input {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 12px;
+  border: 1px solid var(--border-input);
+  border-radius: 6px;
+  background: var(--input-bg, transparent);
+  color: var(--text);
+  font: inherit;
+}
+
+.maintainers-message {
+  margin-top: 10px;
+  color: var(--danger, #cf222e);
+}
+
+.maintainers-result {
+  margin-top: 16px;
+}
+
+.maintainers-result h3 {
+  margin: 20px 0 6px;
+  color: var(--text-strong);
+  font-size: 16px;
+}
+
+.maintainers-result .helppage-friendliness h3 {
+  margin-top: 0;
+}
+
+.maintainers-badge {
+  margin: 10px 0;
+}
+
+.maintainers-markdown {
+  margin: 0 0 10px;
+  padding: 10px 12px;
+  overflow-x: auto;
+  border: 1px solid var(--border-card);
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* Beginner-friendliness (help page and For maintainers page) */
+.helppage-friendliness {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--border-card);
+  border-radius: 8px;
+}
+
+.helppage-friendliness :is(h2, h3) {
+  margin: 0 0 6px;
+  color: var(--text-strong);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.helppage-friendliness.level-high :is(h2, h3)::before,
+.helppage-friendliness.level-medium :is(h2, h3)::before,
+.helppage-friendliness.level-low :is(h2, h3)::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 8px;
+  border-radius: 50%;
+  vertical-align: middle;
+}
+
+.helppage-friendliness.level-high :is(h2, h3)::before { background: var(--success); }
+.helppage-friendliness.level-medium :is(h2, h3)::before { background: #d29922; }
+.helppage-friendliness.level-low :is(h2, h3)::before { background: #8b949e; }
+
+.helppage-friendliness ul {
+  margin: 0 0 6px;
+  padding-left: 20px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.helppage-friendliness .devagents-muted {
+  margin: 0;
+  font-size: 12px;
+}

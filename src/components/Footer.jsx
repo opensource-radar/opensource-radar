@@ -8,7 +8,7 @@ import {
   isPlainClick,
 } from "../lib/links";
 import { BEGINNER_PRESETS } from "../lib/search";
-import { GUIDE_PATH } from "../lib/seoPages";
+import { GUIDE_PATH, MAINTAINERS_PATH } from "../lib/seoPages";
 import Icon from "./Icon";
 import Logo from "./Logo";
 
@@ -133,6 +133,11 @@ function Footer({
             <li>
               <a className="footer-link" href={GUIDE_PATH}>
                 First contribution guide
+              </a>
+            </li>
+            <li>
+              <a className="footer-link" href={MAINTAINERS_PATH}>
+                For maintainers
               </a>
             </li>
             <li>
