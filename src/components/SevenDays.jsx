@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { SEVEN_DAYS, ALL_TASKS, readDone, taskId, writeDone } from "../lib/sevenDays";
+import "./SevenDays.css";
 
 // The 7-day checklist on the first-contribution guide page.
 function SevenDays() {
