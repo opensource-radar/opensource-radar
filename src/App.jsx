@@ -3,7 +3,6 @@ import AboutPage from "./components/AboutPage";
 import FiltersPanel from "./components/FiltersPanel";
 import Footer from "./components/Footer";
 import GuidePage from "./components/GuidePage";
-import ProfilePage from "./components/ProfilePage";
 import Icon from "./components/Icon";
 import ErrorBoundary from "./components/ErrorBoundary";
 import IssueCard from "./components/IssueCard";
@@ -11,6 +10,7 @@ import Logo from "./components/Logo";
 import NavMenu from "./components/NavMenu";
 import ProjectsDialog from "./components/ProjectsDialog";
 import SearchHelp from "./components/SearchHelp";
+import ProfilePage from "./components/ProfilePage";
 import SearchLimitNotice from "./components/SearchLimitNotice";
 import SearchBar from "./components/SearchBar";
 import { githubUrl } from "./lib/github";
@@ -853,9 +853,6 @@ function App() {
 
         {route === "about" && <AboutPage onBack={backToSearch} />}
         {route === "guide" && <GuidePage onBack={backToSearch} />}
-        {route === "profile" && (
-          <ProfilePage login={parseProfilePath(window.location.pathname)} onBack={backToSearch} />
-        )}
         {route === "help" && (
           <ErrorBoundary fallback={null}>
             <DevAgentsRoute
@@ -1102,6 +1099,9 @@ function App() {
           )}
         </section>
 
+        {route === "profile" && (
+          <ProfilePage login={parseProfilePath(window.location.pathname)} onBack={backToSearch} />
+        )}
         {route === "search" && view === "search" && <SearchHelp languagePage={languagePage} />}
 
         {projectsOpen && (
