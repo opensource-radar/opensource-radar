@@ -1,11 +1,12 @@
+import GitCheatSheet from "../../components/GitCheatSheet";
 import { callDevAgents } from "../client";
 import { codespacesUrl, editorUrl } from "../links";
 import ErrorHelp from "./ErrorHelp";
 
 // DevAgents never changes code. These links open GitHub's own tools, which
 // handle the fork and commit from the user's own account.
-function Change({ issue, shared }) {
-  const { repo } = issue;
+function Change({ issue, language, shared }) {
+  const { repo, issue: number } = issue;
   const explain = shared?.explain;
 
   return (
@@ -41,6 +42,7 @@ function Change({ issue, shared }) {
           own GitHub allowance.
         </span>
       </p>
+      <GitCheatSheet repo={repo} number={number} language={language} />
       <ErrorHelp issue={issue} />
     </div>
   );
