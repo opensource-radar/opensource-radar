@@ -5,6 +5,11 @@ import App from './App.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
 import { Analytics } from '@vercel/analytics/react'
 import { withoutSearchText } from './lib/analytics.js'
+import { listenForInstallPrompt, registerServiceWorker } from './lib/installApp.js'
+
+// Lets the menu offer "Install app", and shows an offline page with no connection.
+listenForInstallPrompt()
+registerServiceWorker()
 
 const crashMessage = (
   <main className="empty-state" role="alert">

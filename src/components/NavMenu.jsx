@@ -1,10 +1,11 @@
-import { useEffect, useId, useImperativeHandle, useRef, useState } from "react";
+import { useEffect, useId, useImperativeHandle, useRef, useState, useSyncExternalStore } from "react";
 import { GUIDE_PATH } from "../lib/seoPages";
 import {
   ABOUT_PATH,
   REPORT_PROBLEM_URL,
   isPlainClick,
 } from "../lib/links";
+import { canInstall, promptInstall, subscribe } from "../lib/installApp";
 import ContributionsDialog from "./ContributionsDialog";
 import ReportDialog from "./ReportDialog";
 import Icon from "./Icon";
@@ -43,6 +44,8 @@ function NavMenu({
   ref,
 }) {
   const [open, setOpen] = useState(false);
+  // Only shown when the browser says the site can be installed.
+  const installable = useSyncExternalStore(subscribe, canInstall, () => false);
   const [contributionsOpen, setContributionsOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const wrapperRef = useRef(null);
@@ -272,6 +275,20 @@ function NavMenu({
 
           <div className="menu-divider" role="separator" />
 
+          {installable && (
+            <button
+              type="button"
+              role="menuitem"
+              className="menu-item"
+              onClick={() => {
+                closeMenu({ restoreFocus: true });
+                promptInstall();
+              }}
+            >
+              <Icon name="deviceDesktop" />
+              Install app
+            </button>
+          )}
           <a
             role="menuitem"
             className="menu-item"
