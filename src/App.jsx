@@ -15,6 +15,7 @@ import ProfilePage from "./components/ProfilePage";
 import SearchLimitNotice from "./components/SearchLimitNotice";
 import SearchBar from "./components/SearchBar";
 import { githubUrl } from "./lib/github";
+import { issueKey, useHiddenIssues } from "./lib/hiddenIssues";
 import { ABOUT_PATH, parseProfilePath } from "./lib/links";
 import { setPageMeta } from "./lib/pageMeta";
 import {
@@ -304,6 +305,7 @@ function App() {
     () => new URLSearchParams(window.location.search).get("signin") === "failed",
   );
   const [savedIssues, setSavedIssues] = useState(() => readSavedIssues(SIGNED_OUT));
+  const hiddenIssues = useHiddenIssues();
   const latestSaved = useRef(savedIssues);
   useEffect(() => {
     latestSaved.current = savedIssues;
@@ -785,7 +787,7 @@ function App() {
   const shownIssues =
     view === "saved"
       ? savedIssues.slice((savedPage - 1) * PER_PAGE, savedPage * PER_PAGE)
-      : results.items;
+      : results.items.filter((issue) => !hiddenIssues.isHidden(issue));
   const page = view === "saved" ? savedPage : search.page;
   const totalPages = view === "saved" ? savedPages : searchPages;
   const setPage = view === "saved" ? setSavedPage : goToPage;
@@ -1077,6 +1079,15 @@ function App() {
             </>
           )}
 
+          {view === "search" && hiddenIssues.lastHidden && (
+            <p className="notice issue-hidden-notice" role="status">
+              Thanks for the report. &ldquo;{hiddenIssues.lastHidden.title}&rdquo; is hidden for you.
+              <button type="button" className="text-button" onClick={hiddenIssues.undo}>
+                Undo
+              </button>
+            </p>
+          )}
+
           {signInFailed && (
             <p className="notice" role="alert">
               Sign-in with GitHub didn&rsquo;t complete. Try again from the menu.
@@ -1114,6 +1125,11 @@ function App() {
                     friendliness[issue.repo.replace(" / ", "/")],
                   )}
                   actions={devAgentsActions(account.devAgents, issue, showHelp)}
+                  onReport={
+                    view === "search" && issueKey(issue)
+                      ? (reason) => hiddenIssues.report(issue, reason)
+                      : undefined
+                  }
                 />
               ))
             )}

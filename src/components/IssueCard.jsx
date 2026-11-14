@@ -2,6 +2,7 @@ import { replyLine } from "../lib/friendliness";
 import { previewText } from "../lib/preview";
 import { ESTIMATES, estimateTime } from "../lib/timeEstimate";
 import Icon from "./Icon";
+import ReportIssue from "./ReportIssue";
 
 const dateFormat = new Intl.DateTimeFormat(undefined, {
   day: "numeric",
@@ -52,6 +53,7 @@ function IssueCard({
   number,
   author,
   createdAt,
+  onReport,
 }) {
   const preview = previewText(description);
   const estimate = ESTIMATES[estimateTime({ title, labels: label, body: description })];
@@ -137,6 +139,7 @@ function IssueCard({
           <a href={url} target="_blank" rel="noopener noreferrer">
             View issue ↗
           </a>
+          {onReport && <ReportIssue title={title} onReport={onReport} />}
         </span>
       </div>
     </article>

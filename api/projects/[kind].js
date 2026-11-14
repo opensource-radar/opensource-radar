@@ -1,11 +1,13 @@
 import { GET as badge } from "../_lib/routes/badge.js";
+import { GET as flagsGet, POST as flagsPost } from "../_lib/routes/flags.js";
 import { GET as friendliness } from "../_lib/routes/friendliness.js";
 import { GET as repos } from "../_lib/routes/repos.js";
 
-// /api/repos, /api/friendliness and /api/badge share one function, to stay
-// within the Hobby plan's limit of 12 functions per deployment. vercel.json
-// keeps their public addresses.
-const ROUTES = { repos, friendliness, badge };
+// /api/repos, /api/friendliness, /api/badge and /api/flags share one
+// function, to stay within the Hobby plan's limit of 12 functions per
+// deployment. vercel.json keeps their public addresses.
+const ROUTES = { repos, friendliness, badge, flags: flagsGet };
+const POST_ROUTES = { flags: flagsPost };
 
 export function kindOf(request) {
   const url = new URL(request.url);
@@ -15,5 +17,10 @@ export function kindOf(request) {
 
 export function GET(request) {
   const handler = ROUTES[kindOf(request)];
+  return handler ? handler(request) : new Response("Not found", { status: 404 });
+}
+
+export function POST(request) {
+  const handler = POST_ROUTES[kindOf(request)];
   return handler ? handler(request) : new Response("Not found", { status: 404 });
 }

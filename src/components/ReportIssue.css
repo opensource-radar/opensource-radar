@@ -1,0 +1,44 @@
+.issue-report {
+  position: relative;
+}
+
+.issue-report summary {
+  color: var(--text-muted);
+  cursor: pointer;
+  list-style: none;
+}
+
+.issue-report summary::-webkit-details-marker {
+  display: none;
+}
+
+.issue-report-menu {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 6px);
+  z-index: 5;
+  display: grid;
+  gap: 6px;
+  min-width: 190px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-card);
+  border-radius: 8px;
+  background: var(--surface, var(--bg, #fff));
+  box-shadow: 0 6px 20px rgb(0 0 0 / 15%);
+  text-align: left;
+}
+
+.issue-report-menu button {
+  justify-self: start;
+  text-align: left;
+}
+
+.issue-report-menu p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.issue-hidden-notice button {
+  margin-left: 6px;
+}
