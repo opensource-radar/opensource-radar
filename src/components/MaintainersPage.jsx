@@ -4,8 +4,8 @@ import { badgeImage, badgeLink, badgeMarkdown, parseRepo } from "../lib/badge";
 import { LEVEL_LABELS, friendlinessFacts } from "../lib/friendliness";
 import { isPlainClick } from "../lib/links";
 import { MAINTAINERS } from "../lib/seoPages";
-import Icon from "./Icon";
 import IssueCheck from "./IssueCheck";
+import Icon from "./Icon";
 
 const MESSAGES = {
   invalid: "Enter a repository like owner/repo, or paste its GitHub link.",
