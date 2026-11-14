@@ -5,6 +5,7 @@ import { LEVEL_LABELS, friendlinessFacts } from "../lib/friendliness";
 import { isPlainClick } from "../lib/links";
 import { MAINTAINERS } from "../lib/seoPages";
 import Icon from "./Icon";
+import IssueCheck from "./IssueCheck";
 
 const MESSAGES = {
   invalid: "Enter a repository like owner/repo, or paste its GitHub link.",
@@ -123,6 +124,8 @@ function MaintainersPage({ onBack }) {
       </header>
 
       <ProjectCheck />
+
+      <IssueCheck />
 
       <section className="aboutpage-section">
         <h2>Questions maintainers ask</h2>
