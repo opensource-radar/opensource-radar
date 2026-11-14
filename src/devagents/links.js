@@ -38,6 +38,7 @@ export function parseHelpPath(pathname) {
 
 export const repoUrl = (repo) => `${GITHUB}/${repo}`;
 export const issueUrl = (repo, issue) => `${GITHUB}/${repo}/issues/${issue}`;
+export const pullUrl = (repo, pr) => `${GITHUB}/${repo}/pull/${pr}`;
 export const codespacesUrl = (repo) => `https://codespaces.new/${repo}`;
 
 export const editorUrl = (repo, branch, path) =>

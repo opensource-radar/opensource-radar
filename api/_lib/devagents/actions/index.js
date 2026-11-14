@@ -1,4 +1,4 @@
-import { explainChecks, explainReview } from "./afterPr.js";
+import { explainChecks, explainReview, thankYou } from "./afterPr.js";
 import { checkChange } from "./checkChange.js";
 import { explain } from "./explain.js";
 import { explainError } from "./explainError.js";
@@ -22,6 +22,7 @@ export const actions = {
   "pr-text": { llm: true, handler: prText },
   "explain-checks": { llm: true, handler: explainChecks },
   "explain-review": { llm: true, handler: explainReview },
+  "thank-you": { llm: true, handler: thankYou },
   feedback: { llm: false, handler: feedback },
   event: { llm: false, handler: event },
 };
