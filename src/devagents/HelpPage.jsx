@@ -15,6 +15,7 @@ import {
   rememberStep,
   writeLocalProgress,
 } from "./progress";
+import "./HelpProgress.css";
 import KeySettings from "./sections/KeySettings";
 import { SECTIONS } from "./sections/index";
 import "./devagents.css";
