@@ -1,9 +1,11 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { githubUrl } from "../lib/github";
 import { isRadarPullRequest } from "../lib/shareCard";
+import { streakText, weekStreak } from "../lib/streak";
 import Icon from "./Icon";
 import ProfileSettings from "./ProfileSettings";
 import ShareCard from "./ShareCard";
+import "./Streak.css";
 
 const PULL_REQUEST_LIMIT = 30;
 
@@ -77,6 +79,7 @@ function ContributionsDialog({ login, onClose }) {
   const shown = radarOnly ? radarItems : result.items;
   // "First" is only certain when every PR is loaded and just one was merged.
   const firstMerge = counts.merged === 1 && result.total <= result.items.length;
+  const streak = streakText(weekStreak(result.items.map((item) => item.pull_request?.merged_at)));
 
   return (
     <dialog
@@ -127,6 +130,8 @@ function ContributionsDialog({ login, onClose }) {
                   </span>
                 ))}
             </p>
+
+            {streak && <p className="contributions-streak">🌱 {streak}</p>}
 
             {radarItems.length > 0 && (
               <div className="contributions-radar">

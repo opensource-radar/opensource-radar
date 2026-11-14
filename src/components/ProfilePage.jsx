@@ -3,6 +3,7 @@ import CopyButton from "../devagents/CopyButton";
 import { isPlainClick } from "../lib/links";
 import { setPageMeta } from "../lib/pageMeta";
 import { SITE_URL } from "../lib/seoPages";
+import { streakText, weekStreak } from "../lib/streak";
 import Icon from "./Icon";
 import "./Profile.css";
 
@@ -79,6 +80,7 @@ function ProfilePage({ login, onBack }) {
   const { profile } = state;
   const radarCount = profile.pullRequests.filter((pr) => pr.madeWithRadar).length;
   const url = `${SITE_URL}/u/${profile.login}`;
+  const streak = streakText(weekStreak(profile.pullRequests.map((pr) => pr.mergedAt)));
   return (
     <article className="aboutpage profile-page">
       {back}
@@ -101,6 +103,7 @@ function ProfilePage({ login, onBack }) {
             <strong>{radarCount}</strong> made with Radar
           </span>
         )}
+        {streak && <span>🌱 {streak}</span>}
       </p>
 
       {profile.pullRequests.length === 0 ? (

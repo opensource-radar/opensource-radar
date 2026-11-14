@@ -39,6 +39,19 @@ describe("ProfilePage", () => {
     await waitFor(() => expect(document.head.querySelector('meta[name="robots"]')).toBeNull());
   });
 
+  it("shows a streak of weeks with a merged pull request, and nothing for a single week", async () => {
+    const daysAgo = (days) => new Date(Date.now() - days * 86400000).toISOString();
+    const recent = profile.pullRequests.map((pr, index) => ({ ...pr, mergedAt: daysAgo(index * 7) }));
+    vi.stubGlobal("fetch", vi.fn(async () => Response.json({ profile: { ...profile, pullRequests: recent } })));
+    const { unmount } = render(<ProfilePage login="sam" onBack={() => {}} />);
+    await screen.findByText(/2 weeks in a row with a merged pull request/);
+    unmount();
+    vi.stubGlobal("fetch", vi.fn(async () => Response.json({ profile })));
+    render(<ProfilePage login="sam" onBack={() => {}} />);
+    await screen.findByRole("heading", { name: "Sam Rivera" });
+    expect(screen.queryByText(/in a row/)).toBeNull();
+  });
+
   it("says when a profile isn't public", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => Response.json({ error: "not_public" }, { status: 404 })));
     render(<ProfilePage login="sam" onBack={() => {}} />);
