@@ -1,6 +1,7 @@
 import { useId, useState } from "react";
+import CopyButton from "../CopyButton";
 import Helpful from "../Helpful";
-import { parsePrNumber } from "../links";
+import { parsePrNumber, pullUrl } from "../links";
 import { useAction } from "../useAction";
 import Next from "./Next";
 
@@ -16,6 +17,7 @@ function AfterPr({ issue, language, shared }) {
   const pr = parsePrNumber(text);
   const checks = useAction("explain-checks", { repo, issue: number });
   const review = useAction("explain-review", { repo, issue: number });
+  const thanks = useAction("thank-you", { repo, issue: number });
 
   return (
     <div>
@@ -31,6 +33,9 @@ function AfterPr({ issue, language, shared }) {
       </button>{" "}
       <button type="button" className="secondary-button" disabled={!pr || review.loading} onClick={() => review.run({ pr })}>
         {review.loading ? "Reading…" : "Explain the review comments"}
+      </button>{" "}
+      <button type="button" className="secondary-button" disabled={!pr || thanks.loading} onClick={() => thanks.run({ pr })}>
+        {thanks.loading ? "Writing…" : "Write a thank-you"}
       </button>
 
       {checks.data && CHECK_STATUS[checks.data.status] && <p>{CHECK_STATUS[checks.data.status]}</p>}
@@ -58,6 +63,29 @@ function AfterPr({ issue, language, shared }) {
       )}
       {review.data?.comments?.length > 0 && <Helpful action="explain-review" />}
       {review.failure}
+
+      {thanks.data && !thanks.data.merged && (
+        <p>This pull request isn&rsquo;t merged yet. Come back for a thank-you once it is.</p>
+      )}
+      {thanks.data?.banned && (
+        <p>
+          This project doesn&rsquo;t accept AI-written text, so write your own thanks. Even one line,
+          like &ldquo;Thanks for reviewing and merging this!&rdquo;, means a lot to maintainers.
+        </p>
+      )}
+      {thanks.data?.note && (
+        <div className="devagents-thanks">
+          <p className="devagents-text">{thanks.data.note}</p>
+          <p className="devagents-muted">
+            Change it so it sounds like you, then post it as a comment on your pull request.
+          </p>
+          <CopyButton text={thanks.data.note} label="Copy the thank-you" />{" "}
+          <a href={pullUrl(repo, pr ?? "")} target="_blank" rel="noopener noreferrer">
+            Open your pull request ↗
+          </a>
+        </div>
+      )}
+      {thanks.failure}
 
       <Next language={language} shared={shared} />
     </div>
