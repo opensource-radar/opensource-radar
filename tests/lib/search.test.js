@@ -50,6 +50,12 @@ describe("buildQuery", () => {
 });
 
 describe("searchPath", () => {
+  it("asks GitHub for recent issues when sorting friendliest first, then reorders the page", () => {
+    const path = searchPath({ ...DEFAULT_FILTERS, sort: "friendly" }, "", 1);
+    expect(new URLSearchParams(path.split("?")[1]).get("sort")).toBe("updated");
+    expect(stateFromUrl("?sort=friendly").filters.sort).toBe("friendly");
+  });
+
   it("includes sorting and the page", () => {
     const path = searchPath(allFilters, "", 3);
     expect(path).toContain("sort=comments");
