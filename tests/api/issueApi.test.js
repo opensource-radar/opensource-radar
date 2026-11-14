@@ -87,6 +87,8 @@ describe("GET /api/issue", () => {
       title: "Respect reduced motion",
       body: "Please respect the setting.",
       bodyTruncated: false,
+      bodyLength: 27,
+      assigned: false,
       labels: ["good first issue", "accessibility"],
       author: "octocat",
       createdAt: "2026-11-01T10:00:00Z",

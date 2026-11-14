@@ -4,6 +4,7 @@ import { badgeImage, badgeLink, badgeMarkdown, parseRepo } from "../lib/badge";
 import { LEVEL_LABELS, friendlinessFacts } from "../lib/friendliness";
 import { isPlainClick } from "../lib/links";
 import { MAINTAINERS } from "../lib/seoPages";
+import IssueCheck from "./IssueCheck";
 import Icon from "./Icon";
 import LabelHealth from "./LabelHealth";
 
@@ -126,6 +127,8 @@ function MaintainersPage({ onBack }) {
       </header>
 
       <ProjectCheck />
+
+      <IssueCheck />
 
       <section className="aboutpage-section">
         <h2>Questions maintainers ask</h2>

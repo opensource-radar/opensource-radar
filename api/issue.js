@@ -68,6 +68,8 @@ async function loadDetails(token, repo, number) {
       title: text(issue.title) || "Untitled issue",
       body: body.slice(0, MAX_BODY),
       bodyTruncated: body.length > MAX_BODY,
+      bodyLength: body.length,
+      assigned: (issue.assignees ?? []).length > 0 || Boolean(issue.assignee),
       labels: (issue.labels ?? []).map((label) => text(label?.name ?? label)).filter(Boolean),
       author: text(issue.user?.login),
       createdAt: text(issue.created_at),
