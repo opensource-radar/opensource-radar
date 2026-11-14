@@ -480,13 +480,11 @@ function App() {
         waitForLimit(response);
         return true;
       }
+      // GitHub's short burst limit on an account answers 403 without saying
+      // how long to wait. Searches don't fail with 403 for other reasons, so
+      // it's waited out like the usual limit.
       if (response.status === 403) {
-        setResults({
-          status: "error",
-          items: [],
-          total: 0,
-          message: "GitHub didn't allow this search. Try again in a minute.",
-        });
+        waitForLimit(response);
         return true;
       }
       if (response.status === 422) {
@@ -503,6 +501,17 @@ function App() {
       return false;
     };
 
+    // A signed-in search that hits the account's burst limit tries once more
+    // without the account, using the visitor allowance, before waiting.
+    const fetchSearch = async (searchUrlPath) => {
+      const response = await fetchShared(githubUrl(searchUrlPath, signedIn));
+      if (signedIn && response.status === 403 && !isRateLimited(response)) {
+        const anonymous = await fetchShared(githubUrl(searchUrlPath, false)).catch(() => null);
+        if (anonymous?.ok) return anonymous;
+      }
+      return response;
+    };
+
     // Popular, active projects for these filters (cached for an hour).
     async function findPopularRepos() {
       const reposPath = popularReposPath(filters);
@@ -511,7 +520,7 @@ function App() {
         return cached.value;
       }
 
-      const response = await fetchShared(githubUrl(reposPath, signedIn));
+      const response = await fetchSearch(reposPath);
       if (!response.ok) {
         if (!cancelled) handleProblem(response);
         return null;
@@ -569,7 +578,7 @@ function App() {
           );
         }
 
-        const response = await fetchShared(githubUrl(issuesPath, signedIn));
+        const response = await fetchSearch(issuesPath);
         if (!response.ok) {
           if (!cancelled) handleProblem(response);
           return;
