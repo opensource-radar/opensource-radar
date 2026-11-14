@@ -55,7 +55,7 @@ function vercelFunctions() {
         const route = pathname
           .replace(/^\/auth\//, '/api/auth/')
           // vercel.json sends these to one shared function, api/projects/[kind].js.
-          .replace(/^\/api\/(repos|friendliness|badge)$/, '/api/projects/$1')
+          .replace(/^\/api\/(repos|friendliness|badge|label-health)$/, '/api/projects/$1')
 
         // Lowercase segments only: no "..", and "_lib" helpers stay private.
         if (!/^\/api(\/[a-z0-9-]+)+$/.test(route)) return next()

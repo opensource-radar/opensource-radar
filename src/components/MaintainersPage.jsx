@@ -5,6 +5,7 @@ import { LEVEL_LABELS, friendlinessFacts } from "../lib/friendliness";
 import { isPlainClick } from "../lib/links";
 import { MAINTAINERS } from "../lib/seoPages";
 import Icon from "./Icon";
+import LabelHealth from "./LabelHealth";
 
 const MESSAGES = {
   invalid: "Enter a repository like owner/repo, or paste its GitHub link.",
@@ -81,6 +82,8 @@ function ProjectCheck() {
             </ul>
             <p className="devagents-muted">From your recent issues and pull requests, refreshed daily.</p>
           </div>
+
+          <LabelHealth repo={repo} />
 
           <h3>Add the badge to your README</h3>
           <p>It shows how many open, unassigned good first issues you have, and links to them on OpenSource Radar.</p>

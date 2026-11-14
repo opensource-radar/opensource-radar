@@ -21,6 +21,10 @@
       "destination": "/api/projects/badge"
     },
     {
+      "source": "/api/label-health",
+      "destination": "/api/projects/label-health"
+    },
+    {
       "source": "/auth/:action",
       "destination": "/api/auth/:action"
     },
