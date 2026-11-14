@@ -73,7 +73,7 @@ describe("pickVoice", () => {
 
 describe("chunksOf", () => {
   it("splits into sentences of a readable size, in any script", () => {
-    expect(chunksOf("One. Two! Three?")).toEqual(["One. Two! Three?"]);
+    expect(chunksOf("One. Two! Three?")).toEqual(["One.", "Two!", "Three?"]);
     const long = `${"word ".repeat(60)}. ${"next ".repeat(60)}.`;
     expect(chunksOf(long).every((chunk) => chunk.length <= 210)).toBe(true);
     expect(chunksOf("पहला वाक्य। दूसरा वाक्य।").join(" ")).toContain("दूसरा");
@@ -96,21 +96,35 @@ describe("ReadAloud", () => {
     expect(screen.getByRole("button", { name: "🔊 Read aloud" })).toBeTruthy();
   });
 
-  it("changes speed while reading, carrying on from the current sentence", () => {
-    const text = `${"First part of the issue. ".repeat(8)}${"Second part of it. ".repeat(8)}`;
-    render(<ReadAloud text={text} />);
+  it("changes speed while reading, carrying on from the current word", () => {
+    render(<ReadAloud text="First sentence here. The second sentence is a little longer. Third one." />);
     fireEvent.click(screen.getByRole("button", { name: "🔊 Read aloud" }));
-    const firstRun = spoken.length;
-    expect(firstRun).toBeGreaterThan(1);
+    expect(spoken.map((u) => u.text)).toEqual(["First sentence here.", "The second sentence is a little longer.", "Third one."]);
+    // The voice is on "is" in the second sentence when the speed changes.
     act(() => spoken[1].onstart());
-    // Callbacks from the reading that's replaced mustn't stop the new one.
+    act(() => spoken[1].onboundary({ name: "word", charIndex: 20 }));
     const old = spoken.slice();
-    fireEvent.change(screen.getByLabelText("Reading speed"), { target: { value: "0.75" } });
-    const restarted = spoken.slice(firstRun);
-    expect(restarted[0].text).toBe(old[1].text);
-    expect(restarted.every((u) => u.rate === 0.75)).toBe(true);
+    fireEvent.change(screen.getByLabelText("Reading speed"), { target: { value: "1" } });
+    const restarted = spoken.slice(old.length);
+    expect(restarted.map((u) => u.text)).toEqual(["is a little longer.", "Third one."]);
+    expect(restarted.every((u) => u.rate === 1)).toBe(true);
+    // Callbacks from the reading that was replaced mustn't stop the new one.
     act(() => old.at(-1).onend());
     expect(screen.getByRole("button", { name: "Stop reading" })).toBeTruthy();
+
+    // A second change keeps counting from where the new reading is.
+    act(() => restarted[0].onboundary({ name: "word", charIndex: 5 }));
+    fireEvent.change(screen.getByLabelText("Reading speed"), { target: { value: "1.4" } });
+    expect(spoken.slice(old.length + restarted.length).map((u) => u.text)).toEqual(["little longer.", "Third one."]);
+  });
+
+  it("restarts the sentence when the voice doesn't report words", () => {
+    render(<ReadAloud text="One sentence. Another sentence." />);
+    fireEvent.click(screen.getByRole("button", { name: "🔊 Read aloud" }));
+    act(() => spoken[1].onstart());
+    fireEvent.change(screen.getByLabelText("Reading speed"), { target: { value: "0.75" } });
+    expect(spoken.at(-1).text).toBe("Another sentence.");
+    expect(spoken.at(-1).rate).toBe(0.75);
   });
 
   it("reads other languages with a matching voice", () => {

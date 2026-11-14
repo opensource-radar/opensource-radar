@@ -83,35 +83,33 @@ export function pickVoice(voices, lang) {
 
 const MAX_CHUNK = 200;
 
-// Sentences of at most ~200 characters. Chrome stops long readings partway,
-// and it lets a speed change carry on from the current sentence.
+// One sentence at a time, long ones split at about 200 characters. Chrome
+// stops long readings partway, and a speed change can restart close by.
 export function chunksOf(text) {
   const sentences = text.match(/[^.!?।。！？]+[.!?।。！？]*\s*/g) ?? [];
   const chunks = [];
-  let current = "";
-  const push = (piece) => {
-    if ((current + piece).length > MAX_CHUNK && current) {
-      chunks.push(current.trim());
-      current = "";
-    }
-    current += piece;
-  };
   for (const sentence of sentences) {
-    if (sentence.length <= MAX_CHUNK) push(sentence);
-    else sentence.split(/(\s+)/).forEach(push);
+    let current = "";
+    for (const piece of sentence.split(/(\s+)/)) {
+      if ((current + piece).length > MAX_CHUNK && current.trim()) {
+        chunks.push(current.trim());
+        current = "";
+      }
+      current += piece;
+    }
+    if (current.trim()) chunks.push(current.trim());
   }
-  if (current.trim()) chunks.push(current.trim());
-  return chunks.filter(Boolean);
+  return chunks;
 }
 
 // Each reading gets a number, so callbacks from one that was stopped (to
 // change speed, say) can't end the next one.
 let reading = 0;
 
-// Starts reading, from sentence `from`. Returns what's needed to show
-// progress: { ok, count, lang, hasVoice }. onChunk(i) runs as each sentence
-// starts; onEnd when it finishes, fails or is stopped.
-export function speak(text, { rate = 1, from = 0, onEnd, onChunk, scope = globalThis } = {}) {
+// Starts reading, from sentence `from`, `at` characters into it (a word
+// start). Returns { ok, count, lang, hasVoice }. onProgress(sentence, char)
+// runs as each sentence and word starts; onEnd when it finishes or fails.
+export function speak(text, { rate = 1, from = 0, at = 0, onEnd, onProgress, scope = globalThis } = {}) {
   if (!canSpeak(scope)) return { ok: false };
   const synth = scope.speechSynthesis;
   synth.cancel();
@@ -129,17 +127,26 @@ export function speak(text, { rate = 1, from = 0, onEnd, onChunk, scope = global
   };
 
   chunks.slice(start).forEach((chunk, offset) => {
-    const utterance = new scope.SpeechSynthesisUtterance(chunk);
+    const index = start + offset;
+    // The first sentence may start partway, from the word it was on.
+    const skip = offset === 0 ? Math.min(Math.max(0, at), chunk.length) : 0;
+    const utterance = new scope.SpeechSynthesisUtterance(chunk.slice(skip));
     utterance.rate = rate;
     if (lang) utterance.lang = voice?.lang ?? lang;
     if (voice) utterance.voice = voice;
     utterance.onstart = () => {
-      if (id === reading) onChunk?.(start + offset);
+      if (id === reading) onProgress?.(index, skip);
+    };
+    // Word by word, where the voice reports it (most on-device voices do).
+    utterance.onboundary = (event) => {
+      if (id === reading && event?.name !== "sentence" && Number.isInteger(event?.charIndex)) {
+        onProgress?.(index, skip + event.charIndex);
+      }
     };
     utterance.onerror = (event) => {
       if (event?.error !== "interrupted" && event?.error !== "canceled") finish();
     };
-    if (start + offset === chunks.length - 1) utterance.onend = finish;
+    if (index === chunks.length - 1) utterance.onend = finish;
     synth.speak(utterance);
   });
 
