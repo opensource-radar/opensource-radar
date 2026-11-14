@@ -38,3 +38,15 @@ export function friendlinessFacts(friendliness) {
   facts.push(friendliness.hasCi ? "Uses automatic checks (GitHub Actions)" : "No automatic checks found");
   return facts;
 }
+
+const LEVEL_RANK = { high: 0, medium: 1, low: 2 };
+
+// "Friendliest projects first": issues from the friendliest projects first,
+// and otherwise in the order they came. Projects not scored yet go last.
+export function friendliestFirst(issues, scores) {
+  const rank = (issue) => LEVEL_RANK[scores[issue.repo.replace(" / ", "/")]?.level] ?? 3;
+  return issues
+    .map((issue, index) => ({ issue, index, rank: rank(issue) }))
+    .sort((a, b) => a.rank - b.rank || a.index - b.index)
+    .map(({ issue }) => issue);
+}

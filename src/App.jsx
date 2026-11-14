@@ -14,6 +14,7 @@ import SearchHelp from "./components/SearchHelp";
 import ProfilePage from "./components/ProfilePage";
 import SearchLimitNotice from "./components/SearchLimitNotice";
 import SearchBar from "./components/SearchBar";
+import { friendliestFirst } from "./lib/friendliness";
 import { githubUrl } from "./lib/github";
 import { issueKey, useHiddenIssues } from "./lib/hiddenIssues";
 import { ABOUT_PATH, parseProfilePath } from "./lib/links";
@@ -784,10 +785,12 @@ function App() {
     MAX_RESULTS / PER_PAGE,
   );
   const savedPages = Math.ceil(savedIssues.length / PER_PAGE);
+  const sortForView = (issues) =>
+    search.filters.sort === "friendly" ? friendliestFirst(issues, friendliness) : issues;
   const shownIssues =
     view === "saved"
       ? savedIssues.slice((savedPage - 1) * PER_PAGE, savedPage * PER_PAGE)
-      : results.items.filter((issue) => !hiddenIssues.isHidden(issue));
+      : sortForView(results.items.filter((issue) => !hiddenIssues.isHidden(issue)));
   const page = view === "saved" ? savedPage : search.page;
   const totalPages = view === "saved" ? savedPages : searchPages;
   const setPage = view === "saved" ? setSavedPage : goToPage;

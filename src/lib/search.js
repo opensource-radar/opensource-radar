@@ -45,6 +45,8 @@ export const SORT_OPTIONS = {
   newest: "Newest",
   comments: "Most commented",
   best: "Best match",
+  // Reorders the page that's loaded: GitHub can't sort by this.
+  friendly: "Friendliest projects first (this page)",
 };
 
 export const LANGUAGES = [
@@ -177,7 +179,7 @@ export function searchPath(filters, text, page, repos = []) {
     per_page: String(PER_PAGE),
     page: String(page),
   });
-  const sort = { updated: "updated", newest: "created", comments: "comments" }[
+  const sort = { updated: "updated", newest: "created", comments: "comments", friendly: "updated" }[
     filters.sort
   ];
   if (sort) {
