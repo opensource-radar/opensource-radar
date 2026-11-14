@@ -16,3 +16,13 @@
   font: inherit;
   font-size: 12px;
 }
+
+.read-aloud {
+  flex-wrap: wrap;
+}
+
+.read-aloud-note {
+  flex-basis: 100%;
+  color: var(--muted);
+  font-size: 12px;
+}
