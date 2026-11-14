@@ -9,6 +9,10 @@
   },
   "rewrites": [
     {
+      "source": "/api/issue-draft",
+      "destination": "/api/projects/issue-draft"
+    },
+    {
       "source": "/api/flags",
       "destination": "/api/projects/flags"
     },

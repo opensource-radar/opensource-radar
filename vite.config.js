@@ -53,7 +53,7 @@ function vercelFunctions() {
       server.middlewares.use(async (req, res, next) => {
         const { pathname } = new URL(req.url, 'http://localhost')
         const route = pathname
-          .replace(/^\/api\/flags$/, '/api/projects/flags')
+          .replace(/^\/api\/(flags|issue-draft)$/, '/api/projects/$1')
           .replace(/^\/auth\//, '/api/auth/')
           // vercel.json sends these to one shared function, api/projects/[kind].js.
           .replace(/^\/api\/(repos|friendliness|badge|label-health|about)$/, '/api/projects/$1')
