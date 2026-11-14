@@ -27,6 +27,7 @@ import {
   HOME,
   MAINTAINERS,
   MAINTAINERS_PATH,
+  liveIntro,
   withoutTrailingSlash,
 } from "./lib/seoPages";
 import {
@@ -925,7 +926,9 @@ function App() {
           <p className="eyebrow">YOUR OPEN-SOURCE JOURNEY STARTS HERE</p>
           <h1>{languagePage?.heading ?? "Find your first open-source issue."}</h1>
           <p className="description">
-            {languagePage?.intro ?? "Search open issues across all of GitHub."}
+            {(languagePage &&
+              liveIntro(languagePage, results.status === "ready" ? results.total : null)) ??
+              "Search open issues across all of GitHub."}
           </p>
 
           <SearchBar

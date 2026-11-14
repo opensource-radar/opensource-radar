@@ -283,3 +283,12 @@ export const languagePageFor = (name) =>
   LANGUAGE_PAGES.find((page) => page.language === name) ?? null;
 
 export const ALL_PAGES = [HOME, ABOUT, GUIDE, MAINTAINERS, ...LANGUAGE_PAGES];
+
+const countFormat = new Intl.NumberFormat("en");
+
+// A language page's intro with the live number of matching issues, once the
+// search has loaded: "312 open Python issues for beginners…, right now."
+export function liveIntro(page, total) {
+  if (!page?.language || !Number.isSafeInteger(total) || total < 1) return page?.intro ?? null;
+  return `${countFormat.format(total)} open ${page.language} ${total === 1 ? "issue" : "issues"} for beginners that nobody has taken yet, right now.`;
+}
