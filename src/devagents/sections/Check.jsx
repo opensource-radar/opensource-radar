@@ -1,5 +1,6 @@
 import { useId, useState } from "react";
 import Helpful from "../Helpful";
+import TestCommand from "../TestCommand";
 import { useAction } from "../useAction";
 
 function Check({ issue, shared, onShare }) {
@@ -24,6 +25,7 @@ function Check({ issue, shared, onShare }) {
 
   return (
     <div>
+      <TestCommand repo={repo} issue={number} />
       <label htmlFor={fieldId}>Your branch name or link</label>
       <input
         id={fieldId}

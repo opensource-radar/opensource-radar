@@ -75,6 +75,12 @@ export const gh = {
     };
   },
 
+  // Names of the files and folders at the top of the repository.
+  async readRootNames(token, repo, sha) {
+    const data = await get(token, `/repos/${repo}/git/trees/${sha}`);
+    return (data.tree ?? []).map((item) => item.path).filter((name) => typeof name === "string");
+  },
+
   // Returns null when the file doesn't exist, since many files are optional.
   async readFile(token, repo, path, ref) {
     const query = ref ? `?ref=${encodeURIComponent(ref)}` : "";
