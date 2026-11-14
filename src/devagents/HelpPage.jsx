@@ -7,6 +7,15 @@ import { setPageMeta } from "../lib/pageMeta";
 import { helpPath, issueUrl, repoUrl } from "./links";
 import IssueDetails from "./IssueDetails";
 import ManualSteps from "./ManualSteps";
+import {
+  fetchRemoteProgress,
+  newest,
+  progressKey,
+  readLocalProgress,
+  rememberStep,
+  writeLocalProgress,
+} from "./progress";
+import "./HelpProgress.css";
 import KeySettings from "./sections/KeySettings";
 import { SECTIONS } from "./sections/index";
 import "./devagents.css";
@@ -36,8 +45,15 @@ function HelpPage({ issue, language, signedIn, onBack, sections = SECTIONS }) {
   const headingRef = useRef(null);
   const stepHeadings = useRef({});
   const movedStep = useRef(false);
-  const [active, setActive] = useState(0);
-  const [visited, setVisited] = useState(() => new Set([0]));
+  const savedKey = progressKey(repo, number);
+  // Carries on from the last step reached, in this browser at first.
+  const [start] = useState(() => {
+    const local = readLocalProgress(savedKey);
+    return local && local.step < sections.length ? local : null;
+  });
+  const [active, setActive] = useState(start?.step ?? 0);
+  const [visited, setVisited] = useState(() => new Set([0, ...(start?.visited ?? [])]));
+  const [resumed, setResumed] = useState(Boolean(start?.step));
   // What one step has learned that a later step needs.
   const [shared, setShared] = useState({});
   const onShare = useCallback((update) => {
@@ -67,10 +83,31 @@ function HelpPage({ issue, language, signedIn, onBack, sections = SECTIONS }) {
     stepHeadings.current[active]?.focus();
   }, [active]);
 
+  // A position saved on another device wins if it's newer.
+  useEffect(() => {
+    if (!signedIn) return undefined;
+    let cancelled = false;
+    fetchRemoteProgress(savedKey).then((remote) => {
+      if (cancelled || !remote || remote.step >= sections.length) return;
+      const local = readLocalProgress(savedKey);
+      if (newest(local, remote) !== remote || remote.step === local?.step) return;
+      writeLocalProgress(savedKey, remote);
+      setActive(remote.step);
+      setVisited((current) => new Set([...current, ...remote.visited]));
+      setResumed(remote.step > 0);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [signedIn, savedKey, sections.length]);
+
   const goTo = (index) => {
     movedStep.current = true;
+    setResumed(false);
     setActive(index);
-    setVisited((current) => new Set(current).add(index));
+    const nextVisited = new Set(visited).add(index);
+    setVisited(nextVisited);
+    rememberStep(savedKey, index, nextVisited, signedIn);
   };
 
   const previous = sections[active - 1];
@@ -145,6 +182,14 @@ function HelpPage({ issue, language, signedIn, onBack, sections = SECTIONS }) {
 
           <div className="helppage-main">
             <div className="helppage-panel">
+              {resumed && (
+                <p className="helppage-resumed" role="status">
+                  Carrying on from {sections[active]?.title}.{" "}
+                  <button type="button" className="text-button" onClick={() => goTo(0)}>
+                    Start from the beginning
+                  </button>
+                </p>
+              )}
               {sections.map(({ id, title: name, intro, Component }, index) => (
                 // Every step stays mounted, so moving around never loses anything.
                 <section key={id} hidden={index !== active}>
