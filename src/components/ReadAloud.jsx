@@ -8,8 +8,9 @@ function ReadAloud({ text, label = "Read aloud" }) {
   const [speaking, setSpeaking] = useState(false);
   const [rate, setRate] = useState(1);
   const [missingVoice, setMissingVoice] = useState(null);
-  // The sentence being read, so a speed change carries on from there.
-  const sentence = useRef(0);
+  // Where the voice is (sentence and word), so a speed change carries on
+  // from there.
+  const position = useRef({ sentence: 0, char: 0 });
 
   // Leaving the page (or this block) stops the voice. Asking for the voices
   // early makes Chrome load them before the first click.
@@ -20,12 +21,13 @@ function ReadAloud({ text, label = "Read aloud" }) {
 
   if (!canSpeak() || !String(text ?? "").trim()) return null;
 
-  const start = (speed, from) => {
+  const start = (speed, { sentence, char }) => {
     const result = speak(text, {
       rate: speed,
-      from,
-      onChunk: (index) => {
-        sentence.current = index;
+      from: sentence,
+      at: char,
+      onProgress: (index, at) => {
+        position.current = { sentence: index, char: at };
       },
       onEnd: () => setSpeaking(false),
     });
@@ -39,15 +41,16 @@ function ReadAloud({ text, label = "Read aloud" }) {
       setSpeaking(false);
       return;
     }
-    sentence.current = 0;
-    start(rate, 0);
+    position.current = { sentence: 0, char: 0 };
+    start(rate, position.current);
   };
 
   const changeSpeed = (event) => {
     const speed = Number(event.target.value);
     setRate(speed);
-    // The browser can't change speed mid-sentence, so it starts that sentence again.
-    if (speaking) start(speed, sentence.current);
+    // The browser can't change the speed of words already queued, so it
+    // carries on from the current word at the new speed.
+    if (speaking) start(speed, position.current);
   };
 
   return (
