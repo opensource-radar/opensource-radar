@@ -1,0 +1,70 @@
+.about-dialog.guide-dialog {
+  width: min(760px, calc(100vw - 24px));
+  max-height: calc(100vh - 48px);
+}
+
+.guide-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  padding: 0 20px 12px;
+  border-bottom: 1px solid var(--border-card);
+}
+
+.guide-for {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.guide-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 14px;
+}
+
+.guide-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.guide-save.is-saved {
+  color: var(--label-text);
+}
+
+.guide-body {
+  max-height: calc(100vh - 220px);
+  overflow-y: auto;
+  line-height: 1.6;
+}
+
+.guide-body h3,
+.guide-body h4,
+.guide-body h5,
+.guide-body h6 {
+  margin: 20px 0 6px;
+  color: var(--text-strong);
+}
+
+.guide-body pre {
+  overflow-x: auto;
+  padding: 10px 12px;
+  border: 1px solid var(--border-card);
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.guide-body code {
+  font-size: 0.9em;
+}
+
+.guide-body blockquote {
+  margin: 8px 0;
+  padding-left: 12px;
+  border-left: 3px solid var(--border-card);
+  color: var(--muted);
+}
