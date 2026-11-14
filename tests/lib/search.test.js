@@ -25,10 +25,22 @@ const allFilters = {
 };
 
 describe("buildQuery", () => {
-  it("starts with beginner issues nobody has taken", () => {
+  it("starts with beginner issues nobody has taken, touched in the last year", () => {
+    const yearAgo = new Date(Date.now() - 365 * 86400000).toISOString().slice(0, 10);
     expect(buildQuery(DEFAULT_FILTERS, "")).toBe(
-      'is:issue is:open archived:false label:"good first issue" no:assignee',
+      `is:issue is:open archived:false label:"good first issue" no:assignee updated:>=${yearAgo}`,
     );
+  });
+
+  it("brings old issues back with \"Any time\", and says so in the address and chips", () => {
+    const filters = { ...DEFAULT_FILTERS, updated: "any" };
+    expect(buildQuery(filters, "")).not.toContain("updated:");
+    expect(stateToUrl(filters, "", 1)).toContain("updated=any");
+    expect(stateToUrl(DEFAULT_FILTERS, "", 1)).not.toContain("updated");
+    expect(stateFromUrl("?updated=any").filters.updated).toBe("any");
+    expect(stateFromUrl("").filters.updated).toBe("year");
+    expect(activeFilterChips(filters).map((chip) => chip.label)).toContain("Including old issues");
+    expect(activeFilterChips(DEFAULT_FILTERS).map((chip) => chip.key)).not.toContain("updated");
   });
 
   it("turns every filter into GitHub search syntax", () => {

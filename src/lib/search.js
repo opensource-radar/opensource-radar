@@ -30,11 +30,14 @@ export const COMMENT_OPTIONS = {
   few: "Fewer than 5",
 };
 
+// Issues nobody has touched for over a year are usually forgotten, so the
+// default leaves them out. "Any time" brings them back.
 export const UPDATED_OPTIONS = {
-  any: "Any time",
-  today: "Today",
-  week: "This week",
+  year: "In the last year",
   month: "This month",
+  week: "This week",
+  today: "Today",
+  any: "Any time, including old issues",
 };
 
 export const SORT_OPTIONS = {
@@ -58,7 +61,7 @@ export const DEFAULT_FILTERS = {
   notTaken: true,
   noPullRequest: false,
   comments: "any",
-  updated: "any",
+  updated: "year",
   language: "",
   regional: "",
   project: "",
@@ -103,7 +106,7 @@ function isoDaysAgo(days) {
   return date.toISOString().slice(0, 10);
 }
 
-const UPDATED_DAYS = { today: 0, week: 7, month: 30 };
+const UPDATED_DAYS = { today: 0, week: 7, month: 30, year: 365 };
 
 const spokenLanguage = (code) =>
   SPOKEN_LANGUAGES.find((language) => language.code === code);
@@ -232,7 +235,7 @@ export function stateFromUrl(search) {
       notTaken: params.get("available") === "1",
       noPullRequest: params.get("nopr") === "1",
       comments: pick("comments", COMMENT_OPTIONS, "any"),
-      updated: pick("updated", UPDATED_OPTIONS, "any"),
+      updated: pick("updated", UPDATED_OPTIONS, DEFAULT_FILTERS.updated),
       language: LANGUAGES.includes(language) ? language : "",
       regional: spokenLanguage(regional) ? regional : "",
       project: isValidProject(project) ? project : "",
@@ -275,7 +278,7 @@ export function stateToUrl(filters, text, page) {
   if (filters.notTaken) params.set("available", "1");
   if (filters.noPullRequest) params.set("nopr", "1");
   if (filters.comments !== "any") params.set("comments", filters.comments);
-  if (filters.updated !== "any") params.set("updated", filters.updated);
+  if (filters.updated !== DEFAULT_FILTERS.updated) params.set("updated", filters.updated);
   if (filters.language) params.set("lang", filters.language);
   if (filters.regional) params.set("region", filters.regional);
   if (filters.project) params.set("project", filters.project);
@@ -302,7 +305,12 @@ export function activeFilterChips(filters) {
   add(filters.notTaken, "not-taken", "Not taken yet", { notTaken: false });
   add(filters.noPullRequest, "no-pr", "No pull request yet", { noPullRequest: false });
   add(filters.comments !== "any", "comments", `Comments: ${COMMENT_OPTIONS[filters.comments]}`, { comments: "any" });
-  add(filters.updated !== "any", "updated", `Updated: ${UPDATED_OPTIONS[filters.updated]}`, { updated: "any" });
+  add(
+    filters.updated !== DEFAULT_FILTERS.updated,
+    "updated",
+    filters.updated === "any" ? "Including old issues" : `Updated: ${UPDATED_OPTIONS[filters.updated]}`,
+    { updated: DEFAULT_FILTERS.updated },
+  );
   add(Boolean(filters.language), "language", filters.language, { language: "" });
   add(Boolean(filters.regional), "regional", `Mentions ${regionalName(filters.regional)}`, { regional: "" });
   add(Boolean(filters.project), "project", filters.project, { project: "" });
