@@ -3,6 +3,7 @@ import { githubUrl } from "../lib/github";
 import { isRadarPullRequest } from "../lib/shareCard";
 import { streakText, weekStreak } from "../lib/streak";
 import Icon from "./Icon";
+import Milestones from "./Milestones";
 import ProfileSettings from "./ProfileSettings";
 import ShareCard from "./ShareCard";
 import "./Streak.css";
@@ -132,6 +133,15 @@ function ContributionsDialog({ login, onClose }) {
             </p>
 
             {streak && <p className="contributions-streak">🌱 {streak}</p>}
+
+            <Milestones
+              pullRequests={result.items
+                .filter((item) => statusOf(item) === "merged")
+                .map((item) => ({
+                  repo: item.repository_url.split("/repos/")[1] ?? "",
+                  madeWithRadar: isRadarPullRequest(item),
+                }))}
+            />
 
             {radarItems.length > 0 && (
               <div className="contributions-radar">

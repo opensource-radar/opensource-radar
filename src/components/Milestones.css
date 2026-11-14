@@ -1,0 +1,26 @@
+.milestones {
+  margin: 8px 0 16px;
+}
+
+.milestones ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.milestones li {
+  padding: 4px 10px;
+  border: 1px solid var(--border-card);
+  border-radius: 999px;
+  color: var(--text-strong);
+  font-size: 13px;
+}
+
+.milestones-next {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
