@@ -46,5 +46,6 @@ export async function issueCheck(ctx, payload) {
     archived: repoInfo.archived,
     paymentClaim: paymentClaim(`${issue.title ?? ""} ${issue.body ?? ""}`),
     claimComment: CLAIM_COMMENT,
+    checkedAt: new Date().toISOString(),
   };
 }

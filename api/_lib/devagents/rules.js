@@ -43,6 +43,8 @@ export function repoRules(text) {
 const DAY_MS = 24 * 60 * 60 * 1000;
 const CLAIM_WITHIN_DAYS = 30;
 const QUIET_AFTER_DAYS = 180;
+// Fresh comments that aren't a clear claim still deserve a look first.
+const RECENT_DAYS = 3;
 const MAINTAINER_ROLES = new Set(["OWNER", "MEMBER", "COLLABORATOR"]);
 const CLAIM = /\b(i'?d like to|i would like to|i want to|can i|may i|could i|i'?ll|i will|i am|i'?m|let me)\b[^.?!\n]*\b(work|working|take|taking|pick|picking|handle|handling|fix|fixing)\b|\bassign\b[^.?!\n]*\bme\b/i;
 const RELEASED = /\b(up for grabs|still available|anyone can|open to anyone|free to take|no one is working)\b/i;
@@ -104,5 +106,18 @@ export function claimStatus({ issue, comments, linkedPulls, now }) {
     };
   }
 
-  return { verdict: "clear", reasons: ["Not taken yet."] };
+  const recent = comments.filter(
+    (comment) =>
+      !isMaintainer(comment) &&
+      comment.created_at &&
+      ageDays(comment.created_at, now) <= RECENT_DAYS,
+  );
+  const notes = recent.length
+    ? [
+        `${recent.length === 1 ? "Someone" : `${recent.length} people`} commented ${whenAgo(
+          Math.floor(ageDays(recent.at(-1).created_at, now)),
+        )}. Read ${recent.length === 1 ? "it" : "them"} before you start.`,
+      ]
+    : [];
+  return { verdict: "clear", reasons: ["Not taken yet."], notes };
 }
