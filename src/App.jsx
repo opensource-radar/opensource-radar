@@ -15,6 +15,7 @@ import ProfilePage from "./components/ProfilePage";
 import SearchLimitNotice from "./components/SearchLimitNotice";
 import SearchBar from "./components/SearchBar";
 import { githubUrl } from "./lib/github";
+import { useAiAbouts, withAbout } from "./lib/projectAbout";
 import { issueKey, useHiddenIssues } from "./lib/hiddenIssues";
 import { ABOUT_PATH, parseProfilePath } from "./lib/links";
 import { setPageMeta } from "./lib/pageMeta";
@@ -798,6 +799,7 @@ function App() {
     ...new Set(shownIssues.map((issue) => issue.repo.replace(" / ", "/"))),
   ].join(",");
   const canLoadProjects = signedIn || account.projectInfo;
+  const aiAbouts = useAiAbouts(projects, shownRepos);
 
   useEffect(() => {
     if (!canLoadProjects || !shownRepos) return;
@@ -1120,9 +1122,12 @@ function App() {
                   createdAt={issue.createdAt}
                   saved={savedIds.has(issue.id)}
                   onToggleSave={() => toggleSaved(issue)}
-                  project={withFriendliness(
-                    projects[issue.repo.replace(" / ", "/")],
-                    friendliness[issue.repo.replace(" / ", "/")],
+                  project={withAbout(
+                    withFriendliness(
+                      projects[issue.repo.replace(" / ", "/")],
+                      friendliness[issue.repo.replace(" / ", "/")],
+                    ),
+                    aiAbouts[issue.repo.replace(" / ", "/")],
                   )}
                   actions={devAgentsActions(account.devAgents, issue, showHelp)}
                   onReport={

@@ -3,6 +3,7 @@ import { previewText } from "../lib/preview";
 import { ESTIMATES, estimateTime } from "../lib/timeEstimate";
 import Icon from "./Icon";
 import ReportIssue from "./ReportIssue";
+import "./ProjectAbout.css";
 
 const dateFormat = new Intl.DateTimeFormat(undefined, {
   day: "numeric",
@@ -106,6 +107,13 @@ function IssueCard({
 
       <h2>{title}</h2>
       <OpenedLine number={number} author={author} createdAt={createdAt} />
+      {project?.about && (
+        <p className="issue-card-about">
+          <span className="sr-only">About the project: </span>
+          {project.about}
+          {project.aboutByAi && <span className="issue-card-about-ai"> · AI summary</span>}
+        </p>
+      )}
 
       <p className="issue-description">{preview}</p>
       {replyLine(project?.friendliness) && (

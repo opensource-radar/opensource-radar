@@ -13,6 +13,10 @@
       "destination": "/api/projects/flags"
     },
     {
+      "source": "/api/about",
+      "destination": "/api/projects/about"
+    },
+    {
       "source": "/api/repos",
       "destination": "/api/projects/repos"
     },

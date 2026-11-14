@@ -94,6 +94,7 @@ export async function fetchRepositories(accessToken, names, { friendliness = fal
     params.push(`$o${index}: String!, $n${index}: String!`);
     return `r${index}: repository(owner: $o${index}, name: $n${index}) {
       stargazerCount
+      description
       pushedAt
       isArchived
       primaryLanguage { name }

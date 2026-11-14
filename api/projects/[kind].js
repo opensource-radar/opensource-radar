@@ -1,13 +1,14 @@
+import { GET as about } from "../_lib/routes/about.js";
 import { GET as badge } from "../_lib/routes/badge.js";
 import { GET as flagsGet, POST as flagsPost } from "../_lib/routes/flags.js";
 import { GET as friendliness } from "../_lib/routes/friendliness.js";
 import { GET as labelHealth } from "../_lib/routes/label-health.js";
 import { GET as repos } from "../_lib/routes/repos.js";
 
-// /api/repos, /api/friendliness, /api/badge and /api/label-health share one
-// function, to stay within the Hobby plan's limit of 12 functions per
-// deployment. vercel.json keeps their public addresses.
-const ROUTES = { repos, friendliness, badge, "label-health": labelHealth };
+// /api/repos, /api/friendliness, /api/badge, /api/label-health and
+// /api/about share one function, to stay within the Hobby plan's limit of 12
+// functions per deployment. vercel.json keeps their public addresses.
+const ROUTES = { repos, friendliness, badge, "label-health": labelHealth, about };
 
 export function kindOf(request) {
   const url = new URL(request.url);
