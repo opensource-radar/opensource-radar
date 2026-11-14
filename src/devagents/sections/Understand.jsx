@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { callDevAgents } from "../client";
+import ExplainFile from "../ExplainFile";
 import Helpful from "../Helpful";
 import { fileUrl } from "../links";
 import { useAction } from "../useAction";
@@ -74,6 +75,7 @@ function Understand({ issue, onShare }) {
                       {file.line ? `, line ${file.line}` : ""} ↗
                     </a>
                     {file.why && <span>{file.why}</span>}
+                    <ExplainFile repo={repo} issue={number} path={file.path} />
                   </li>
                 ))}
               </ul>

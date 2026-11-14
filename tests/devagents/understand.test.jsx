@@ -75,6 +75,26 @@ describe("Understand", () => {
     expect(link.getAttribute("rel")).toContain("noopener");
   });
 
+  it("explains one file from the list when asked, as plain text", async () => {
+    const fileData = { summary: "<b>Runs the app</b>", parts: [{ name: "main", what: "Starts it." }], partial: true };
+    vi.stubGlobal("fetch", vi.fn(async (url, init) => {
+      const target = String(url);
+      if (target.includes("issue-check")) return Response.json({ data: checkData });
+      if (target.includes("explain-file")) {
+        expect(JSON.parse(init.body)).toMatchObject({ repo: "a/b", issue: 7, path: "src/my file.py" });
+        return Response.json({ data: fileData });
+      }
+      return Response.json({ data: explainData });
+    }));
+    const { container } = render(<Understand issue={issue} onShare={() => {}} />);
+    fireEvent.click(screen.getByRole("button", { name: "Explain this issue" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Explain src/my file.py" }));
+    await screen.findByText("<b>Runs the app</b>");
+    expect(container.querySelector(".devagents-explain-file b")).toBeNull();
+    expect(screen.getByText("main")).toBeTruthy();
+    expect(screen.getByText(/only its start was read/)).toBeTruthy();
+  });
+
   it("shares the answer for later steps", async () => {
     stubBackend(explainData);
     const onShare = vi.fn();

@@ -538,3 +538,17 @@ pre.devagents-text {
     padding: 14px 20px;
   }
 }
+
+.devagents-explain-file {
+  margin-top: 6px;
+  font-size: 14px;
+}
+
+.devagents-explain-file p {
+  margin: 4px 0;
+}
+
+.devagents-explain-file ul {
+  margin: 4px 0;
+  padding-left: 20px;
+}
