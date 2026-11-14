@@ -39,3 +39,20 @@
   color: var(--text-muted);
   font-size: 14px;
 }
+
+.issuewriter-idea {
+  display: block;
+  width: 100%;
+  max-width: 520px;
+  margin-bottom: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--border-input);
+  border-radius: 6px;
+  background: var(--input-bg, transparent);
+  color: inherit;
+  font: inherit;
+}
+
+.issuewriter-body {
+  white-space: pre-wrap;
+}
