@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import CopyButton from "./CopyButton";
 import { useAction } from "./useAction";
+import "./TestCommand.css";
 
 // "How do I run the tests?", worked out from the project's own files.
 function TestCommand({ repo, issue }) {
