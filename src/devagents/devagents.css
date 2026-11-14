@@ -552,3 +552,9 @@ pre.devagents-text {
   margin: 4px 0;
   padding-left: 20px;
 }
+
+.helppage-resumed {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 14px;
+}

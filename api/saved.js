@@ -46,12 +46,52 @@ async function signedInUser(request) {
 
 const keyFor = (user) => `saved:${user.login.toLowerCase()}`;
 
+// Where someone got to on each issue's help page, so they can carry on from
+// another device. "owner/repo#12" -> { step, visited, at }.
+const progressKey = (user) => `help-progress:v1:${user.login.toLowerCase()}`;
+const ISSUE_KEY = /^[\w.-]+\/[\w.-]+#\d{1,9}$/;
+const MAX_PROGRESS = 100;
+const MAX_STEP = 20;
+const isStep = (value) => Number.isInteger(value) && value >= 0 && value < MAX_STEP;
+
+async function readProgress(user) {
+  const stored = await redis(["GET", progressKey(user)]);
+  const value = stored ? JSON.parse(stored) : {};
+  return value && typeof value === "object" && !Array.isArray(value) ? value : {};
+}
+
+async function saveProgress(user, body) {
+  const key = typeof body?.issue === "string" ? body.issue.toLowerCase() : "";
+  if (!ISSUE_KEY.test(key) || !isStep(body.step)) return null;
+  const visited = Array.isArray(body.visited) ? [...new Set(body.visited.filter(isStep))] : [];
+  const all = { ...(await readProgress(user)), [key]: { step: body.step, visited, at: Date.now() } };
+  // Keep the most recent ones.
+  const kept = Object.fromEntries(
+    Object.entries(all)
+      .sort(([, a], [, b]) => (b?.at ?? 0) - (a?.at ?? 0))
+      .slice(0, MAX_PROGRESS),
+  );
+  await redis(["SET", progressKey(user), JSON.stringify(kept)]);
+  return kept[key];
+}
+
 // GET /api/saved: the signed-in user's saved issues from the database.
+// GET /api/saved?progress=owner/repo#12: how far they got on that issue's help page.
 export async function GET(request) {
   if (!storeAvailable()) return json({ error: "sync_unavailable" }, [], 503);
 
   const { user, cookies } = await signedInUser(request);
   if (!user) return json({ error: "signed_out" }, cookies, 401);
+
+  const issue = new URL(request.url).searchParams.get("progress");
+  if (issue !== null) {
+    try {
+      const progress = (await readProgress(user))[issue.toLowerCase()] ?? null;
+      return json({ progress }, cookies);
+    } catch {
+      return json({ error: "database_error" }, cookies, 502);
+    }
+  }
 
   try {
     const stored = await redis(["GET", keyFor(user)]);
@@ -63,6 +103,7 @@ export async function GET(request) {
 }
 
 // PUT /api/saved: replaces the signed-in user's saved list.
+// PUT /api/saved?progress=1 { issue, step, visited }: saves help page progress.
 // Requiring a JSON body means another site can't send this request with the
 // user's cookie (browsers block it without a CORS preflight we never allow).
 export async function PUT(request) {
@@ -79,12 +120,23 @@ export async function PUT(request) {
     return json({ error: "too_large" }, cookies, 413);
   }
 
-  let items;
+  let parsed;
   try {
-    items = JSON.parse(body).items;
+    parsed = JSON.parse(body);
   } catch {
     return json({ error: "invalid_json" }, cookies, 400);
   }
+
+  if (new URL(request.url).searchParams.has("progress")) {
+    try {
+      const progress = await saveProgress(user, parsed);
+      return progress ? json({ progress }, cookies) : json({ error: "invalid_progress" }, cookies, 400);
+    } catch {
+      return json({ error: "database_error" }, cookies, 502);
+    }
+  }
+
+  const items = parsed?.items;
   if (!Array.isArray(items)) return json({ error: "invalid_items" }, cookies, 400);
 
   const seen = new Set();

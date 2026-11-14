@@ -35,6 +35,8 @@ beforeEach(() => {
   vi.spyOn(console, "error").mockImplementation(() => {});
   try {
     sessionStorage.clear();
+    // Help page progress from one test mustn't move the next one along.
+    localStorage.removeItem("opensource-radar-help-progress");
   } catch {
     // Some tests replace it.
   }
