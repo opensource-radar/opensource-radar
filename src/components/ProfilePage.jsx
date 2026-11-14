@@ -5,6 +5,7 @@ import { setPageMeta } from "../lib/pageMeta";
 import { SITE_URL } from "../lib/seoPages";
 import { streakText, weekStreak } from "../lib/streak";
 import Icon from "./Icon";
+import Milestones from "./Milestones";
 import "./Profile.css";
 
 const dateFormat = new Intl.DateTimeFormat(undefined, { day: "numeric", month: "short", year: "numeric" });
@@ -105,6 +106,8 @@ function ProfilePage({ login, onBack }) {
         )}
         {streak && <span>🌱 {streak}</span>}
       </p>
+
+      <Milestones totalMerged={profile.totalMerged} pullRequests={profile.pullRequests} />
 
       {profile.pullRequests.length === 0 ? (
         <p>No merged pull requests in public projects yet.</p>

@@ -28,6 +28,11 @@ describe("ProfilePage", () => {
     expect(document.querySelector(".profile-stats").textContent).toContain("1 made with Radar");
     expect(document.querySelectorAll(".pr-radar")).toHaveLength(1);
     expect(document.head.querySelector('meta[name="robots"]')?.content).toBe("noindex");
+    // Two merges in two projects, one made with Radar.
+    const badges = screen.getByRole("list", { name: "Milestones" }).textContent;
+    expect(badges).toContain("First merged pull request");
+    expect(badges).toContain("First pull request made with Radar");
+    expect(screen.getByText("Next: 5 merged pull requests (3 to go)")).toBeTruthy();
   });
 
   it("lets search engines list it when its owner chose that", async () => {
