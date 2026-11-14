@@ -1,0 +1,35 @@
+/* Label health on the For maintainers page (LabelHealth.jsx) */
+.label-health {
+  margin-top: 20px;
+}
+
+.label-health h3 {
+  margin: 0 0 6px;
+  color: var(--text-strong);
+  font-size: 16px;
+}
+
+.label-health-group {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--border-card);
+  border-radius: 8px;
+}
+
+.label-health-group h4 {
+  margin: 0 0 4px;
+  color: var(--text-strong);
+  font-size: 14px;
+}
+
+.label-health-group ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  line-height: 1.7;
+  font-size: 14px;
+}
+
+.label-health-group p {
+  margin: 0;
+  font-size: 13px;
+}
