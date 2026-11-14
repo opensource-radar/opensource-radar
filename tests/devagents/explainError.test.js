@@ -18,6 +18,23 @@ afterEach(() => {
 });
 
 describe("explain-error", () => {
+  it("in setup mode, says whether setting up worked, using the smaller model", async () => {
+    vi.stubEnv("DEVAGENTS_GROQ_LIGHT_MODEL", "small-model");
+    const world = fakeWorld({ github, llm: [{ worked: "yes", meaning: "All 120 tests passed.", nextSteps: [] }] });
+    const { body } = await callAction("explain-error", { repo: "a/b", issue: 1, errorText: "120 passed", mode: "setup" });
+    expect(body.data).toEqual({ worked: "yes", meaning: "All 120 tests passed.", nextSteps: [] });
+    const request = JSON.parse(world.llmCalls()[0].init.body);
+    expect(request.model).toBe("small-model");
+    expect(request.messages[0].content).toMatch(/setting up/);
+    expect(prompt(world)).toContain("terminal output");
+  });
+
+  it("in setup mode, treats an odd verdict as unsure", async () => {
+    fakeWorld({ github, llm: [{ worked: "maybe", meaning: "Unclear.", nextSteps: [] }] });
+    const { body } = await callAction("explain-error", { repo: "a/b", issue: 1, errorText: "done", mode: "setup" });
+    expect(body.data.worked).toBe("unsure");
+  });
+
   it("explains an error, using the README", async () => {
     const world = fakeWorld({ github, llm: [answer] });
     const { body } = await send("ModuleNotFoundError: x");
