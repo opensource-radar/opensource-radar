@@ -31,12 +31,26 @@ async function overRateLimit(request) {
   }
 }
 
+const MAX_ABOUT = 160;
+
+// The project's own one-line description, tidied for a card.
+export function aboutLine(description) {
+  if (typeof description !== "string") return null;
+  const text = description
+    .replace(/:[a-z0-9_+-]+:/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (text.length < 8) return null;
+  return text.length > MAX_ABOUT ? `${text.slice(0, MAX_ABOUT - 1).trimEnd()}…` : text;
+}
+
 function toProjectInfo(repo) {
   if (!repo) return { missing: true };
 
   const quietSince = Date.now() - QUIET_AFTER_DAYS * 24 * 60 * 60 * 1000;
   return {
     stars: repo.stargazerCount,
+    about: aboutLine(repo.description),
     pushedAt: repo.pushedAt,
     archived: repo.isArchived,
     quiet: !repo.pushedAt || new Date(repo.pushedAt).getTime() < quietSince,

@@ -1,0 +1,12 @@
+.issue-card-about {
+  margin: -4px 0 10px;
+  color: var(--text);
+  font-size: 14px;
+  font-style: italic;
+}
+
+.issue-card-about-ai {
+  color: var(--muted);
+  font-size: 12px;
+  font-style: normal;
+}
