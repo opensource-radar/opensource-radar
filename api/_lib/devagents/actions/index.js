@@ -7,12 +7,14 @@ import { event, feedback } from "./feedback.js";
 import { hint } from "./hint.js";
 import { issueCheck } from "./issueCheck.js";
 import { prText } from "./prText.js";
+import { testCommand } from "./testCommand.js";
 import { validateKey } from "./validateKey.js";
 
 // Every DevAgents action. `llm: true` means it can call an LLM, so it needs
 // { repo, issue } and counts towards the daily limits.
 export const actions = {
   "issue-check": { llm: false, handler: issueCheck },
+  "test-command": { llm: false, handler: testCommand },
   explain: { llm: true, handler: explain },
   hint: { llm: true, handler: hint },
   "explain-file": { llm: true, handler: explainFile },
