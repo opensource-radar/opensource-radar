@@ -1,6 +1,9 @@
+import { useState } from "react";
 import { replyLine } from "../lib/friendliness";
+import { isPlainClick } from "../lib/links";
 import { previewText } from "../lib/preview";
 import { ESTIMATES, estimateTime } from "../lib/timeEstimate";
+import ContributingGuide from "./ContributingGuide";
 import Icon from "./Icon";
 import ReportIssue from "./ReportIssue";
 import "./ProjectAbout.css";
@@ -56,6 +59,7 @@ function IssueCard({
   createdAt,
   onReport,
 }) {
+  const [guideOpen, setGuideOpen] = useState(false);
   const preview = previewText(description);
   const estimate = ESTIMATES[estimateTime({ title, labels: label, body: description })];
   const details = [
@@ -140,8 +144,18 @@ function IssueCard({
         <span className="issue-card-links">
           {actions}
           {project?.contributingUrl && (
-            <a href={project.contributingUrl} target="_blank" rel="noopener noreferrer">
-              Contributing guide ↗
+            <a
+              href={project.contributingUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(event) => {
+                // A plain tap reads it here, with Save this issue to hand.
+                if (!isPlainClick(event)) return;
+                event.preventDefault();
+                setGuideOpen(true);
+              }}
+            >
+              Contributing guide
             </a>
           )}
           <a href={url} target="_blank" rel="noopener noreferrer">
@@ -150,6 +164,17 @@ function IssueCard({
           {onReport && <ReportIssue title={title} onReport={onReport} />}
         </span>
       </div>
+      {guideOpen && (
+        <ContributingGuide
+          url={project.contributingUrl}
+          repo={repo}
+          issueTitle={title}
+          number={number}
+          saved={saved}
+          onToggleSave={onToggleSave}
+          onClose={() => setGuideOpen(false)}
+        />
+      )}
     </article>
   );
 }
