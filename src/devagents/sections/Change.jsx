@@ -1,6 +1,7 @@
 import GitCheatSheet from "../../components/GitCheatSheet";
 import { callDevAgents } from "../client";
 import { codespacesUrl, editorUrl } from "../links";
+import StillFree from "../StillFree";
 import ErrorHelp from "./ErrorHelp";
 
 // DevAgents never changes code. These links open GitHub's own tools, which
@@ -11,6 +12,7 @@ function Change({ issue, language, shared }) {
 
   return (
     <div>
+      <StillFree issue={issue} />
       <p>
         If GitHub asks, tap "Fork this repository" to make your own
         copy, then edit the file and propose your change.

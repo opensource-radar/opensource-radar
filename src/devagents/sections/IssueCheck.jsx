@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import CopyButton from "../CopyButton";
+import { checkedAgo } from "../checkedAt";
 import { issueUrl } from "../links";
 import { useAction } from "../useAction";
 
@@ -41,6 +42,17 @@ function IssueCheck({ issue, onShare }) {
               ))}
             </ul>
           )}
+          {data.notes?.map((note) => (
+            <p key={note} className="devagents-note">
+              {note}
+            </p>
+          ))}
+          <p className="devagents-muted devagents-checked">
+            {data.checkedAt ? `Checked ${checkedAgo(data.checkedAt)}. ` : ""}
+            <button type="button" className="text-button" disabled={loading} onClick={() => run()}>
+              {loading ? "Checking…" : "Check again"}
+            </button>
+          </p>
           {data.paymentClaim && (
             <p className="devagents-callout" role="alert">
               This issue mentions payment. We can't verify payment promises, so check the project

@@ -84,6 +84,15 @@ describe("repoRules", () => {
 describe("claimStatus", () => {
   it("says clear when nothing is happening", () => {
     expect(status({}).verdict).toBe("clear");
+    expect(status({}).notes).toEqual([]);
+  });
+
+  it("points out fresh comments that aren't a claim, without calling it taken", () => {
+    const result = status({ comments: [comment("Is this still a problem on v2?", 1), comment("Same here", 0)] });
+    expect(result.verdict).toBe("clear");
+    expect(result.notes).toEqual(["2 people commented today. Read them before you start."]);
+    expect(status({ comments: [comment("Old question", 10)] }).notes).toEqual([]);
+    expect(status({ comments: [comment("Maintainer note", 1, "MEMBER")] }).notes).toEqual([]);
   });
 
   it("an assignee means taken", () => {
