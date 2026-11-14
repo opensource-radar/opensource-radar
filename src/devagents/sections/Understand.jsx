@@ -6,6 +6,7 @@ import { fileUrl } from "../links";
 import { useAction } from "../useAction";
 import IssueCheck from "./IssueCheck";
 import ReadAloud from "../../components/ReadAloud";
+import ErrorHelp from "./ErrorHelp";
 
 const DIFFICULTY = { easy: "Easy", medium: "Medium", hard: "Hard" };
 
@@ -94,6 +95,7 @@ function Understand({ issue, onShare }) {
                   <li key={step}>{step}</li>
                 ))}
               </ol>
+              <ErrorHelp issue={issue} mode="setup" />
             </>
           )}
 

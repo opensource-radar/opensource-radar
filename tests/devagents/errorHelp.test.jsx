@@ -33,3 +33,15 @@ describe("ErrorHelp's next steps", () => {
     await screen.findByText(/check every command against the project's own docs/i);
   });
 });
+
+describe("ErrorHelp in setup mode", () => {
+  it("asks whether setup worked and shows the verdict", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => Response.json({ data: { worked: "no", meaning: "A package is missing.", nextSteps: [] } })));
+    render(<ErrorHelp issue={{ repo: "a/b", issue: 1 }} mode="setup" />);
+    fireEvent.change(screen.getByLabelText("What your terminal printed"), { target: { value: "ModuleNotFoundError" } });
+    fireEvent.click(screen.getByRole("button", { name: "Check my setup" }));
+    await screen.findByText("It doesn't look like it worked yet");
+    expect(JSON.parse(fetch.mock.calls[0][1].body)).toMatchObject({ mode: "setup", errorText: "ModuleNotFoundError" });
+    expect(screen.queryByText(/AI-written/)).toBeNull();
+  });
+});

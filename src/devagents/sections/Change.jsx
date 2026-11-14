@@ -43,6 +43,7 @@ function Change({ issue, language, shared }) {
         </span>
       </p>
       <GitCheatSheet repo={repo} number={number} language={language} />
+      <ErrorHelp issue={issue} mode="setup" />
       <ErrorHelp issue={issue} />
     </div>
   );
