@@ -56,6 +56,21 @@ body {
   }
 }
 
+/* The logo's blips flash as its sweep passes them (4s a turn, the line
+   starting at 315 degrees): blip 1 sits at 20 degrees, blip 2 at 150.
+   The radar-blip keyframes are defined with the footer radar below. */
+.radar-blip {
+  animation: radar-blip 4s linear infinite;
+}
+
+.radar-blip-1 {
+  animation-delay: -3.28s;
+}
+
+.radar-blip-2 {
+  animation-delay: -1.83s;
+}
+
 .navbar-brand:focus-visible {
   border-radius: 6px;
   outline: 2px solid var(--focus);
