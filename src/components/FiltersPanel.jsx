@@ -215,6 +215,18 @@ function FiltersPanel({ id, filters, onApply, onClose }) {
         </fieldset>
 
         <fieldset className="filter-group">
+          <legend>Also search</legend>
+          <label className="filter-option">
+            <input
+              type="checkbox"
+              checked={Boolean(draft.gitlab)}
+              onChange={(event) => update({ gitlab: event.target.checked })}
+            />
+            GitLab projects
+          </label>
+        </fieldset>
+
+        <fieldset className="filter-group">
           <legend>Comments</legend>
           {radios("comments", COMMENT_OPTIONS, draft.comments)}
         </fieldset>

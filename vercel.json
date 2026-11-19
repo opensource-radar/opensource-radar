@@ -21,6 +21,10 @@
       "destination": "/api/projects/about"
     },
     {
+      "source": "/api/gitlab",
+      "destination": "/api/projects/gitlab"
+    },
+    {
       "source": "/api/repos",
       "destination": "/api/projects/repos"
     },

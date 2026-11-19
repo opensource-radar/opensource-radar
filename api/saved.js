@@ -6,6 +6,7 @@ const MAX_SAVED = 200;
 const MAX_BODY_LENGTH = 400_000;
 
 const GITHUB_LOGIN = /^[A-Za-z0-9-]{1,39}$/;
+const GITLAB_USER = /^[\w.-]{1,60}$/;
 const text = (value, max) =>
   typeof value === "string" ? value.slice(0, max) : "";
 
@@ -14,8 +15,10 @@ const text = (value, max) =>
 function cleanIssue(issue) {
   if (!issue || !Number.isSafeInteger(issue.id)) return null;
 
+
   const url = text(issue.url, 300);
-  if (!url.startsWith("https://github.com/")) return null;
+  // GitHub issues, and GitLab ones from "Include GitLab projects".
+  if (!url.startsWith("https://github.com/") && !url.startsWith("https://gitlab.com/")) return null;
 
   return {
     id: issue.id,
@@ -30,7 +33,9 @@ function cleanIssue(issue) {
     url,
     updatedAt: text(issue.updatedAt, 40),
     number: Number.isSafeInteger(issue.number) && issue.number > 0 ? issue.number : null,
-    author: GITHUB_LOGIN.test(issue.author ?? "") ? issue.author : "",
+    author: (url.startsWith("https://gitlab.com/") ? GITLAB_USER : GITHUB_LOGIN).test(issue.author ?? "")
+      ? issue.author
+      : "",
     createdAt: text(issue.createdAt, 40),
     savedAt: Number.isFinite(issue.savedAt) ? issue.savedAt : Date.now(),
   };

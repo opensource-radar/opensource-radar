@@ -268,3 +268,17 @@ describe("regional language filter", () => {
     expect(INDIAN_LANGUAGE_CODES.every((code) => codes.includes(code))).toBe(true);
   });
 });
+
+describe("Include GitLab projects", () => {
+  it("is off by default and round-trips through the address", async () => {
+    const { DEFAULT_FILTERS, stateFromUrl, stateToUrl, activeFilterChips } = await import("../../src/lib/search.js");
+    expect(DEFAULT_FILTERS.gitlab).toBe(false);
+    const filters = { ...DEFAULT_FILTERS, gitlab: true };
+    const url = stateToUrl(filters, "", 1);
+    expect(url).toContain("gitlab=1");
+    expect(stateFromUrl(url).filters.gitlab).toBe(true);
+    const chip = activeFilterChips(filters).find((c) => c.key === "gitlab");
+    expect(chip.label).toBe("Including GitLab");
+    expect(chip.remove(filters).gitlab).toBe(false);
+  });
+});

@@ -17,6 +17,7 @@ import SearchBar from "./components/SearchBar";
 import KeyboardShortcuts from "./components/KeyboardShortcuts";
 import FollowedProjects from "./components/FollowedProjects";
 import WorkingReminder from "./components/WorkingReminder";
+import GitLabResults from "./components/GitLabResults";
 import { dueReminder, isWorkingOn, readWorking, snooze, stopWorking, toggleWorking, writeWorking } from "./lib/workingOn";
 import { isFollowing, readFollows, toggleFollow, writeFollows } from "./lib/follows";
 import { useKeyboardShortcuts } from "./lib/useKeyboardShortcuts";
@@ -239,6 +240,8 @@ function devAgentsActions(enabled, issue, onOpen) {
     </ErrorBoundary>
   );
 }
+
+const isGitLab = (issue) => typeof issue.url === "string" && issue.url.startsWith("https://gitlab.com/");
 
 const searchLimitMessage = (signedIn, signInAvailable) =>
   `GitHub is still limiting searches${signedIn ? "" : " on this network"}. Try again in a minute${
@@ -1188,10 +1191,16 @@ function App() {
                   createdAt={issue.createdAt}
                   saved={savedIds.has(issue.id)}
                   onToggleSave={() => toggleSaved(issue)}
+                  // Saved GitLab issues: no GitHub-only buttons.
+                  source={isGitLab(issue) ? "gitlab" : undefined}
                   following={isFollowing(follows, issue.repo)}
-                  onToggleFollow={() => toggleFollowRepo(issue.repo)}
+                  onToggleFollow={isGitLab(issue) ? undefined : () => toggleFollowRepo(issue.repo)}
                   workingOn={isWorkingOn(working, issue)}
-                  onToggleWorking={issue.number ? () => updateWorking((current) => toggleWorking(current, issue)) : undefined}
+                  onToggleWorking={
+                    issue.number && !isGitLab(issue)
+                      ? () => updateWorking((current) => toggleWorking(current, issue))
+                      : undefined
+                  }
                   project={withAbout(
                     withFriendliness(
                       projects[issue.repo.replace(" / ", "/")],
@@ -1209,6 +1218,17 @@ function App() {
               ))
             )}
           </div>
+
+          {route === "search" && view === "search" && search.page === 1 && search.filters.gitlab && (
+            <ErrorBoundary fallback={null}>
+              <GitLabResults
+                language={search.filters.language}
+                text={search.text}
+                savedIds={savedIds}
+                onToggleSave={toggleSaved}
+              />
+            </ErrorBoundary>
+          )}
 
           {!listMessage && totalPages > 1 && (
             <div className="pagination">

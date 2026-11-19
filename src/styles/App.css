@@ -2552,3 +2552,29 @@ body {
 .issue-card-links .issue-follow {
   font-size: inherit;
 }
+
+/* "From GitLab", under the GitHub results */
+.gitlab-results {
+  margin: 24px 0 8px;
+}
+
+.gitlab-results h2 {
+  margin: 0 0 4px;
+  font-size: 18px;
+}
+
+.gitlab-results-note {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.issue-source {
+  padding: 0 8px;
+  border: 1px solid var(--border-card);
+  border-radius: 999px;
+  color: #c2410c;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 20px;
+}
