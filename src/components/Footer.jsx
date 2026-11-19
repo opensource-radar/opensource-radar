@@ -60,6 +60,7 @@ function Footer({
   onShowSaved,
   onShowAbout,
   onShowReport,
+  onShowShortcuts,
 }) {
   return (
     <footer className="site-footer">
@@ -134,6 +135,11 @@ function Footer({
         <nav className="footer-column" aria-label="Help">
           <h2>Help</h2>
           <ul>
+            {onShowShortcuts && (
+              <li>
+                <FooterButton onClick={onShowShortcuts}>Keyboard shortcuts</FooterButton>
+              </li>
+            )}
             <li>
               <a className="footer-link" href={GUIDE_PATH}>
                 First contribution guide

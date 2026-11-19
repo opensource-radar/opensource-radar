@@ -2316,3 +2316,51 @@ body {
   font-size: 12px;
   white-space: nowrap;
 }
+
+/* Keyboard shortcuts: the card j/k moved to, and the list of keys */
+.issue-card:focus {
+  outline: none;
+}
+
+.issue-card:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.shortcuts-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+
+.shortcuts-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.shortcuts-row dt {
+  min-width: 2.5em;
+}
+
+.shortcuts-row dd {
+  margin: 0;
+}
+
+.shortcuts-list kbd {
+  display: inline-block;
+  min-width: 1.6em;
+  padding: 2px 7px;
+  border: 1px solid var(--border-input);
+  border-bottom-width: 2px;
+  border-radius: 6px;
+  background: var(--surface);
+  font: 600 13px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+  text-align: center;
+}
+
+.about-body .shortcuts-note {
+  margin: 16px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}

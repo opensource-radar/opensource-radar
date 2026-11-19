@@ -14,6 +14,8 @@ import SearchHelp from "./components/SearchHelp";
 import ProfilePage from "./components/ProfilePage";
 import SearchLimitNotice from "./components/SearchLimitNotice";
 import SearchBar from "./components/SearchBar";
+import KeyboardShortcuts from "./components/KeyboardShortcuts";
+import { useKeyboardShortcuts } from "./lib/useKeyboardShortcuts";
 import { friendliestFirst } from "./lib/friendliness";
 import { githubUrl } from "./lib/github";
 import { useAiAbouts, withAbout } from "./lib/projectAbout";
@@ -386,6 +388,7 @@ function App() {
   const requestedFriendliness = useRef(new Set());
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [projectsOpen, setProjectsOpen] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [recommendation, setRecommendation] = useState(null);
   // "search" or "saved": which list is shown.
   const [view, setView] = useState("search");
@@ -624,6 +627,8 @@ function App() {
     });
   };
 
+  const showShortcuts = () => setShortcutsOpen(true);
+
   const showAbout = () => {
     if (route === "about") return;
     window.history.pushState(null, "", ABOUT_PATH);
@@ -788,6 +793,9 @@ function App() {
     setRecommendation(null);
     setView("search");
   };
+
+  // "/" for search, j/k between issues, s to save, o to open, ? for the list.
+  useKeyboardShortcuts({ enabled: route === "search", onShowHelp: showShortcuts });
 
   const savedIds = new Set(savedIssues.map((issue) => issue.id));
   const chips = activeFilterChips(search.filters);
@@ -1185,6 +1193,8 @@ function App() {
         )}
         {route === "search" && view === "search" && <SearchHelp languagePage={languagePage} />}
 
+        {shortcutsOpen && <KeyboardShortcuts onClose={() => setShortcutsOpen(false)} />}
+
         {projectsOpen && (
           <ProjectsDialog
             language={search.filters.language}
@@ -1207,6 +1217,7 @@ function App() {
         onShowSaved={showSaved}
         onShowAbout={showAbout}
         onShowReport={() => navMenuRef.current?.showReport()}
+        onShowShortcuts={showShortcuts}
       />
     </>
   );
