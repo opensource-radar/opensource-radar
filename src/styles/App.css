@@ -42,6 +42,20 @@ body {
   color: var(--success);
 }
 
+/* The logo's sweep turns like a real radar. The reduced-motion rule
+   further down stops it for people who ask for less movement. */
+.radar-sweep {
+  transform-box: view-box;
+  transform-origin: center;
+  animation: radar-sweep 4s linear infinite;
+}
+
+@keyframes radar-sweep {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .navbar-brand:focus-visible {
   border-radius: 6px;
   outline: 2px solid var(--focus);
@@ -1496,6 +1510,37 @@ body {
   color: var(--success);
   opacity: 0.38;
   pointer-events: none;
+}
+
+/* The footer radar sweeps slowly; each blip flashes as the line passes it.
+   The delays line the flash up with the sweep (8s a turn, line starting
+   at 135 degrees): blip 1 sits at about 151 degrees, blip 2 at about 115. */
+.footer-radar-sweep {
+  transform-box: view-box;
+  transform-origin: center;
+  animation: radar-sweep 8s linear infinite;
+}
+
+.footer-radar-blip {
+  animation: radar-blip 8s linear infinite;
+}
+
+.footer-radar-blip-1 {
+  animation-delay: -7.64s;
+}
+
+.footer-radar-blip-2 {
+  animation-delay: -0.45s;
+}
+
+@keyframes radar-blip {
+  0% {
+    opacity: 1;
+  }
+  60%,
+  100% {
+    opacity: 0.2;
+  }
 }
 
 .footer-top {
