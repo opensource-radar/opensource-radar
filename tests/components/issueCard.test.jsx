@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import IssueCard from "../../src/components/IssueCard.jsx";
 import { toIssue } from "../../src/lib/search.js";
 
@@ -79,5 +79,24 @@ describe("time estimate on the card", () => {
     const chip = screen.getByText("~30 min").closest(".issue-estimate");
     expect(chip.getAttribute("title")).toMatch(/rough guess/);
     expect(chip.textContent).toBe("Estimated time: ~30 min");
+  });
+});
+
+describe("Follow project", () => {
+  it("follows and shows when the project is followed", () => {
+    const onToggleFollow = vi.fn();
+    const issue = toIssue(apiItem);
+    const { rerender } = render(<IssueCard {...issue} following={false} onToggleFollow={onToggleFollow} />);
+    const button = screen.getByRole("button", { name: "Follow a / b" });
+    expect(button.getAttribute("aria-pressed")).toBe("false");
+    fireEvent.click(button);
+    expect(onToggleFollow).toHaveBeenCalled();
+    rerender(<IssueCard {...issue} following onToggleFollow={onToggleFollow} />);
+    expect(screen.getByRole("button", { name: "Stop following a / b" }).textContent).toBe("Following");
+  });
+
+  it("has no follow button where following isn't offered", () => {
+    render(<IssueCard {...toIssue(apiItem)} />);
+    expect(screen.queryByRole("button", { name: /Follow/ })).toBeNull();
   });
 });

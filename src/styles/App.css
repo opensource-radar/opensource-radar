@@ -2364,3 +2364,135 @@ body {
   color: var(--muted);
   font-size: 13px;
 }
+
+/* "New in projects you follow", above the results */
+.followed {
+  margin: 0 0 16px;
+  padding: 16px;
+  border: 1px solid var(--border-card);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.followed-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+  margin-bottom: 8px;
+}
+
+.followed-header h2 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 15px;
+}
+
+.followed-header h2 svg {
+  color: var(--success);
+}
+
+.followed-count {
+  color: var(--success);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.followed-message {
+  margin: 4px 0 8px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.followed-list {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+}
+
+.followed-list li {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.followed-title {
+  color: var(--text);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.followed-title:hover {
+  text-decoration: underline;
+}
+
+.followed-meta {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.followed-new {
+  display: inline-block;
+  margin-right: 6px;
+  vertical-align: 1px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--success);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  text-transform: uppercase;
+}
+
+.followed-projects {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.followed-projects-label {
+  color: var(--muted);
+}
+
+.followed-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 1px 2px 1px 8px;
+  border: 1px solid var(--border-card);
+  border-radius: 999px;
+}
+
+.followed-chip-remove {
+  display: inline-flex;
+  padding: 3px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.followed-chip-remove:hover,
+.followed-chip-remove:focus-visible {
+  color: var(--text);
+  background: var(--border-card);
+}
+
+.followed-chip-remove svg {
+  width: 12px;
+  height: 12px;
+}
+
+.issue-follow.is-following {
+  color: var(--success);
+  font-weight: 600;
+}

@@ -58,6 +58,8 @@ function IssueCard({
   author,
   createdAt,
   onReport,
+  following,
+  onToggleFollow,
 }) {
   const [guideOpen, setGuideOpen] = useState(false);
   const preview = previewText(description);
@@ -157,6 +159,17 @@ function IssueCard({
             >
               Contributing guide
             </a>
+          )}
+          {onToggleFollow && (
+            <button
+              type="button"
+              className={`text-button issue-follow${following ? " is-following" : ""}`}
+              aria-pressed={Boolean(following)}
+              aria-label={following ? `Stop following ${repo}` : `Follow ${repo}`}
+              onClick={onToggleFollow}
+            >
+              {following ? "Following" : "Follow project"}
+            </button>
           )}
           <a href={url} target="_blank" rel="noopener noreferrer">
             View issue ↗
