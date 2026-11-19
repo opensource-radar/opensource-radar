@@ -15,6 +15,8 @@ import ProfilePage from "./components/ProfilePage";
 import SearchLimitNotice from "./components/SearchLimitNotice";
 import SearchBar from "./components/SearchBar";
 import KeyboardShortcuts from "./components/KeyboardShortcuts";
+import FollowedProjects from "./components/FollowedProjects";
+import { isFollowing, readFollows, toggleFollow, writeFollows } from "./lib/follows";
 import { useKeyboardShortcuts } from "./lib/useKeyboardShortcuts";
 import { friendliestFirst } from "./lib/friendliness";
 import { githubUrl } from "./lib/github";
@@ -389,6 +391,10 @@ function App() {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [projectsOpen, setProjectsOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const [follows, setFollows] = useState(readFollows);
+  const toggleFollowRepo = (repo) => setFollows((current) => writeFollows(toggleFollow(current, repo)));
+  const markFollowsSeen = () =>
+    setFollows((current) => writeFollows({ ...current, lastVisit: new Date().toISOString() }));
   const [recommendation, setRecommendation] = useState(null);
   // "search" or "saved": which list is shown.
   const [view, setView] = useState("search");
@@ -1119,6 +1125,27 @@ function App() {
             </p>
           )}
 
+          {route === "search" && view === "search" && search.page === 1 && follows.repos.length > 0 && (
+            <ErrorBoundary fallback={null}>
+              <FollowedProjects
+                repos={follows.repos}
+                lastVisit={follows.lastVisit}
+                signedIn={signedIn}
+                ready={account.checked}
+                onUnfollow={toggleFollowRepo}
+                onSeen={markFollowsSeen}
+                onOpenHelp={(issue) =>
+                  showHelp({
+                    repo: issue.repo.replace(" / ", "/"),
+                    issue: issue.number,
+                    title: issue.title,
+                    language: issue.language,
+                  })
+                }
+              />
+            </ErrorBoundary>
+          )}
+
           <div className="issues-list">
             {view === "search" && results.status === "waiting" ? (
               <SearchLimitNotice
@@ -1145,6 +1172,8 @@ function App() {
                   createdAt={issue.createdAt}
                   saved={savedIds.has(issue.id)}
                   onToggleSave={() => toggleSaved(issue)}
+                  following={isFollowing(follows, issue.repo)}
+                  onToggleFollow={() => toggleFollowRepo(issue.repo)}
                   project={withAbout(
                     withFriendliness(
                       projects[issue.repo.replace(" / ", "/")],
