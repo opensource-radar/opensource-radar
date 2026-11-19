@@ -6,10 +6,14 @@ import ErrorBoundary from './components/ErrorBoundary.jsx'
 import { Analytics } from '@vercel/analytics/react'
 import { withoutSearchText } from './lib/analytics.js'
 import { listenForInstallPrompt, registerServiceWorker } from './lib/installApp.js'
+import { startTabIcon } from './lib/tabIcon.js'
 
 // Lets the menu offer "Install app", and shows an offline page with no connection.
 listenForInstallPrompt()
 registerServiceWorker()
+
+// The radar in the browser tab turns like the logo on the page.
+startTabIcon()
 
 const crashMessage = (
   <main className="empty-state" role="alert">
