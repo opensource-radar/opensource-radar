@@ -41,10 +41,14 @@ function RadarCorner() {
         <circle cx="150" cy="150" r="100" />
         <circle cx="150" cy="150" r="148" />
       </g>
-      <path d="M150 150 L45 255 A148 148 0 0 1 8 190 Z" fill="currentColor" opacity=".3" />
-      <path d="M150 150 L45 255" stroke="currentColor" strokeWidth="1.5" />
-      <circle cx="86" cy="185" r="3.5" fill="currentColor" />
-      <circle cx="112" cy="232" r="3" fill="currentColor" />
+      {/* The trail sits behind the line, so the sweep turns clockwise like the logo's. */}
+      <g className="footer-radar-sweep">
+        <path d="M150 150 L45 255 A148 148 0 0 0 109 292 Z" fill="currentColor" opacity=".3" />
+        <path d="M150 150 L45 255" stroke="currentColor" strokeWidth="1.5" />
+      </g>
+      {/* Each blip lights up as the sweep passes it, then fades. */}
+      <circle className="footer-radar-blip footer-radar-blip-1" cx="86" cy="185" r="3.5" fill="currentColor" />
+      <circle className="footer-radar-blip footer-radar-blip-2" cx="112" cy="232" r="3" fill="currentColor" />
     </svg>
   );
 }
