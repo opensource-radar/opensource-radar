@@ -1,0 +1,31 @@
+{
+  "manifest_version": 3,
+  "name": "OpenSource Radar",
+  "short_name": "Radar",
+  "version": "1.0.0",
+  "description": "On any GitHub issue: how beginner-friendly the project is, whether the issue is still free, and step-by-step help to your first PR.",
+  "homepage_url": "https://opensource-radar.com",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://github.com/*/*"],
+      "js": ["lib.js", "content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["icons/icon-32.png"],
+      "matches": ["https://github.com/*"]
+    }
+  ],
+  "host_permissions": ["https://opensource-radar.com/*", "https://api.github.com/*"]
+}
