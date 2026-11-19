@@ -16,10 +16,12 @@ const dateFormat = new Intl.DateTimeFormat(undefined, {
 const GITHUB_LOGIN = /^[A-Za-z0-9-]{1,39}$/;
 
 // "#123 opened by octocat on 2 Nov 2026", or as much of it as is known.
-function OpenedLine({ number, author, createdAt }) {
+const GITLAB_USER = /^[\w.-]{1,60}$/;
+
+function OpenedLine({ number, author, createdAt, gitlab }) {
   const created = createdAt ? new Date(createdAt) : null;
   const hasDate = created && !Number.isNaN(created.getTime());
-  const hasAuthor = typeof author === "string" && GITHUB_LOGIN.test(author);
+  const hasAuthor = typeof author === "string" && (gitlab ? GITLAB_USER : GITHUB_LOGIN).test(author);
   if (!number && !hasAuthor && !hasDate) return null;
 
   return (
@@ -29,7 +31,7 @@ function OpenedLine({ number, author, createdAt }) {
       {hasAuthor && (
         <>
           {" by "}
-          <a href={`https://github.com/${author}`} target="_blank" rel="noopener noreferrer">
+          <a href={`https://${gitlab ? "gitlab" : "github"}.com/${author}`} target="_blank" rel="noopener noreferrer">
             {author}
           </a>
         </>
@@ -62,6 +64,7 @@ function IssueCard({
   onToggleFollow,
   workingOn,
   onToggleWorking,
+  source,
 }) {
   const [guideOpen, setGuideOpen] = useState(false);
   const preview = previewText(description);
@@ -97,6 +100,7 @@ function IssueCard({
           )}
         </div>
         <div className="issue-card-meta">
+          {source === "gitlab" && <span className="issue-source">GitLab</span>}
           {language && <span className="issue-language">{language}</span>}
           {onToggleSave && (
             <button
@@ -114,7 +118,7 @@ function IssueCard({
       </div>
 
       <h2>{title}</h2>
-      <OpenedLine number={number} author={author} createdAt={createdAt} />
+      <OpenedLine number={number} author={author} createdAt={createdAt} gitlab={source === "gitlab"} />
       {project?.about && (
         <p className="issue-card-about">
           <span className="sr-only">About the project: </span>

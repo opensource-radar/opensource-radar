@@ -56,7 +56,7 @@ function vercelFunctions() {
           .replace(/^\/api\/(flags|issue-draft)$/, '/api/projects/$1')
           .replace(/^\/auth\//, '/api/auth/')
           // vercel.json sends these to one shared function, api/projects/[kind].js.
-          .replace(/^\/api\/(repos|friendliness|badge|label-health|about)$/, '/api/projects/$1')
+          .replace(/^\/api\/(repos|friendliness|badge|label-health|about|gitlab)$/, '/api/projects/$1')
 
         // Lowercase segments only: no "..", and "_lib" helpers stay private.
         if (!/^\/api(\/[a-z0-9-]+)+$/.test(route)) return next()

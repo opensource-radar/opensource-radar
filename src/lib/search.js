@@ -68,6 +68,7 @@ export const DEFAULT_FILTERS = {
   regional: "",
   project: "",
   popular: false,
+  gitlab: false,
   sort: "updated",
 };
 
@@ -218,7 +219,7 @@ export function popularReposPath(filters) {
 export function stateFromUrl(search) {
   const params = new URLSearchParams(search);
   const known = ["q", "labels", "available", "nopr", "comments", "updated",
-    "lang", "region", "project", "popular", "sort", "page"];
+    "lang", "region", "project", "popular", "gitlab", "sort", "page"];
   if (!known.some((key) => params.has(key))) {
     return { filters: DEFAULT_FILTERS, text: "", page: 1 };
   }
@@ -242,6 +243,7 @@ export function stateFromUrl(search) {
       regional: spokenLanguage(regional) ? regional : "",
       project: isValidProject(project) ? project : "",
       popular: params.get("popular") === "1",
+      gitlab: params.get("gitlab") === "1",
       sort: pick("sort", SORT_OPTIONS, "updated"),
     },
     text: (params.get("q") || "").slice(0, MAX_TEXT_LENGTH),
@@ -285,6 +287,7 @@ export function stateToUrl(filters, text, page) {
   if (filters.regional) params.set("region", filters.regional);
   if (filters.project) params.set("project", filters.project);
   if (filters.popular) params.set("popular", "1");
+  if (filters.gitlab) params.set("gitlab", "1");
   if (filters.sort !== "updated") params.set("sort", filters.sort);
   if (page > 1) params.set("page", String(page));
   return `?${params}`;
@@ -317,6 +320,7 @@ export function activeFilterChips(filters) {
   add(Boolean(filters.regional), "regional", `Mentions ${regionalName(filters.regional)}`, { regional: "" });
   add(Boolean(filters.project), "project", filters.project, { project: "" });
   add(filters.popular && !filters.project, "popular", "Popular projects only", { popular: false });
+  add(filters.gitlab, "gitlab", "Including GitLab", { gitlab: false });
 
   return chips;
 }
