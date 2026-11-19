@@ -19,6 +19,14 @@ export default defineConfig([
     },
   },
   {
+    // The browser extension: content scripts and a service worker.
+    files: ['extension/**/*.js'],
+    languageOptions: {
+      sourceType: 'script',
+      globals: { ...globals.browser, ...globals.serviceworker, ...globals.webextensions },
+    },
+  },
+  {
     // Server-side code: Vercel Functions, build scripts, tests and the Vite config run in Node.
     files: ['api/**/*.js', 'scripts/**/*.js', 'tests/**/*.js', 'vite.config.js'],
     languageOptions: {

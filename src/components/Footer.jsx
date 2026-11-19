@@ -135,6 +135,9 @@ function Footer({
         <nav className="footer-column" aria-label="Help">
           <h2>Help</h2>
           <ul>
+            <li>
+              <ExternalLink href={`${REPO_URL}/tree/main/extension`}>Browser extension</ExternalLink>
+            </li>
             {onShowShortcuts && (
               <li>
                 <FooterButton onClick={onShowShortcuts}>Keyboard shortcuts</FooterButton>
