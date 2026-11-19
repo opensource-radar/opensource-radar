@@ -2496,3 +2496,59 @@ body {
   color: var(--success);
   font-weight: 600;
 }
+
+/* "Still working on this?" check-in, above the results */
+.working-reminder {
+  margin: 0 0 16px;
+  padding: 16px;
+  border: 1px solid var(--notice-border);
+  border-radius: 12px;
+  background: var(--notice-bg);
+  color: var(--notice-text);
+}
+
+.working-reminder h2 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+
+.working-reminder p {
+  margin: 0 0 8px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.working-reminder-issue a {
+  color: inherit;
+  font-weight: 600;
+}
+
+.working-reminder-tip {
+  opacity: 0.85;
+}
+
+.working-reminder-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.working-reminder-actions a.secondary-button {
+  text-decoration: none;
+}
+
+.issue-working.is-working {
+  color: var(--success);
+  font-weight: 600;
+}
+
+/* Card buttons sit in the same row as the card's links, at the same size. */
+.issue-card-links .issue-working,
+.issue-card-links .issue-follow {
+  font-size: inherit;
+}

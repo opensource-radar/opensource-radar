@@ -16,6 +16,8 @@ import SearchLimitNotice from "./components/SearchLimitNotice";
 import SearchBar from "./components/SearchBar";
 import KeyboardShortcuts from "./components/KeyboardShortcuts";
 import FollowedProjects from "./components/FollowedProjects";
+import WorkingReminder from "./components/WorkingReminder";
+import { dueReminder, isWorkingOn, readWorking, snooze, stopWorking, toggleWorking, writeWorking } from "./lib/workingOn";
 import { isFollowing, readFollows, toggleFollow, writeFollows } from "./lib/follows";
 import { useKeyboardShortcuts } from "./lib/useKeyboardShortcuts";
 import { friendliestFirst } from "./lib/friendliness";
@@ -393,6 +395,9 @@ function App() {
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [follows, setFollows] = useState(readFollows);
   const toggleFollowRepo = (repo) => setFollows((current) => writeFollows(toggleFollow(current, repo)));
+  const [working, setWorking] = useState(readWorking);
+  const updateWorking = (change) => setWorking((current) => writeWorking(change(current)));
+  const workingReminder = dueReminder(working);
   const markFollowsSeen = () =>
     setFollows((current) => writeFollows({ ...current, lastVisit: new Date().toISOString() }));
   const [recommendation, setRecommendation] = useState(null);
@@ -1125,6 +1130,17 @@ function App() {
             </p>
           )}
 
+          {route === "search" && view === "search" && search.page === 1 && workingReminder && (
+            <WorkingReminder
+              entry={workingReminder}
+              onStillOn={(entry) => updateWorking((current) => snooze(current, entry))}
+              onLetGo={(entry) => updateWorking((current) => stopWorking(current, entry))}
+              onOpenHelp={(entry) =>
+                showHelp({ repo: entry.repo.replace(" / ", "/"), issue: entry.number, title: entry.title })
+              }
+            />
+          )}
+
           {route === "search" && view === "search" && search.page === 1 && follows.repos.length > 0 && (
             <ErrorBoundary fallback={null}>
               <FollowedProjects
@@ -1174,6 +1190,8 @@ function App() {
                   onToggleSave={() => toggleSaved(issue)}
                   following={isFollowing(follows, issue.repo)}
                   onToggleFollow={() => toggleFollowRepo(issue.repo)}
+                  workingOn={isWorkingOn(working, issue)}
+                  onToggleWorking={issue.number ? () => updateWorking((current) => toggleWorking(current, issue)) : undefined}
                   project={withAbout(
                     withFriendliness(
                       projects[issue.repo.replace(" / ", "/")],

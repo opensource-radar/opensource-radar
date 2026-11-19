@@ -60,6 +60,8 @@ function IssueCard({
   onReport,
   following,
   onToggleFollow,
+  workingOn,
+  onToggleWorking,
 }) {
   const [guideOpen, setGuideOpen] = useState(false);
   const preview = previewText(description);
@@ -159,6 +161,17 @@ function IssueCard({
             >
               Contributing guide
             </a>
+          )}
+          {onToggleWorking && (
+            <button
+              type="button"
+              className={`text-button issue-working${workingOn ? " is-working" : ""}`}
+              aria-pressed={Boolean(workingOn)}
+              title={workingOn ? "Radar will check in after a few days. Tap to stop tracking." : "Radar checks in after a few days"}
+              onClick={onToggleWorking}
+            >
+              {workingOn ? "Working on it ✓" : "I’m working on this"}
+            </button>
           )}
           {onToggleFollow && (
             <button
